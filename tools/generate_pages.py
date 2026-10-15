@@ -91,6 +91,11 @@ def main():
     if not regions:
         raise SystemExit("data/regions.json에 지역을 입력해야 합니다.")
     urls = {SITE_URL + "/"}
+    # Keep hand-authored specialist transport landing pages in the sitemap.
+    special_root = ROOT / "special"
+    if special_root.exists():
+        for special_page in special_root.glob("*/index.html"):
+            urls.add(f"{SITE_URL}/special/{special_page.parent.name}/")
     count = 0
     for r in regions:
         name = r["name"]
