@@ -27,6 +27,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.x"
+      - name: Download official nationwide legal-dong CSV
+        run: |
+          mkdir -p data
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003687312&fileDetailSn=1' \
+            --output data/official_legal_dong.csv
+          test "$(wc -c < data/official_legal_dong.csv)" -gt 100000
+          head -n 1 data/official_legal_dong.csv
+      - name: Import nationwide regions
+        run: python tools/import_official_regions.py
       - name: Generate regional pages
         run: python tools/generate_pages.py
       - name: Configure Pages
