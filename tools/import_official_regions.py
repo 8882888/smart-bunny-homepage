@@ -82,7 +82,7 @@ def main():
             continue
         slug = "/".join(slugify(p) for p in parts) + "/" + code
         level = "리" if ri else ("읍·면·동" if umd else ("시·군·구" if sgg else "시·도"))
-        parent = " ".join(p for p in (sido, sgg, umd) if p and p != (ri or ""))
+        parent = " ".join(parts[:-1])
         display_name = ri or umd or sgg or sido
         key = slug
         regions[key] = {
