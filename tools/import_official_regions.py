@@ -30,7 +30,7 @@ def slugify(value):
         "경상북도":"gyeongbuk","경상남도":"gyeongnam","제주특별자치도":"jeju",
         "전남광주통합특별시":"jeonnam-gwangju"
     }
-    return table.get(value, re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-") or "area")
+    return table.get(value, re.sub(r"[^가-힣a-zA-Z0-9]+", "-", value).strip("-") or "area")
 
 def read_rows(path):
     errors = []
@@ -80,7 +80,7 @@ def main():
         parts = [p for p in parts if p]
         if not parts:
             continue
-        slug = "/".join(slugify(p) for p in parts)
+        slug = "/".join(slugify(p) for p in parts) + "/" + code
         level = "리" if ri else ("읍·면·동" if umd else ("시·군·구" if sgg else "시·도"))
         parent = " ".join(p for p in (sido, sgg, umd) if p and p != (ri or ""))
         display_name = ri or umd or sgg or sido
