@@ -1,0 +1,59 @@
+name: Generate keyword catalog for review
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Maximum unique keyword candidates (up to 100000)"
+        required: true
+        default: "100000"
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Download official nationwide legal-dong CSV
+        run: |
+          mkdir -p data
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.data.go.kr/cmm/cmm/fileDownload.do?atchFileId=FILE_000000003687312&fileDetailSn=1' \
+            --output data/official_legal_dong.csv
+          test "$(wc -c < data/official_legal_dong.csv)" -gt 100000
+
+      - name: Import and validate nationwide regions
+        run: |
+          python tools/import_official_regions.py
+          python tools/validate_region_data.py
+
+      - name: Generate review-only keyword CSV
+        run: |
+          python tools/generate_keyword_catalog.py --limit "${{ inputs.limit }}" --output /tmp/keyword_catalog.csv
+          test -s /tmp/keyword_catalog.csv
+          python - <<'PY'
+          import csv
+          path = "/tmp/keyword_catalog.csv"
+          with open(path, encoding="utf-8-sig", newline="") as f:
+              rows = list(csv.DictReader(f))
+          print(f"Unique keyword candidates: {len(rows):,}")
+          print("Public pages published: 0 (manual review required)")
+          PY
+
+      - name: Upload keyword catalog for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: smart-bunny-keyword-catalog
+          path: /tmp/keyword_catalog.csv
+          if-no-files-found: error
+          retention-days: 14
