@@ -13,7 +13,15 @@ from pathlib import Path
 ROOT = Path(".")
 SOURCE = ROOT / "data" / "official_legal_dong.csv"
 TARGET = ROOT / "data" / "regions.json"
-SERVICES = ["daeri", "taksong", "long-distance-taksong"]
+# Keep this list in sync with tools/validate_region_data.py and the page generator.
+SERVICES = [
+    "daeri",
+    "24h-daeri",
+    "corporate-daeri",
+    "golf-daeri",
+    "taksong",
+    "long-distance-taksong",
+]
 
 def clean(value):
     return re.sub(r"\s+", " ", (value or "").strip())
@@ -33,13 +41,12 @@ def slugify(value):
     return table.get(value, re.sub(r"[^가-힣a-zA-Z0-9]+", "-", value).strip("-") or "area")
 
 def read_rows(path):
-    errors = []
     for encoding in ("utf-8-sig", "cp949", "euc-kr"):
         try:
             with path.open("r", encoding=encoding, newline="") as f:
                 return list(csv.DictReader(f))
-        except UnicodeDecodeError as exc:
-            errors.append(str(exc))
+        except UnicodeDecodeError:
+            continue
     raise SystemExit("CSV 인코딩을 읽을 수 없습니다. 공공데이터포털에서 CSV 파일을 다시 내려받아 주세요.")
 
 def main():
@@ -74,18 +81,14 @@ def main():
         code = clean(row.get(code_col))
         if not sido or not code:
             continue
-        # Ignore summary-level records with no locality only if a more specific row
-        # exists; preserve city/county/district landing pages as useful parent pages.
-        parts = [sido, sgg, umd, ri]
-        parts = [p for p in parts if p]
+        parts = [p for p in [sido, sgg, umd, ri] if p]
         if not parts:
             continue
         slug = "/".join(slugify(p) for p in parts) + "/" + code
         level = "리" if ri else ("읍·면·동" if umd else ("시·군·구" if sgg else "시·도"))
         parent = " ".join(parts[:-1])
         display_name = ri or umd or sgg or sido
-        key = slug
-        regions[key] = {
+        regions[slug] = {
             "name": display_name,
             "slug": slug,
             "level": level,
@@ -93,7 +96,6 @@ def main():
             "legal_dong_code": code,
             "services": SERVICES
         }
-    # Prefer a predictable, repeatable order and keep code metadata for future refreshes.
     ordered = sorted(regions.values(), key=lambda r: (r["slug"], r["legal_dong_code"]))
     output = {
         "schema_version": 2,
