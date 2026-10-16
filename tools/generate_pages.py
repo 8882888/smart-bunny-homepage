@@ -4,6 +4,7 @@ import json
 import html
 from pathlib import Path
 from datetime import date
+from urllib.parse import quote, urlsplit, urlunsplit
 
 ROOT = Path(".")
 DATA = ROOT / "data" / "regions.json"
@@ -210,7 +211,11 @@ def main():
     directory_path.write_text(page("전국 대리운전·자동차탁송 지역 안내 | " + BRAND, "전국 시·도별 대리운전·자동차탁송·장거리탁송 지역 안내. 대표 전화 " + PHONE + ".", directory_body, directory_url), encoding="utf-8")
     urls.add(directory_url)
 
-    entries = "\n".join(f"  <url><loc>{esc(url)}</loc></url>" for url in sorted(urls))
+    def sitemap_safe_url(url):
+        parts = urlsplit(url)
+        encoded_path = quote(parts.path, safe="/-._~")
+        return urlunsplit((parts.scheme, parts.netloc, encoded_path, parts.query, parts.fragment))
+    entries = "\n".join(f"  <url><loc>{esc(sitemap_safe_url(url))}</loc></url>" for url in sorted(urls))
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + entries + "\n</urlset>\n", encoding="utf-8")
     print(f"Generated {count} pages from {len(regions)} region records.")
     print("Nationwide expansion requires verified administrative-area data and useful region-specific details.")
