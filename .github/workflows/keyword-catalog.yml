@@ -24,6 +24,21 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Validate requested keyword limit
+        env:
+          KEYWORD_LIMIT: ${{ inputs.limit }}
+        run: |
+          python - <<'PY'
+          import os
+          try:
+              limit = int(os.environ["KEYWORD_LIMIT"])
+          except ValueError:
+              raise SystemExit("Keyword limit must be an integer.")
+          if not 1 <= limit <= 100000:
+              raise SystemExit("Keyword limit must be between 1 and 100000.")
+          print(f"Requested keyword limit: {limit:,}")
+          PY
+
       - name: Download official nationwide legal-dong CSV
         run: |
           mkdir -p data
