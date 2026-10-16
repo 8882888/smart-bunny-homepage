@@ -55,9 +55,42 @@ main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28p
 <a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
 <main><p>완료 운행 기록 · 개인정보 비공개</p><h1>실제 운행 후기</h1>
 <p>확인된 완료 운행 자료 중 운행일, 출발 시간, 출발지, 도착지, 금액만 공개합니다. 고객 이름, 전화번호, 주민등록번호 등 개인정보는 공개하지 않습니다.</p>
-{table}
+<div id="live-review-status" class="small" role="status">완료 운행 후기를 확인하고 있습니다.</div>
+<div id="review-table">{table}</div>
 <p><a class="btn" href="/smart-bunny-homepage/">홈페이지 첫 화면</a><a class="btn" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer">카카오톡 상담</a></p>
-</main><footer>{BRAND}<br>대표 상담 전화: {PHONE}</footer></body></html>""", encoding="utf-8")
+</main><footer>{BRAND}<br>대표 상담 전화: {PHONE}</footer>
+<script src="../supabase-public-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async function () {{
+  const cfg = window.SMART_BUNNY_SUPABASE;
+  const status = document.getElementById("live-review-status");
+  const container = document.getElementById("review-table");
+  if (!cfg || !cfg.url || !cfg.anonKey || !window.supabase) {{
+    status.textContent = "현재 공개된 완료 운행 기록을 표시하고 있습니다.";
+    return;
+  }}
+  const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}}[c]));
+  try {{
+    const client = window.supabase.createClient(cfg.url, cfg.anonKey);
+    const {{data, error}} = await client.from("completed_trip_reviews")
+      .select('"운행일","출발 시간","출발지","도착지","금액"')
+      .order("운행일", {{ascending:false}})
+      .order("출발 시간", {{ascending:false}})
+      .limit(1000);
+    if (error) throw error;
+    if (!data || data.length === 0) {{
+      container.innerHTML = '<div class="empty"><h2>등록된 운행 후기가 아직 없습니다.</h2><p>확인된 완료 운행 자료를 정리한 뒤 이곳에 공개합니다.</p></div>';
+    }} else {{
+      const rows = data.map(t => '<tr><td>'+esc(t["운행일"])+'</td><td>'+esc(String(t["출발 시간"]).slice(0,5))+'</td><td>'+esc(t["출발지"])+'</td><td>'+esc(t["도착지"])+'</td><td class="amount">'+Number(t["금액"]).toLocaleString("ko-KR")+'원</td></tr>').join("");
+      container.innerHTML = '<div class="table-wrap"><table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    }}
+    status.textContent = "완료된 운행 기록 · 개인정보 비공개";
+  }} catch (e) {{
+    status.textContent = "실시간 후기 연결을 확인할 수 없어 현재 공개 페이지 자료를 표시합니다.";
+  }}
+}})();
+</script></body></html>""", encoding="utf-8")
     print(f"운행 후기 페이지 생성 완료: {len(trips):,}건")
 
 if __name__ == "__main__":
