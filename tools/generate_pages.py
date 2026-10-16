@@ -99,6 +99,14 @@ def main():
         for special_page in special_root.glob("*/index.html"):
             urls.add(f"{SITE_URL}/special/{special_page.parent.name}/")
     count = 0
+    location_by_name = {}
+    children_by_parent = {}
+    for item in regions:
+        full_name = " ".join(part for part in [item.get("parent_name", ""), item["name"]] if part).strip()
+        location_by_name[full_name] = item
+        parent_name = item.get("parent_name", "")
+        if parent_name:
+            children_by_parent.setdefault(parent_name, []).append(item)
     for r in regions:
         name = r["name"]
         slug = r["slug"].strip("/")
@@ -107,6 +115,17 @@ def main():
         location = f"{parent} {name}".strip()
         region_url = f"{SITE_URL}/region/{slug}/"
         urls.add(region_url)
+        child_items = sorted(children_by_parent.get(location, []), key=lambda x: (x.get("level", ""), x.get("name", "")))
+        child_links = "".join(
+            f'<li><a href="/smart-bunny-homepage/region/{esc(item["slug"].strip("/"))}/">{esc(item["name"])} ({esc(item.get("level", "지역"))})</a></li>'
+            for item in child_items
+        )
+        child_section = f'<h2>하위 행정구역</h2><ul>{child_links}</ul>' if child_items else ""
+        parent_item = location_by_name.get(parent)
+        parent_section = (
+            f'<p><a href="/smart-bunny-homepage/region/{esc(parent_item["slug"].strip("/"))}/">← {esc(parent)} 상위 지역으로</a></p>'
+            if parent_item and parent_item.get("slug", "").strip("/") != slug else ""
+        )
         local_services = r.get("services", [s["slug"] for s in SERVICES])
         links = []
         for s in SERVICES:
