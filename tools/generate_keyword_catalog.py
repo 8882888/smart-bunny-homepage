@@ -54,8 +54,8 @@ def main():
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--limit", type=int, default=100000)
     args = parser.parse_args()
-    if args.limit < 1:
-        parser.error("--limit must be at least 1")
+    if args.limit < 1 or args.limit > 100000:
+        parser.error("--limit must be between 1 and 100000")
 
     source = json.loads(Path(args.input).read_text(encoding="utf-8"))
     regions = source.get("regions", [])
