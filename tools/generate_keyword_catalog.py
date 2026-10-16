@@ -66,7 +66,7 @@ def main():
     def add(keyword, category, region="", parent="", kind="서비스 조합"):
         keyword = clean(keyword)
         key = keyword.casefold()
-        if not keyword or key in candidates:
+        if not keyword or key in candidates or len(candidates) >= args.limit:
             return
         candidates[key] = {
             "keyword": keyword,
