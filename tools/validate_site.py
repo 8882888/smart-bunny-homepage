@@ -19,8 +19,8 @@ def main():
         raise SystemExit("필수 파일 누락: " + ", ".join(missing))
 
     html_files = list(ROOT.rglob("*.html"))
-    if len(html_files) > 100000:
-        raise SystemExit(f"GitHub Pages 정적 파일 수 제한을 넘을 수 있습니다: HTML {len(html_files)}개")
+    if len(html_files) > 160000:
+        raise SystemExit(f"지역별 서비스 확장 안전 한도를 넘습니다: HTML {len(html_files)}개")
 
     tree = ET.parse(ROOT / "sitemap.xml")
     namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
