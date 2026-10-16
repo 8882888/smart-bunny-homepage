@@ -94,6 +94,8 @@ def main():
     # Keep hand-authored specialist transport landing pages in the sitemap.
     special_root = ROOT / "special"
     if special_root.exists():
+        if (special_root / "index.html").exists():
+            urls.add(f"{SITE_URL}/special/")
         for special_page in special_root.glob("*/index.html"):
             urls.add(f"{SITE_URL}/special/{special_page.parent.name}/")
     count = 0
