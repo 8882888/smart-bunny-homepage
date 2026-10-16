@@ -86,15 +86,58 @@ def main():
             continue
         full = clean(f"{parent} {name}")
         normalized_regions.append((full, name, parent, item))
-        for term, category in SERVICE_TERMS:
+
+    # Prioritize nationwide coverage before adding many variants for early rows.
+    # First pass: every region gets the three main service intents.
+    core_terms = [
+        ("대리운전", "대리운전"),
+        ("자동차탁송", "탁송"),
+        ("장거리탁송", "장거리탁송"),
+    ]
+    for term, category in core_terms:
+        for full, _, parent, _ in normalized_regions:
             add(f"{full} {term}", category, full, parent, "지역+핵심서비스")
-        for term in DAERI_SCENARIOS:
+
+    # Second pass: spread scenario terms across all regions, rather than filling
+    # the 100k cap with many variants for only the first few regions.
+    if DAERI_SCENARIOS:
+        term = DAERI_SCENARIOS[0]
+        for full, _, parent, _ in normalized_regions:
             add(f"{full} {term}", "대리운전", full, parent, "지역+이용상황")
-        for term in TAKSONG_SCENARIOS:
+    if TAKSONG_SCENARIOS:
+        term = TAKSONG_SCENARIOS[0]
+        for full, _, parent, _ in normalized_regions:
             add(f"{full} {term}", "탁송", full, parent, "지역+차량/목적")
-        for term in ("골프장", "펜션", "계곡", "캠핑장", "리조트", "호텔", "관광지"):
-            add(f"{full} {term} 대리운전", "대리운전", full, parent, "지역+시설")
-            add(f"{full} {term} 탁송", "탁송", full, parent, "지역+시설")
+
+    # Add broader service variations in rounds. Each round touches every region
+    # before a second variation is added to any one region.
+    extra_terms = [term for term in SERVICE_TERMS if term not in core_terms]
+    extra_layers = [
+        [(term, category, "지역+핵심서비스") for term, category in extra_terms],
+        [(term, "대리운전", "지역+이용상황") for term in DAERI_SCENARIOS[1:]],
+        [(term, "탁송", "지역+차량/목적") for term in TAKSONG_SCENARIOS[1:]],
+    ]
+    for layer in extra_layers:
+        for term, category, kind in layer:
+            for full, _, parent, _ in normalized_regions:
+                add(f"{full} {term}", category, full, parent, kind)
+                if len(candidates) >= args.limit:
+                    break
+            if len(candidates) >= args.limit:
+                break
+        if len(candidates) >= args.limit:
+            break
+
+    # Add facility combinations only if the catalog still has capacity.
+    if len(candidates) < args.limit:
+        for full, _, parent, _ in normalized_regions:
+            for term in ("골프장", "펜션", "계곡", "캠핑장", "리조트", "호텔", "관광지"):
+                add(f"{full} {term} 대리운전", "대리운전", full, parent, "지역+시설")
+                add(f"{full} {term} 탁송", "탁송", full, parent, "지역+시설")
+                if len(candidates) >= args.limit:
+                    break
+            if len(candidates) >= args.limit:
+                break
 
     # Build plausible directional route candidates only from distinct, verified
     # region names. The catalog is for review; these are not claims of service availability.
