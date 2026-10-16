@@ -135,6 +135,58 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(page(f"{location} 대리운전·탁송 이용 안내 | {BRAND}", f"{location} 대리운전, 자동차탁송, 장거리탁송 상담 전 확인사항. 대표 전화 {PHONE}.", body, region_url), encoding="utf-8")
         count += 1
+    # Build a navigable nationwide directory and one landing page per province.
+    region_root = ROOT / "region"
+    region_root.mkdir(parents=True, exist_ok=True)
+    provinces = {}
+    for r in regions:
+        parts = r["slug"].strip("/").split("/")
+        if parts:
+            provinces.setdefault(parts[0], []).append(r)
+
+    province_cards = []
+    for province_slug, items in sorted(provinces.items()):
+        province_name = next((x["name"] for x in items if x.get("level") == "시·도"), None)
+        if not province_name:
+            province_name = items[0].get("parent_name", "").split()[0] or items[0]["name"]
+        province_url = f"{SITE_URL}/region/{province_slug}/"
+        urls.add(province_url)
+        province_cards.append(
+            f'<div class="card"><h3><a href="./{esc(province_slug)}/">{esc(province_name)} 지역 안내</a></h3>'
+            f'<p>해당 시·도 내 대리운전·자동차탁송·장거리탁송 지역을 찾아보세요.</p></div>'
+        )
+        district_links = []
+        seen = set()
+        for item in sorted(items, key=lambda x: (x.get("level", ""), x.get("name", ""), x.get("slug", ""))):
+            if item.get("level") not in ("시·군·구", "시·도"):
+                continue
+            item_slug = item["slug"].strip("/")
+            item_url = f"{SITE_URL}/region/{item_slug}/"
+            if item_url in seen:
+                continue
+            seen.add(item_url)
+            label = " ".join(part for part in [item.get("parent_name", ""), item["name"]] if part)
+            district_links.append(f'<li><a href="/smart-bunny-homepage/region/{esc(item_slug)}/">{esc(label)}</a></li>')
+        province_body = f"""<p class="muted">전국 지역별 서비스 안내</p>
+<h1>{esc(province_name)} 대리운전·자동차탁송 지역 안내</h1>
+<p>{esc(province_name)}의 법정동 데이터를 바탕으로 지역별 서비스 페이지를 구성했습니다. 원하는 시·군·구를 선택한 뒤 세부 지역과 서비스를 확인하세요.</p>
+<h2>시·군·구 찾아보기</h2>
+<ul>{''.join(district_links) if district_links else '<li>세부 지역 정보는 데이터 갱신 후 표시됩니다.</li>'}</ul>
+<p><a href="/smart-bunny-homepage/region/">전국 지역 안내로 돌아가기</a></p>"""
+        out = region_root / province_slug / "index.html"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(page(f"{province_name} 대리운전·탁송 지역 안내 | {BRAND}", f"{province_name} 대리운전, 자동차탁송, 장거리탁송 지역별 안내. 대표 전화 {PHONE}.", province_body, province_url), encoding="utf-8")
+
+    directory_url = f"{SITE_URL}/region/"
+    directory_body = f"""<p class="muted">전국 지역별 서비스 안내</p>
+<h1>전국 대리운전·자동차탁송 지역 찾기</h1>
+<p>시·도를 선택한 뒤 시·군·구, 읍·면·동 등 세부 지역 페이지로 이동할 수 있습니다. 실제 운행 사례와 요금은 확인된 정보만 별도로 안내합니다.</p>
+<div class="cards">{''.join(province_cards)}</div>
+<p class="muted">지역 데이터 출처: 국토교통부 전국 법정동 데이터. 지역별 배차 가능 여부와 요금은 상담을 통해 확인해 주세요.</p>"""
+    directory_path = region_root / "index.html"
+    directory_path.write_text(page("전국 대리운전·자동차탁송 지역 안내 | " + BRAND, "전국 시·도별 대리운전·자동차탁송·장거리탁송 지역 안내. 대표 전화 " + PHONE + ".", directory_body, directory_url), encoding="utf-8")
+    urls.add(directory_url)
+
     entries = "\n".join(f"  <url><loc>{esc(url)}</loc></url>" for url in sorted(urls))
     (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + entries + "\n</urlset>\n", encoding="utf-8")
     print(f"Generated {count} pages from {len(regions)} region records.")
