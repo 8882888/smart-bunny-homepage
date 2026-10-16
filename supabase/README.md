@@ -12,20 +12,22 @@
 4. 도착지
 5. 금액
 
-고객 이름, 전화번호, 주민등록번호, 상세 연락처 등은 데이터베이스 스키마에 넣지 않습니다. 운행이 완료된 자료만 `status = 'completed'`로 지정합니다. 취소·대기 건은 공개 뷰에서 자동으로 제외됩니다.
+고객 이름, 전화번호, 주민등록번호, 차량번호 등은 입력하지 않습니다. 운행이 완료된 자료만 `status = 'completed'`로 지정합니다. 취소·대기 건은 공개 뷰에서 제외됩니다.
 
 ## 설정 순서
 
 1. Supabase 프로젝트를 생성합니다.
-2. Supabase Dashboard의 SQL Editor에서 `schema.sql` 전체를 실행합니다.
+2. Dashboard의 SQL Editor에서 `schema.sql` 전체를 실행합니다.
 3. Supabase Auth에서 관리자 사용자를 생성합니다.
 4. 신뢰할 수 있는 관리자 전용 경로를 통해 해당 사용자의 `app_metadata.role`을 `admin`으로 설정합니다. 브라우저에서 사용자가 직접 바꿀 수 있는 `user_metadata`를 권한 확인에 사용하지 마세요.
-5. 공개 후기 페이지는 `completed_trip_reviews` 뷰만 조회하고, 관리자 페이지는 로그인 후 `trip_records`를 사용하도록 연결합니다.
-6. 실제 관리자 화면을 연결하기 전에 비로그인 접근, 일반 로그인 사용자, 관리자 권한, 취소 건 비공개 여부를 각각 테스트합니다.
+5. `config.example.js`를 `config.js`로 복사하고 Supabase Project URL과 공개 anon/publishable key를 입력합니다. `config.js`는 공개될 수 있으므로 공개 키만 넣고, 비밀 `service_role` 키를 절대 사용하지 마세요.
+6. `admin/` 페이지에서 관리자 로그인을 테스트합니다. 로그인 후 등록·수정·삭제 기능은 데이터베이스의 RLS 정책에 의해 제한됩니다.
+7. 공개 후기 페이지가 `completed_trip_reviews` 뷰만 조회하도록 연결하고, 비로그인 접근·일반 계정·관리자 계정·취소 건을 각각 테스트합니다.
 
 ## 보안 주의
 
 - GitHub Pages는 정적 호스팅이므로 서버 측 비밀값을 보관할 수 없습니다.
-- Supabase의 공개 anon/publishable 키는 RLS 정책을 올바르게 설정한 경우에만 브라우저에 사용할 수 있습니다.
+- Supabase의 공개 anon/publishable 키는 RLS 정책이 올바르게 설정된 경우에만 브라우저에 사용할 수 있습니다.
 - `service_role` 키, 관리자 비밀번호, 토큰은 HTML/JavaScript, JSON, GitHub 저장소에 절대 커밋하지 마세요.
-- 이 파일은 데이터베이스 스키마 준비 단계입니다. Supabase 프로젝트 연결, 관리자 로그인 화면, 등록·수정 UI 및 실제 배포는 별도로 설정하고 검증해야 합니다.
+- `config.js`는 개인 프로젝트 설정을 포함할 수 있으므로 저장소에 커밋하지 않는 것을 권장합니다. 실제 URL과 공개 키를 입력한 뒤 배포에 포함할 방법은 별도로 결정하세요.
+- 이 페이지는 관리자 화면의 프런트엔드입니다. Supabase 프로젝트 연결, 관리자 역할 부여, 데이터베이스 SQL 실행 및 보안 테스트 전에는 실제 운영에 사용할 수 없습니다.
