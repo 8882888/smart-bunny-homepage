@@ -19,7 +19,7 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <h1>완료 운행 관리</h1>
 <p class="small">관리자 계정으로 로그인한 뒤 운행 기록을 관리하세요. 공개 후기에는 운행일·출발 시간·출발지·도착지·금액만 표시됩니다.</p>
 <div class="notice">개인정보 보호: 고객 이름, 전화번호, 주민등록번호, 차량번호 등은 입력하지 마세요. 아래 폼은 승인된 5개 항목과 운행 상태만 받습니다.</div>
-<section id="config-warning" class="panel hidden"><strong>설정이 필요합니다.</strong><p>Supabase 프로젝트 URL과 공개 anon/publishable 키를 <code>admin/config.js</code>에 설정한 뒤 새로고침하세요. 비밀 service_role 키는 절대 입력하지 마세요.</p></section>
+<section id="config-warning" class="panel hidden"><strong>설정이 필요합니다.</strong><p>Supabase 프로젝트 URL과 공개 anon/publishable 키를 저장소 루트의 <code>supabase-public-config.js</code>에 설정한 뒤 새로고침하세요. 비밀 service_role 키는 절대 입력하지 마세요.</p></section>
 <section id="login-panel" class="panel">
 <h2>관리자 로그인</h2>
 <form id="login-form"><label for="email">관리자 이메일</label><input id="email" type="email" autocomplete="username" required><label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">로그인</button></form>
