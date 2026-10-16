@@ -5,10 +5,10 @@ import re
 from pathlib import Path
 
 DATA = Path("data/regions.json")
-EXPECTED_BRAND = "스마트번개대리운전"
+EXPECTED_BRAND = "스마트전국대리운전 스마트24탁송"
 EXPECTED_PHONE = "1877-3015"
-EXPECTED_SERVICES = {"daeri", "taksong", "long-distance-taksong"}
-MAX_HTML_FILES = 100_000
+EXPECTED_SERVICES = {"daeri", "24h-daeri", "corporate-daeri", "golf-daeri", "taksong", "long-distance-taksong"}
+MAX_HTML_FILES = 160_000
 
 
 def fail(message):
@@ -55,8 +55,8 @@ def main():
         codes.add(code)
         slugs.add(slug)
 
-    # Each record produces a region landing page plus up to three service pages.
-    estimated_html = len(regions) * 4 + 40
+    # Each record produces a region landing page plus six service pages.
+    estimated_html = len(regions) * 7 + 40
     if estimated_html >= MAX_HTML_FILES:
         fail(f"예상 HTML 파일 수가 안전 한도를 넘습니다: 약 {estimated_html}개")
 
