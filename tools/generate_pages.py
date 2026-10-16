@@ -9,7 +9,7 @@ from urllib.parse import quote, urlsplit, urlunsplit
 ROOT = Path(".")
 DATA = ROOT / "data" / "regions.json"
 SITE_URL = "https://8882888.github.io/smart-bunny-homepage"
-BRAND = "스마트번개대리운전"
+BRAND = "스마트전국대리운전 스마트24탁송"
 PHONE = "1877-3015"
 SERVICES = [
     {"name": "대리운전", "slug": "daeri", "keyword": "대리운전"},
