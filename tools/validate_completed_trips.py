@@ -49,7 +49,7 @@ def main():
             date.fromisoformat(trip["운행일"])
         except (ValueError, TypeError):
             fail(f"{index}번째 운행일은 YYYY-MM-DD 형식이어야 합니다.")
-        if not re.fullmatch(r"(?:[01]\\d|2[0-3]):[0-5]\\d", trip["출발시간"]):
+        if not re.fullmatch(r"(?:[01][0-9]|2[0-3]):[0-5][0-9]", trip["출발시간"]):
             fail(f"{index}번째 출발시간은 HH:MM 24시간 형식이어야 합니다.")
         if isinstance(trip["금액"], bool) or not isinstance(trip["금액"], (int, float)) or trip["금액"] <= 0:
             fail(f"{index}번째 금액은 0보다 큰 숫자여야 합니다.")
