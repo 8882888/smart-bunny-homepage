@@ -33,7 +33,7 @@ jobs:
 
       - name: Validate requested keyword limit
         env:
-          KEYWORD_LIMIT: ${{ inputs.limit }}
+          KEYWORD_LIMIT: ${{ inputs.limit || '100000' }}
         run: |
           python - <<'PY'
           import os
@@ -61,7 +61,7 @@ jobs:
 
       - name: Generate review-only keyword CSV
         run: |
-          python tools/generate_keyword_catalog.py --limit "${{ inputs.limit }}" --output /tmp/keyword_catalog.csv
+          python tools/generate_keyword_catalog.py --limit "${{ inputs.limit || '100000' }}" --output /tmp/keyword_catalog.csv
           test -s /tmp/keyword_catalog.csv
           python - <<'PY'
           import csv
