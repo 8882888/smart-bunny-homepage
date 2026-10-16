@@ -1,6 +1,13 @@
 name: Generate keyword catalog for review
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/generate_keyword_catalog.py"
+      - "tools/import_official_regions.py"
+      - "tools/validate_region_data.py"
+      - ".github/workflows/keyword-catalog.yml"
   workflow_dispatch:
     inputs:
       limit:
