@@ -167,6 +167,16 @@ def main():
 
     print(f"Region records read: {len(regions)}")
     print(f"Unique keyword candidates written: {len(rows)}")
+    print(f"Distinct regions represented: {len({row['region'] for row in rows if row['region']})}")
+    category_counts = {}
+    for row in rows:
+        category_counts[row["category"]] = category_counts.get(row["category"], 0) + 1
+    print("Category counts:")
+    for category, count in sorted(category_counts.items(), key=lambda pair: (-pair[1], pair[0])):
+        print(f"  {category}: {count}")
+    print("Sample keywords:")
+    for row in rows[:10]:
+        print(f"  [{row['category']}] {row['keyword']}")
     print(f"Output: {output}")
     if len(rows) < args.limit:
         print("The current region dataset did not produce the requested number of unique candidates.")
