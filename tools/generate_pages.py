@@ -182,7 +182,7 @@ def main():
         district_links = []
         seen = set()
         for item in sorted(items, key=lambda x: (x.get("level", ""), x.get("name", ""), x.get("slug", ""))):
-            if item.get("level") not in ("시·군·구", "시·도"):
+            if item.get("level") != "시·군·구":
                 continue
             item_slug = item["slug"].strip("/")
             item_url = f"{SITE_URL}/region/{item_slug}/"
