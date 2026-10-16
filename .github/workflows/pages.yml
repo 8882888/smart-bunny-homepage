@@ -39,6 +39,8 @@ jobs:
         run: python tools/import_official_regions.py
       - name: Validate imported nationwide region data
         run: python tools/validate_region_data.py
+      - name: Validate completed trip records
+        run: python tools/validate_completed_trips.py
       - name: Generate regional pages
         run: python tools/generate_pages.py
       - name: Validate generated pages and sitemap
