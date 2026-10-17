@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Validate generated static pages and sitemap targets before GitHub Pages deployment."""
+import os
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
 ROOT = Path(".")
-SITE_PREFIX = "/smart-bunny-homepage"
+SITE_URL = os.environ.get("SITE_URL", "https://8882888.github.io/smart-bunny-homepage").rstrip("/")
+SITE_PREFIX = urlsplit(SITE_URL).path.rstrip("/")
 REQUIRED = [
     ROOT / "index.html",
     ROOT / "robots.txt",
