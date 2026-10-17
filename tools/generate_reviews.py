@@ -27,7 +27,7 @@ def main():
             f"<td>{esc(t['출발시간'])}</td>" +
             f"<td>{esc(t['출발지'])}</td>" +
             f"<td>{esc(t['도착지'])}</td>" +
-            f"<td class=\"amount\">{int(t['금액']):,}원</td>" +
+            f"<td class=\"amount\">{int(t['금액']):,}원" + (' <span class="service-label">탁송 · 금액 기준 분류</span>' if int(t["금액"]) >= 60000 else "") + "</td>" +
             "</tr>"
             for t in ordered
         )
@@ -50,7 +50,7 @@ def main():
         route_cards.append(
             f'<button class="route-card" type="button" data-route="{route_query}">'
             f'<strong>{esc(origin)} → {esc(destination)}</strong>'
-            f'<span>실제 기록 {len(items)}건 · 과거 기록 요금 {fare_label}</span></button>'
+            f'<span>실제 기록 {len(items)}건 · 과거 기록 요금 {fare_label}</span>' + (f'<span class="service-label">6만원 이상 탁송 기준 기록 포함</span>' if any(int(item["금액"]) >= 60000 for item in items) else "") + '</button>'
         )
     route_section = (
         '<section id="route-search"><h2>구간별 실제 운행 사례</h2>'
@@ -76,7 +76,7 @@ header a,footer a{{color:#ffd166}}.topnav{{display:flex;align-items:center;justi
 .topnav a.kakao{{background:#FEE500;color:#191919;padding:8px 11px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}}
 .kakao-icon{{width:18px;height:16px;display:inline-block}}.kakao-hours{{font-size:.9rem;color:white;font-weight:bold;white-space:nowrap}}
 main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28px,5vw,42px);line-height:1.35}}
-.table-wrap{{overflow-x:auto;margin:24px 0}}table{{border-collapse:collapse;width:100%;min-width:600px}}th,td{{border:1px solid #d9e1ea;padding:12px;text-align:left}}th{{background:#f3f7fb}}.amount{{white-space:nowrap;font-weight:bold}}.empty{{padding:22px;border:1px solid #d9e1ea;border-radius:12px;background:#f8fafc}}
+.table-wrap{{overflow-x:auto;margin:24px 0}}table{{border-collapse:collapse;width:100%;min-width:600px}}th,td{{border:1px solid #d9e1ea;padding:12px;text-align:left}}th{{background:#f3f7fb}}.amount{{white-space:nowrap;font-weight:bold}}.service-label{{display:inline-block;margin:4px 0;padding:2px 6px;border-radius:5px;background:#e8f3ff;color:#174d7a;font-size:12px;font-weight:700;white-space:normal}}.empty{{padding:22px;border:1px solid #d9e1ea;border-radius:12px;background:#f8fafc}}
 .btn{{display:inline-block;background:#ffd166;color:#102544;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:bold;margin:6px 8px 6px 0}}
 .search-box{{width:100%;max-width:620px;padding:13px 14px;border:1px solid #aebdce;border-radius:9px;font-size:16px;margin:8px 0}}
 .route-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:18px 0}}
@@ -147,7 +147,7 @@ document.querySelectorAll(".route-card").forEach(button => button.addEventListen
       filterTripRows(tripSearch.value);
       return;
     }}
-    const rows = data.map(t => '<tr><td>'+escJs(t["운행일"])+'</td><td>'+escJs(String(t["출발 시간"]).slice(0,5))+'</td><td>'+escJs(t["출발지"])+'</td><td>'+escJs(t["도착지"])+'</td><td class="amount">'+Number(t["금액"]).toLocaleString("ko-KR")+'원</td></tr>').join("");
+    const rows = data.map(t => {{ const amount = Number(t["금액"]); const badge = Number.isFinite(amount) && amount >= 60000 ? ' <span class="service-label">탁송 · 금액 기준 분류</span>' : ''; return '<tr><td>'+escJs(t["운행일"])+'</td><td>'+escJs(String(t["출발 시간"]).slice(0,5))+'</td><td>'+escJs(t["출발지"])+'</td><td>'+escJs(t["도착지"])+'</td><td class="amount">'+(Number.isFinite(amount) ? amount.toLocaleString("ko-KR") : '금액 확인 필요')+'원'+badge+'</td></tr>'; }}).join("");
     container.innerHTML = '<div class="table-wrap"><table id="trip-table"><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     filterTripRows(tripSearch.value);
     status.textContent = "완료된 운행 기록 · 개인정보 비공개";
