@@ -26,7 +26,7 @@ alter table public.trip_records enable row level security;
 -- 익명 방문자는 완료된 운행의 공개용 열만 조회할 수 있습니다.
 -- SECURITY INVOKER 뷰가 기본 테이블 권한/RLS를 그대로 따르도록 설정합니다.
 revoke all on table public.trip_records from anon;
-grant select (trip_date, departure_time, origin, destination, fare_krw, status, service_type)
+grant select (trip_date, departure_time, origin, destination, fare_krw, status)
   on table public.trip_records to anon;
 grant select, insert, update, delete on table public.trip_records to authenticated;
 
@@ -68,8 +68,7 @@ select
   to_char(departure_time, 'HH24:MI') as "출발 시간",
   origin as "출발지",
   destination as "도착지",
-  fare_krw as "금액",
-  service_type as "서비스구분"
+  fare_krw as "금액"
 from public.trip_records
 where status = 'completed';
 
