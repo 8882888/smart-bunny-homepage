@@ -21,6 +21,21 @@
 - 개인정보를 제외한 완료 운행 후기와 구간 검색
 - Supabase 기반 관리자 운행 기록 등록·수정·삭제 및 경로별 참고요금 검토
 
+
+## 독립 도메인 연결 준비
+
+현재 사이트는 GitHub Pages를 정적 호스팅으로 사용하므로 별도 유료 웹호스팅을 먼저 구매할 필요는 없습니다. 도메인만 등록한 뒤 GitHub Pages에 연결할 수 있습니다.
+
+도메인을 구입한 후 다음 순서로 설정합니다.
+
+1. 저장소 **Settings → Pages → Custom domain**에 구입한 도메인을 입력하고 저장합니다.
+2. 저장소 **Settings → Secrets and variables → Actions → Variables**에서 변수 `SITE_URL`을 추가하고 값은 `https://구입한도메인`으로 입력합니다. 실제 도메인으로 바꿔 입력해야 합니다.
+3. 저장소 루트에 `CNAME` 파일을 만들고 첫 줄에 도메인만 입력합니다(예: `www.example.com`). 도메인이 정해지기 전에는 임의의 CNAME을 만들지 않습니다.
+4. 도메인 등록업체의 DNS에서 GitHub Pages가 안내하는 레코드를 설정하고, HTTPS 인증서가 활성화된 뒤 접속을 확인합니다.
+5. GitHub Actions의 **Deploy static site to GitHub Pages** 실행이 성공했는지 확인합니다. 이 저장소는 `SITE_URL` 변수에 따라 canonical URL, 사이트맵, robots.txt 및 지역 검색 경로를 구성합니다.
+
+루트 도메인과 `www` 중 어느 주소를 대표 주소로 쓸지 정한 뒤 한 주소로 통일하세요. DNS 레코드는 도메인 등록업체와 선택한 대표 주소에 맞춰 설정해야 합니다.
+
 ## 관리자/실시간 후기 설정
 
 관리자와 실시간 후기 기능은 Supabase 데이터베이스, RLS 정책, 공개용 Publishable/anon 키, 그리고 `app_metadata.role = "admin"`인 관리자 계정이 필요합니다. `supabase/schema.sql`을 처음 설치할 때 실행하세요. 기존 프로젝트에 서비스 구분을 추가하는 경우 `supabase/migrations/20261017_service_type.sql`도 SQL Editor에서 실행해야 합니다. 관리자 기능은 데이터베이스 권한과 실제 로그인까지 확인하기 전에는 운영 준비 완료로 간주하지 마세요.
