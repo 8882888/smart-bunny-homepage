@@ -11,6 +11,13 @@ header{background:#102544;color:white;padding:16px 6%;display:flex;align-items:c
 header a{color:#ffd166;text-decoration:none;font-weight:bold}
 .topnav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:18px}
 .topnav a{color:white;padding:7px 0}
+.nav-dropdown{position:relative;display:inline-flex;align-items:center}
+.nav-dropdown>a{display:inline-block}
+.nav-dropdown-content{display:none;position:absolute;top:100%;left:0;min-width:220px;background:#fff;border:1px solid #dbe3ed;border-radius:9px;box-shadow:0 8px 22px #0002;padding:8px;z-index:20}
+.nav-dropdown-content a{display:block!important;color:#172235!important;padding:9px 12px!important;border-radius:6px;white-space:nowrap}
+.nav-dropdown-content a:hover{background:#eef4fa}
+.nav-dropdown:hover .nav-dropdown-content,.nav-dropdown:focus-within .nav-dropdown-content{display:block}
+@media(max-width:650px){.nav-dropdown-content{left:0;min-width:200px}}
 .topnav a.kakao{background:#FEE500;color:#191919;padding:9px 13px;border-radius:7px;display:inline-flex;align-items:center;gap:7px}
 .kakao-icon{width:19px;height:17px;display:inline-block;vertical-align:middle}
 .kakao-hours{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;margin-left:-10px}
@@ -28,7 +35,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 </style>
 </head>
 <body>
-<header><strong>스마트전국대리운전 스마트24탁송</strong><nav class="topnav" aria-label="주요 메뉴"><a href="#services">대리운전</a><a href="#transport">탁송</a><a href="#corporate">법인대리운전</a><a href="#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담, 상담시간 오전 8시부터 오후 8시까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg><span>카톡상담 08:00~20:00</span></a></nav><a href="tel:18773015">대표 상담 1877-3015</a></header>
+<header><strong>스마트전국대리운전 스마트24탁송</strong><nav class="topnav" aria-label="주요 메뉴"><a href="#services">대리운전</a><div class="nav-dropdown"><a href="#transport" aria-haspopup="true">탁송 ▾</a><div class="nav-dropdown-content" aria-label="탁송 하위 메뉴"><a href="#transport">전국 모든 차종 탁송</a><a href="#vehicle-types">승용차 탁송</a><a href="#vehicle-types">1톤~25톤 차량 탁송</a><a href="./special/seoraksan/">설악산탁송</a><a href="./special/jirisan/">지리산탁송</a></div></div><a href="#corporate">법인대리운전</a><a href="#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담, 상담시간 오전 8시부터 오후 8시까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg><span>카톡상담 08:00~20:00</span></a></nav><a href="tel:18773015">대표 상담 1877-3015</a></header>
 <div class="hero">
 <p>전국 대리운전 · 자동차 탁송 상담</p>
 <h1>필요한 순간,<br>편리하게 연결하는 이동 서비스</h1>
@@ -69,8 +76,8 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 <h2>주요 서비스</h2>
 <div class="cards">
 <div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>대리운전</h3><p>모임, 회식, 골프장 이용 후 귀가 등 필요한 운행을 상담합니다.</p></div>
-<div class="card" id="transport"><h3>전국 자동차 탁송</h3><p>차량을 출발지에서 목적지까지 이동해야 할 때 문의하세요.</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>장거리 운행</h3><p>지역 간 이동은 출발지와 도착지를 바탕으로 상담합니다.</p></div>
+<div class="card" id="transport"><h3>전국 모든 차종 탁송</h3><p>승용차부터 1톤·2.5톤·3.5톤·5톤·8톤·11톤·25톤 차량까지 전국 어디든 출발지와 도착지를 기준으로 상담합니다.</p><p><a href="#vehicle-types">차종별 탁송 안내 보기 ↓</a></p><p><strong>전문 탁송:</strong> <a href="./special/seoraksan/">설악산탁송</a> · <a href="./special/jirisan/">지리산탁송</a></p></div>
+<div class="card" id="vehicle-types"><h3>차종별 전국 탁송</h3><p><strong>전국 모든 차종 탁송</strong>을 가장 먼저 안내합니다.</p><p>승용차 탁송 · 경차 탁송 · 수입차 탁송 · 전기차 탁송</p><p>1톤 탁송 · 2.5톤 탁송 · 3.5톤 탁송 · 5톤 탁송 · 8톤 탁송 · 11톤 탁송 · 25톤 탁송</p><p>그 외 특수차량은 차종과 출발지·도착지를 확인해 상담합니다.</p></div>
 <div class="card" id="corporate"><h3>법인대리운전</h3><p>기업 임직원과 업무 일정에 필요한 법인 대리운전 상담을 안내합니다.</p></div>
 <div class="card" id="golf"><h3>골프대리운전</h3><p>골프장 라운딩 전후 이동과 귀가를 위한 대리운전 상담을 안내합니다.</p></div>
 </div>
