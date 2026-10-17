@@ -109,7 +109,7 @@ def main():
     broken_links = []
     for file_path in html_files:
         parser = parsed_pages[file_path.resolve()]
-        current_url = SITE_URL + ("/" + file_path.as_posix().removeprefix("./") if file_path.as_posix() != "index.html" else "/")
+        relative = file_path.as_posix().removeprefix("./")\n        if relative == "index.html":\n            public_path = "/"\n        elif relative.endswith("/index.html"):\n            public_path = "/" + relative[:-len("index.html")]\n        else:\n            public_path = "/" + relative\n        current_url = SITE_URL + public_path
         for tag, raw_url in parser.links:
             raw_url = (raw_url or "").strip()
             if not raw_url or raw_url.startswith(("#", "data:", "javascript:", "mailto:", "tel:")):
