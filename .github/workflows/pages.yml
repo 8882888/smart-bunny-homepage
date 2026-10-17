@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   deploy:
+    env:
+      SITE_URL: ${{ vars.SITE_URL || 'https://8882888.github.io/smart-bunny-homepage' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -45,6 +47,8 @@ jobs:
         run: python tools/generate_reviews.py
       - name: Generate regional pages
         run: python tools/generate_pages.py
+      - name: Configure canonical URLs and custom-domain paths
+        run: python tools/configure_site.py
       - name: Validate generated pages and sitemap
         run: python tools/validate_site.py
       - name: Configure Pages
