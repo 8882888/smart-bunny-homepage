@@ -34,6 +34,20 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 </section>
 <section id="app-panel" class="hidden">
 <div class="panel"><div class="grid"><div><strong id="signed-in"></strong><p class="small">인증된 계정만 데이터베이스 정책에 따라 관리할 수 있습니다.</p></div><div><button id="logout" class="secondary" type="button">로그아웃</button></div></div></div>
+<div class="panel" id="dashboard-panel">
+<h2>운행 현황 대시보드</h2>
+<p class="small">아래 수치는 관리자 목록에서 불러온 최근 최대 500건을 기준으로 계산합니다. 완료 운행만 매출 합계에 포함합니다.</p>
+<div class="grid">
+<div class="panel" style="margin:0;padding:16px;background:#f8fafc"><div class="small">이번 달 완료 운행</div><strong id="stat-month-count">-</strong></div>
+<div class="panel" style="margin:0;padding:16px;background:#f8fafc"><div class="small">이번 달 완료 운행 금액 합계</div><strong id="stat-month-revenue">-</strong></div>
+<div class="panel" style="margin:0;padding:16px;background:#f8fafc"><div class="small">불러온 기록 중 완료 건수</div><strong id="stat-completed-count">-</strong></div>
+<div class="panel" style="margin:0;padding:16px;background:#f8fafc"><div class="small">대기 / 취소</div><strong id="stat-pending-cancelled">-</strong></div>
+</div>
+<div class="grid" style="margin-top:12px">
+<div class="panel" style="margin:0;padding:16px;background:#f8fafc"><div class="small">완료 대리운전</div><strong id="stat-daeri">-</strong></div>
+<div class="panel" style="margin:0;padding:16px;background:#f8fafc"><div class="small">완료 탁송</div><strong id="stat-transport">-</strong></div>
+</div>
+</div>
 <div class="panel">
 <h2 id="form-title">운행 기록 등록</h2>
 <form id="trip-form">
@@ -110,10 +124,26 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    finally{btn.disabled=false;}
  });
  $("export-reference-fares").addEventListener("click",()=>{const payload={schema_version:1,description:"운영자가 검증하고 승인한 경로별 참고요금만 등록합니다. 실제 확정 견적은 상담으로 확인합니다.",fares:approvedFares};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="reference_fares.json";a.click();URL.revokeObjectURL(url);$("fare-review-status").textContent="승인 목록 "+approvedFares.length+"건을 JSON으로 내보냈습니다. GitHub의 data/reference_fares.json에 반영해야 사이트에 적용됩니다.";});
+ function renderDashboard(records) {
+   const completed = records.filter(t => t.status === "completed");
+   const now = new Date();
+   const monthKey = now.getFullYear() + "-" + String(now.getMonth()+1).padStart(2,"0");
+   const monthTrips = completed.filter(t => String(t.trip_date).slice(0,7) === monthKey);
+   const pending = records.filter(t => t.status === "pending").length;
+   const cancelled = records.filter(t => t.status === "cancelled").length;
+   const daeri = completed.filter(t => (t.service_type || "daeri") === "daeri").length;
+   const transport = completed.filter(t => t.service_type === "transport").length;
+   $("stat-month-count").textContent = monthTrips.length.toLocaleString("ko-KR") + "건";
+   $("stat-month-revenue").textContent = money(monthTrips.reduce((sum,t) => sum + Number(t.fare_krw || 0),0)) + "원";
+   $("stat-completed-count").textContent = completed.length.toLocaleString("ko-KR") + "건";
+   $("stat-pending-cancelled").textContent = pending.toLocaleString("ko-KR") + "건 / " + cancelled.toLocaleString("ko-KR") + "건";
+   $("stat-daeri").textContent = daeri.toLocaleString("ko-KR") + "건";
+   $("stat-transport").textContent = transport.toLocaleString("ko-KR") + "건";
+ }
  async function loadRecords() {
    $("records").textContent = "불러오는 중…";
    const {data,error} = await client.from("trip_records").select("id,trip_date,departure_time,origin,destination,fare_krw,service_type,status").order("trip_date",{ascending:false}).order("departure_time",{ascending:false}).limit(500);
-   if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}\n   currentRecords=data; await loadApprovedFares();
+   if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}\n   currentRecords=data; renderDashboard(data); await loadApprovedFares();
    if(!data.length){$("records").innerHTML="<p>등록된 운행 기록이 없습니다.</p>";return;}
    $("records").innerHTML = '<table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>구분</th><th>상태</th><th>작업</th></tr></thead><tbody>' + data.map(t =>
      '<tr><td>'+escapeHtml(t.trip_date)+'</td><td>'+escapeHtml(String(t.departure_time).slice(0,5))+'</td><td>'+escapeHtml(t.origin)+'</td><td>'+escapeHtml(t.destination)+'</td><td>'+money(t.fare_krw)+'</td><td>'+((t.service_type==='transport')?'탁송':'대리운전')+'</td><td>'+({"completed":"완료","pending":"대기","cancelled":"취소"}[t.status]||"미확인")+'</td><td><div class="actions"><button type="button" data-edit="'+escapeHtml(t.id)+'" class="secondary">수정</button><button type="button" data-delete="'+escapeHtml(t.id)+'" class="danger">삭제</button></div></td></tr>'
