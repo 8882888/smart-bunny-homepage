@@ -32,6 +32,11 @@ def main():
     for file_path in html_files:
         relative = file_path.as_posix().removeprefix("./")
         text = file_path.read_text(encoding="utf-8")
+        # Keep structured-data URLs aligned with the configured public domain.
+        text = text.replace(
+            "https://8882888.github.io/smart-bunny-homepage/",
+            SITE_URL + "/",
+        )
         # Internal links authored for the GitHub project path must also work at a custom-domain root.
         text = text.replace("/smart-bunny-homepage/", (BASE_PATH + "/") if BASE_PATH else "/")
         canonical = SITE_URL + public_path(relative)
