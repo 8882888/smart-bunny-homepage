@@ -74,11 +74,12 @@ def related_trip_html(region, trips, limit=3):
     if not matched:
         return ""
     def render_trip_card(t):
+        service_badge = '<span class="review-service-label transport">탁송 · 금액 기준 분류</span>' if int(t["금액"]) >= 60000 else ""
         return (
             '<article class="review-ticker-card">'
             f'<span class="review-date">{esc(t["운행일"])} · {esc(t["출발시간"])}</span>'
             f'<strong>{esc(t["출발지"])} → {esc(t["도착지"])}</strong>'
-            f'<span class="review-service-label transport">{"탁송" if int(t["금액"]) >= 60000 else "서비스 구분 미확인"}</span>'
+            f'{service_badge}'
             f'<span class="review-fare">요금 {int(t["금액"]):,}원</span>'
             '<span class="review-fare-note">6만원 이상은 탁송으로 분류한 과거 기록이며, 현재 확정요금은 아닙니다.</span>'
             '<span class="review-verified">완료 운행 기록</span></article>'
