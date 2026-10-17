@@ -55,6 +55,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 .region-review-card strong{line-height:1.45}
 .region-review-card span{font-size:.88rem;color:#526276}
 .region-review-card .region-review-price{font-weight:700;color:#a34d00}
+.review-service-label{align-self:flex-start;padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:700}.review-service-label.transport{background:#e2f7e9;color:#18723a}.review-service-label.daeri{background:#e7f0ff;color:#1d4ed8}
 .region-review-empty{padding:4px 5%;color:#526276;font-size:.92rem}
 @keyframes region-review-flow{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){.region-review-track{animation:none;flex-wrap:wrap;width:100%;padding:0 5%}.region-review-card{flex:1 1 240px}}
@@ -166,9 +167,14 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
     }
     const cards=rows.slice(0,80).map(row=>{
       const cells=Array.from(row.cells).map(cell=>cell.textContent.trim());
-      const [date,time,origin,destination,fare]=cells;
+      const [date,time,origin,rawDestination,fare]=cells;
+      // 운행 데이터의 도착지 끝에 붙은 '톨포' 표시는 탁송 구분자로 사용합니다.
+      const isTransport=/톨포\s*$/.test(rawDestination);
+      const destination=rawDestination.replace(/\s*톨포\s*$/,"").trim();
+      const serviceLabel=isTransport?"탁송":"대리운전";
+      const serviceClass=isTransport?"transport":"daeri";
       const region=(origin+" "+destination).split(/\s+/).filter(Boolean).slice(0,4).join(" · ");
-      return '<a class="region-review-card" href="./reviews/" aria-label="'+esc(origin+'에서 '+destination+'까지 완료 운행 후기')+'"><span>'+esc(date)+' · '+esc(time)+'</span><strong>'+esc(origin)+' → '+esc(destination)+'</strong><span>'+esc(region)+' 관련 완료 운행</span><span class="region-review-price">요금 '+esc(fare)+'</span><span>과거 기록 요금 · 현재 견적은 상담 확인</span></a>';
+      return '<a class="region-review-card" href="./reviews/" aria-label="'+esc(serviceLabel+' '+origin+'에서 '+destination+'까지 완료 운행 후기')+'"><span class="review-service-label '+serviceClass+'">'+serviceLabel+'</span><span>'+esc(date)+' · '+esc(time)+'</span><strong>'+esc(origin)+' → '+esc(destination)+'</strong><span>'+esc(region)+' 관련 완료 운행</span><span class="region-review-price">요금 '+esc(fare)+'</span><span>과거 기록 요금 · 현재 견적은 상담 확인</span></a>';
     }).join("");
     track.innerHTML=cards+cards;
     status.textContent="확인된 완료 운행 기록 "+rows.length.toLocaleString("ko-KR")+"건 중 최신 기록을 표시합니다. 움직임을 멈추려면 마우스를 올리세요.";
