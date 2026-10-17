@@ -12,7 +12,26 @@
       "night_multiplier": 1.2,
       "dawn_multiplier": 1.2,
       "range_ratio": 0.12,
-      "note": "거리 기준 시범 산식"
+      "note": "차종·장거리 구간·시간대 반영 시범 산식",
+      "vehicle_multipliers": {
+        "승용차": 1,
+        "경차": 0.95,
+        "SUV": 1.05,
+        "전기차": 1.05,
+        "수입차": 1.1,
+        "1톤 트럭": 1.35,
+        "기타 차량": 1.5
+      },
+      "distance_bands": [
+        {
+          "from_km": 100,
+          "extra_multiplier": 1.08
+        },
+        {
+          "from_km": 200,
+          "extra_multiplier": 1.15
+        }
+      ]
     },
     "daeri": {
       "label": "대리운전",
@@ -21,7 +40,26 @@
       "night_multiplier": 1.2,
       "dawn_multiplier": 1.2,
       "range_ratio": 0.12,
-      "note": "거리 기준 시범 산식"
+      "note": "차종·장거리 구간·시간대 반영 시범 산식",
+      "vehicle_multipliers": {
+        "승용차": 1,
+        "경차": 0.95,
+        "SUV": 1.05,
+        "전기차": 1.05,
+        "수입차": 1.1,
+        "1톤 트럭": 1.35,
+        "기타 차량": 1.5
+      },
+      "distance_bands": [
+        {
+          "from_km": 100,
+          "extra_multiplier": 1.08
+        },
+        {
+          "from_km": 200,
+          "extra_multiplier": 1.15
+        }
+      ]
     }
   }
 }
