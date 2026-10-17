@@ -133,21 +133,22 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    const file=$("csv-file").files[0];
    if(!file){statusText("먼저 CSV 파일을 선택해 주세요.","csv-status");return;}
    const raw=await file.text();
-   const lines=raw.replace(/^\\uFEFF/,"").split(/\\r?\\n/).filter(line=>line.trim());
+   const lines=raw.replace(/^\uFEFF/,"").split(/\r?\n/).filter(line=>line.trim());
    if(lines.length<2){statusText("제목 행과 데이터 행이 필요합니다.","csv-status");return;}
    const parseLine=line=>{const out=[];let cur="",quoted=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'&&quoted&&line[i+1]==='"'){cur+='"';i++;}else if(ch==='"'){quoted=!quoted;}else if(ch===","&&!quoted){out.push(cur.trim());cur="";}else cur+=ch;}out.push(cur.trim());return out;};
    const header=parseLine(lines[0]).map(x=>x.replace(/^"|"$/g,"").trim().toLowerCase());
    const aliases={type:["서비스구분","서비스 구분","구분","service_type","type"],date:["운행일","날짜","trip_date"],time:["출발시간","출발 시간","시간","departure_time"],origin:["출발지","origin"],destination:["도착지","destination"],fare:["금액","요금","fare_krw"]};
    const idx={};for(const [key,names] of Object.entries(aliases))idx[key]=header.findIndex(h=>names.map(n=>n.toLowerCase()).includes(h));
    if(Object.values(idx).some(i=>i<0)){statusText("필수 열이 없습니다. 서비스구분, 운행일, 출발시간, 출발지, 도착지, 금액 순서의 CSV를 확인하세요.","csv-status");return;}
-   const rows=[];for(let i=1;i<lines.length;i++){const c=parseLine(lines[i]);const kind=c[idx.type].trim();const service_type=kind==="탁송"||kind.toLowerCase()==="transport"?"transport":kind==="대리운전"||kind.toLowerCase()==="daeri"?"daeri":"";const trip_date=c[idx.date];const departure_time=c[idx.time];const origin=c[idx.origin];const destination=c[idx.destination];const fare_krw=Number(String(c[idx.fare]).replace(/[₩원,\\s]/g,""));if(!service_type||!/^\\d{4}-\\d{2}-\\d{2}$/.test(trip_date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(departure_time)||!origin||!destination||origin.length>200||destination.length>200||!Number.isInteger(fare_krw)||fare_krw<=0){statusText((i+1)+"행 데이터가 잘못되었습니다. 등록을 중단했습니다.","csv-status");return;}rows.push({trip_date,departure_time,origin,destination,fare_krw,service_type,status:"completed"});}
+   const rows=[];for(let i=1;i<lines.length;i++){const c=parseLine(lines[i]);const kind=c[idx.type].trim();const service_type=kind==="탁송"||kind.toLowerCase()==="transport"?"transport":kind==="대리운전"||kind.toLowerCase()==="daeri"?"daeri":"";const trip_date=c[idx.date];const departure_time=c[idx.time];const origin=c[idx.origin];const destination=c[idx.destination];const fare_krw=Number(String(c[idx.fare]).replace(/[₩원,\s]/g,""));if(!service_type||!/^\d{4}-\d{2}-\d{2}$/.test(trip_date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(departure_time)||!origin||!destination||origin.length>200||destination.length>200||!Number.isInteger(fare_krw)||fare_krw<=0){statusText((i+1)+"행 데이터가 잘못되었습니다. 등록을 중단했습니다.","csv-status");return;}rows.push({trip_date,departure_time,origin,destination,fare_krw,service_type,status:"completed"});}
    if(!rows.length){statusText("등록할 운행 데이터가 없습니다.","csv-status");return;}
    if(!confirm(rows.length+"건을 완료 운행으로 등록할까요? 서비스 구분과 개인정보 제외 여부를 확인하세요."))return;
    statusText(rows.length+"건 등록 중…","csv-status");
    for(let i=0;i<rows.length;i+=100){const {error}=await client.from("trip_records").insert(rows.slice(i,i+100));if(error){statusText("등록 오류: "+error.message+" (앞서 저장된 묶음은 등록되어 있을 수 있습니다.)","csv-status");await loadRecords();return;}}
    statusText(rows.length+"건을 등록했습니다.","csv-status");await loadRecords();
  });
-\n client.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){$("login-panel").classList.add("hidden");$("app-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");return;}setTimeout(showSession,0);});
+
+ client.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){$("login-panel").classList.add("hidden");$("app-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");return;}setTimeout(showSession,0);});
  if(location.hash.includes("type=recovery")){$("login-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");}
  showSession();
 })();
