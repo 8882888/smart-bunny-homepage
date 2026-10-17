@@ -100,13 +100,14 @@ def page(title, description, body, canonical):
 *{{box-sizing:border-box}}body{{margin:0;font-family:Arial,'Malgun Gothic',sans-serif;line-height:1.85;color:#172235}}
 header,footer{{background:#102544;color:white;padding:18px max(5%,calc((100% - 1000px)/2))}}
 header{{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}}
-header a,footer a{{color:#ffd166}}.topnav{{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}}.topnav a{{color:white;text-decoration:none;font-weight:bold;padding:6px 0}}.topnav a.kakao{{background:#FEE500;color:#191919;padding:8px 11px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}}.kakao-icon{{width:18px;height:16px;display:inline-block}}.kakao-hours{{font-size:.9rem;color:white;font-weight:bold;white-space:nowrap}}@media(max-width:700px){{header{{align-items:flex-start}}.topnav{{justify-content:flex-start;gap:10px}}.topnav a{{font-size:.9rem}}.kakao-hours{{font-size:.82rem}}}}main{{max-width:1000px;margin:auto;padding:28px 5% 50px}}
+header a,footer a{{color:#ffd166}}.topnav{{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}}.topnav a{{color:white;text-decoration:none;font-weight:bold;padding:6px 0}}.topnav a.kakao{{background:#FEE500;color:#191919;padding:8px 11px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}}.kakao-icon{{width:18px;height:16px;display:inline-block}}.kakao-hours{{font-size:.9rem;color:white;font-weight:bold;white-space:nowrap}}.business-card{{background:#fff7df;color:#102544;border-bottom:3px solid #ffd166;padding:13px 5%;text-align:center;font-weight:700}}.business-card strong{{font-size:clamp(19px,3.6vw,27px);display:block;line-height:1.4}}.business-card .phone{{font-size:clamp(25px,4vw,34px);color:#a34d00;display:block}}.business-card a{{color:#102544;text-decoration:none}}@media(max-width:700px){{header{{align-items:flex-start}}.topnav{{justify-content:flex-start;gap:10px}}.topnav a{{font-size:.9rem}}.kakao-hours{{font-size:.82rem}}}}main{{max-width:1000px;margin:auto;padding:28px 5% 50px}}
 h1{{line-height:1.35;font-size:clamp(28px,5vw,42px)}}h2{{margin-top:32px}}
 .card{{border:1px solid #d9e1ea;border-radius:12px;padding:16px;margin:12px 0}}
 .btn{{display:inline-block;background:#ffd166;color:#102544;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:bold;margin:6px 8px 6px 0}}
 .muted{{color:#536276;font-size:.95rem}}ul{{padding-left:22px}}
 </style></head><body>
 <header><strong>{BRAND}</strong><nav class="topnav" aria-label="주요 메뉴"><a href="/smart-bunny-homepage/#services">대리운전</a><a href="/smart-bunny-homepage/#transport">탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
+<div class="business-card"><span>전국 지역별 상담 · 명함 정보</span><strong>스마트전국대리운전 24시탁송</strong><a class="phone" href="tel:18773015">☎ 1877-3015</a><span>대리운전 · 전국 자동차탁송 · 장거리탁송</span></div>
 <main>{body}
 <div class="card"><h2>전화 상담</h2><p>출발지와 도착지, 차량 종류, 이용 날짜와 희망 시간을 알려주시면 상담이 더 정확해집니다.</p>
 <p><strong>{PHONE}</strong></p><a class="btn" href="tel:18773015">전화 상담하기</a>
@@ -160,12 +161,27 @@ def service_body(location, level, service, region, trips=None):
             route_note = f"""
 <h2>{esc(location)} 출발·도착 탁송 경로</h2>
 <p>강릉에서 서울·수도권으로 보내는 탁송이나 서울·수도권에서 강릉으로 들어오는 탁송은 정확한 인수 장소와 도착 주소에 따라 조건이 달라집니다. 속초·동해 등 강원 동해안 지역 간 이동도 실제 출발지와 도착지를 기준으로 확인해 주세요. 아래 경로는 상담 시 출발·도착지를 설명하기 위한 예시이며, 고정 요금이나 즉시 배차를 의미하지 않습니다.</p>"""
+        route_examples = [
+            (f"{location} → 서울", "수도권으로 차량을 이동하는 경로 예시"),
+            (f"{location} → 부산", "영남권으로 차량을 이동하는 경로 예시"),
+            (f"서울 → {location}", "수도권에서 해당 지역으로 들어오는 경로 예시"),
+            (f"부산 → {location}", "영남권에서 해당 지역으로 들어오는 경로 예시"),
+        ]
+        route_cards = "".join(
+            f'<div class="card"><h3>{esc(route)}</h3><p>{esc(note)}</p><p class="muted">경로 안내 예시 · 실제 운행 완료 기록이나 고정 요금 표시가 아닙니다.</p></div>'
+            for route, note in route_examples
+        )
         sections = f"""
 <h2>{esc(location)} 탁송 예약 및 요금 확인</h2>
-<p>차량탁송 비용은 이동 거리, 차량 종류, 인수·인계 장소, 희망 시간과 현장 조건에 따라 달라질 수 있습니다. 출발지와 도착지를 확인한 뒤 해당 조건의 견적을 안내받는 방식이 정확합니다. 확인되지 않은 금액을 고정 요금처럼 표시하지 않습니다.</p>
+<p>{esc(location)}에서 승용차, SUV, 전기차, 수입차, 업무용 차량, 1톤 탑차 등을 다른 지역으로 이동해야 한다면 자동차탁송을 상담할 수 있습니다. 차량 종류와 정확한 출발·도착 위치, 희망 시간에 따라 배차 조건이 달라질 수 있습니다.</p>
+<h2>{esc(location)} 출발·도착 구간별 탁송 안내</h2>
+<p>아래는 고객이 경로를 검색하고 상담할 때 참고할 수 있는 대표 경로 예시입니다. 실제 완료 운행 기록이 확인되는 경우에만 실제 후기와 운행일·요금을 별도로 표시하며, 아래 예시를 실제 운행 실적이나 확정 요금으로 표현하지 않습니다.</p>
+<div class="cards">{route_cards}</div>
 {route_note}
-<h2>탁송 견적 문의 시 준비할 내용</h2>
-<ul><li>차량을 인수할 정확한 장소와 최종 도착 주소</li><li>차종 및 차량 운행에 필요한 상태 정보</li><li>희망 인수 날짜와 시간</li><li>차량 인수·인계 방법과 현장 접근 안내</li></ul>
+<h2>{esc(location)} 탁송 견적 문의 시 준비할 내용</h2>
+<ul><li>차량을 인수할 정확한 장소와 최종 도착 주소</li><li>차종(예: 승용차, SUV, 전기차, 1톤 탑차) 및 차량 상태</li><li>희망 인수 날짜와 시간, 도착 희망 일정</li><li>차량 인수·인계 방법과 현장 접근 안내</li><li>적재물 유무(화물차·탑차인 경우)</li></ul>
+<h2>{esc(location)} 장거리탁송 이용 전 확인할 점</h2>
+<p>장거리 이동은 이동 거리뿐 아니라 차량 크기, 인수 장소, 도착지 접근 조건, 운행 시간에 따라 견적과 배차 가능 여부가 달라집니다. 요금은 출발지와 도착지 등 구체적인 조건을 확인한 뒤 안내받으세요. 확인되지 않은 금액을 고정 요금처럼 표시하지 않습니다.</p>
 <h2>탁송 진행 순서</h2>
 <p>출발지·도착지 확인 → 차종·일정 확인 → 요금과 배차 가능 여부 안내 → 조건 확인 후 진행 결정 순서입니다. 장거리 이동이나 일정이 정해진 탁송은 미리 상담하면 조건을 확인하기 좋습니다.</p>"""
     else:
@@ -244,8 +260,10 @@ def main():
             urls.add(service_url)
             body = service_body(location, level, s, r, completed_trips)
             if s["slug"] == "taksong":
-                title = f"{location} 탁송 예약·요금 안내 | {BRAND}"
-                description = f"{location} 자동차탁송·장거리탁송 상담 안내. 출발지, 도착지, 차종과 희망 시간을 기준으로 요금 및 배차 가능 여부를 확인하세요. 대표 전화 {PHONE}."
+                short_location = name
+                main_keyword = f"{short_location}탁송"
+                title = f"{main_keyword} | 스마트전국대리운전 24시탁송 | {PHONE}"
+                description = f"{location} {main_keyword}, 전국 자동차탁송, 장거리탁송, 1톤탑차탁송 상담. 실제 운행 기록은 확인된 경우에만 공개하며 요금은 경로와 차량 조건에 따라 상담합니다. 스마트전국대리운전 24시탁송 대표전화 {PHONE}."
             else:
                 title = f"{location} {s['keyword']} 이용 안내 | {BRAND}"
                 description = f"{location} {s['keyword']} 이용 상황과 상담 전 확인사항 안내. 대표 전화 {PHONE}."
