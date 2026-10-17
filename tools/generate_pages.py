@@ -393,9 +393,25 @@ def main():
         parts = urlsplit(url)
         encoded_path = quote(parts.path, safe="/-._~")
         return urlunsplit((parts.scheme, parts.netloc, encoded_path, parts.query, parts.fragment))
-    entries = "\n".join(f"  <url><loc>{esc(sitemap_safe_url(url))}</loc></url>" for url in sorted(urls))
-    (ROOT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + entries + "\n</urlset>\n", encoding="utf-8")
+    url_list = sorted(urls)
+    sitemap_files = []
+    sitemap_chunk_size = 45000
+    for chunk_number, start in enumerate(range(0, len(url_list), sitemap_chunk_size), start=1):
+        chunk = url_list[start:start + sitemap_chunk_size]
+        entries = "\n".join(f"  <url><loc>{esc(sitemap_safe_url(url))}</loc></url>" for url in chunk)
+        filename = f"sitemap-{chunk_number}.xml"
+        (ROOT / filename).write_text(
+            '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + entries + "\n</urlset>\n",
+            encoding="utf-8"
+        )
+        sitemap_files.append(f"{SITE_URL}/{filename}")
+    sitemap_entries = "\n".join(f"  <sitemap><loc>{esc(url)}</loc></sitemap>" for url in sitemap_files)
+    (ROOT / "sitemap.xml").write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + sitemap_entries + "\n</sitemapindex>\n",
+        encoding="utf-8"
+    )
     print(f"Generated {count} pages from {len(regions)} region records.")
+    print(f"Created {len(sitemap_files)} sitemap files for {len(url_list)} URLs.")
     print("Nationwide expansion requires verified administrative-area data and useful region-specific details.")
 
 if __name__ == "__main__":
