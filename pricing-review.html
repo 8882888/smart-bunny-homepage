@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요금 검토 도구 | 스마트전국대리운전 스마트24탁송</title>
+<style>
+:root{font-family:Arial,"Malgun Gothic",sans-serif;color:#172235;background:#f3f6fa}body{margin:0}main{max-width:1000px;margin:0 auto;padding:24px}h1{font-size:28px}p{line-height:1.65}.notice{background:#fff8e7;border:1px solid #f0d28a;border-radius:12px;padding:16px}.panel{background:white;border:1px solid #dbe3ed;border-radius:12px;padding:18px;margin:16px 0}button{background:#12345a;color:white;border:0;border-radius:8px;padding:11px 16px;font-weight:bold;cursor:pointer;margin:6px 6px 6px 0}input{max-width:100%;padding:10px}table{border-collapse:collapse;width:100%;background:white}th,td{text-align:left;padding:10px;border-bottom:1px solid #e0e6ef;font-size:14px}th{background:#edf2f8}.table-wrap{overflow:auto}.muted{color:#596779}.stat{font-size:23px;font-weight:800}.hidden{display:none}.status{padding:12px;background:#edf7ee;border-radius:8px;margin-top:12px}
+</style>
+</head>
+<body><main>
+<p><a href="./">← 홈페이지로 돌아가기</a></p>
+<h1>완료 운행 기록 요금 검토 도구</h1>
+<p>완료 운행 기록을 브라우저 안에서 분석해 반복 경로의 금액 분포를 검토합니다. 이 도구는 요금을 자동 승인하거나 홈페이지 요율을 변경하지 않습니다.</p>
+<div class="notice"><strong>개인정보 보호 안내</strong><br>파일은 브라우저 안에서만 처리되며 서버로 업로드하지 않습니다. 원본 파일에 이름, 전화번호, 주민등록번호, 차량번호 등 불필요한 개인정보가 있으면 먼저 제거하세요. 결과 내보내기에는 출발지·도착지별 개별 기록이 아니라 집계 정보만 포함합니다.</div>
+<section class="panel">
+<h2>1. 완료 운행 파일 선택</h2>
+<p>프로젝트의 <code>data/completed_trips.json</code> 또는 같은 구조의 JSON 파일을 선택하세요.</p>
+<input id="file" type="file" accept=".json,application/json">
+<div id="status" class="muted">파일을 선택하면 브라우저에서 분석합니다.</div>
+</section>
+<section id="summary" class="panel hidden"><h2>2. 분석 결과</h2><div id="stats"></div><p class="muted">현재 기록에는 서비스 종류(대리운전/탁송), 차종, 주행거리, 시간대별 요금 구분이 없으므로 아래 결과는 참고용 집계이며 확정 요율 산정에 바로 사용할 수 없습니다.</p><div class="table-wrap"><table><thead><tr><th>출발지 → 도착지</th><th>건수</th><th>중앙값</th><th>최저</th><th>최고</th></tr></thead><tbody id="rows"></tbody></table></div><button id="download">집계 JSON 다운로드</button></section>
+<script>
+(function(){
+const file=document.getElementById('file'),status=document.getElementById('status'),summary=document.getElementById('summary'),stats=document.getElementById('stats'),rows=document.getElementById('rows'),download=document.getElementById('download');
+let output=null;
+function median(a){const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2}
+function money(n){return Math.round(n).toLocaleString('ko-KR')+'원'}
+file.addEventListener('change',async()=>{
+ const f=file.files&&file.files[0];if(!f)return;
+ summary.classList.add('hidden');output=null;status.textContent='파일을 읽는 중입니다…';
+ try{
+  const data=JSON.parse(await f.text());const trips=Array.isArray(data)?data:data.trips;
+  if(!Array.isArray(trips))throw new Error('파일에서 운행 기록 배열(trips)을 찾지 못했습니다.');
+  const groups=new Map();let valid=0,skipped=0;
+  for(const t of trips){
+   const origin=String(t['출발지']??t.origin??'').trim(),destination=String(t['도착지']??t.destination??'').trim();
+   const amount=Number(t['금액']??t.amount??t.fare_amount);
+   const date=String(t['운행일']??t.date??'').trim();
+   if(!origin||!destination||!Number.isFinite(amount)||amount<=0){skipped++;continue}
+   valid++;const key=origin+' → '+destination;
+   if(!groups.has(key))groups.set(key,[]);groups.get(key).push(amount);
+  }
+  const aggregate=[...groups.entries()].map(([route,amounts])=>({route,count:amounts.length,median_krw:Math.round(median(amounts)),min_krw:Math.min(...amounts),max_krw:Math.max(...amounts)})).sort((a,b)=>b.count-a.count||a.route.localeCompare(b.route,'ko'));
+  output={schema_version:1,generated_at:new Date().toISOString(),status:'review_only_not_approved',source_record_count:trips.length,valid_record_count:valid,skipped_record_count:skipped,warning:'서비스 종류·차종·주행거리·시간대가 확인되지 않은 집계입니다. 승인 요금표로 자동 적용하지 마세요.',route_aggregates:aggregate};
+  stats.innerHTML='<p><span class="stat">'+trips.length.toLocaleString('ko-KR')+'</span> 전체 기록 · <strong>'+valid.toLocaleString('ko-KR')+'</strong> 분석 가능 · '+skipped+'건 제외</p><p>'+aggregate.length.toLocaleString('ko-KR')+'개 경로 조합</p>';
+  rows.innerHTML=aggregate.slice(0,200).map(x=>'<tr><td>'+escapeHtml(x.route)+'</td><td>'+x.count+'</td><td>'+money(x.median_krw)+'</td><td>'+money(x.min_krw)+'</td><td>'+money(x.max_krw)+'</td></tr>').join('');
+  summary.classList.remove('hidden');status.textContent='분석 완료. 개별 운행 내역은 결과 파일에 포함하지 않았습니다.';
+ }catch(e){status.textContent='파일을 분석하지 못했습니다: '+e.message}
+});
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+download.addEventListener('click',()=>{if(!output)return;const blob=new Blob([JSON.stringify(output,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='completed-trip-route-aggregates.json';a.click();URL.revokeObjectURL(url)});
+})();
+</script></main></body></html>
