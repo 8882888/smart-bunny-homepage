@@ -24,5 +24,7 @@ select
 from public.trip_records
 where status = 'completed';
 
+-- SECURITY INVOKER 뷰가 service_type을 조회할 수 있도록 공개 역할에 해당 열의 SELECT 권한을 부여합니다.
+grant select (service_type) on table public.trip_records to anon;
 revoke all on public.completed_trip_reviews from public;
 grant select on public.completed_trip_reviews to anon, authenticated;
