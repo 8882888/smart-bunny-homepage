@@ -60,6 +60,8 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 @keyframes region-review-flow{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){.region-review-track{animation:none;flex-wrap:wrap;width:100%;padding:0 5%}.region-review-card{flex:1 1 240px}}
 
+
+.request-intro{max-width:850px;margin:0 auto 18px}.request-kicker{font-size:12px;font-weight:800;letter-spacing:2px;color:#1769aa}.request-form{max-width:950px;margin:auto;background:#fff;border:1px solid #d9e2ee;border-radius:16px;padding:clamp(16px,3vw,28px);box-shadow:0 8px 28px #1025440d}.request-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.request-grid label,.request-result label{display:flex;flex-direction:column;gap:6px;font-weight:700}.request-grid input,.request-grid select,.request-grid textarea,.request-result textarea{box-sizing:border-box;width:100%;padding:12px;border:1px solid #c7d2e0;border-radius:8px;background:#fff;color:#172235;font:inherit}.request-grid input:focus,.request-grid select:focus,.request-grid textarea:focus,.request-result textarea:focus{outline:2px solid #1769aa;outline-offset:1px}.request-wide{grid-column:1/-1}.request-privacy{font-size:13px;color:#526174}.request-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.request-actions .btn,.request-result .btn{border:0;cursor:pointer;font:inherit;font-weight:700}.request-submit{background:#1769aa;color:white}.request-submit:hover{background:#124f83}.request-result{margin-top:20px;padding:16px;border:1px solid #d9e2ee;border-radius:10px;background:#f7faff}.request-result textarea{margin-top:8px;white-space:pre-wrap}.request-result button{margin-top:8px}.request-result #copy-status{font-size:13px;color:#17603b}@media(max-width:600px){.request-grid{grid-template-columns:1fr}.request-wide{grid-column:auto}.request-actions .btn{width:100%;box-sizing:border-box;text-align:center}}
 </style>
 </head>
 <body>
@@ -100,6 +102,44 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 <a class="btn" href="#services">서비스 알아보기</a>
 </div>
 <section><strong>상담 시 출발지 · 도착지 · 차량 종류 · 희망 시간을 알려주세요.</strong></section>
+
+<section id="quick-request" class="gray">
+  <div class="request-intro">
+    <p class="request-kicker">SMART QUICK CONSULTATION</p>
+    <h2>대리운전·탁송 상담 요청 작성</h2>
+    <p>출발지와 도착지 등 필요한 내용만 입력하면 상담 메시지를 만들 수 있습니다. 이 양식은 자동 배차나 요금 확정 기능이 아니며, 개인정보 입력 없이 전화 또는 카카오톡으로 상담을 이어가세요.</p>
+  </div>
+  <form id="quick-request-form" class="request-form">
+    <div class="request-grid">
+      <label>서비스 구분
+        <select name="service" required>
+          <option value="대리운전">대리운전</option>
+          <option value="자동차 탁송">자동차 탁송</option>
+          <option value="법인 대리운전">법인 대리운전</option>
+          <option value="골프장 대리운전">골프장 대리운전</option>
+        </select>
+      </label>
+      <label>희망 운행일 <input name="date" type="date"></label>
+      <label>희망 시간 <input name="time" type="time"></label>
+      <label>차량 종류 (탁송 시) <input name="vehicle" type="text" maxlength="80" placeholder="예: 승용차, 1톤 트럭"></label>
+      <label>출발지 <input name="origin" type="text" maxlength="120" placeholder="시·군·구 또는 상세 장소" required></label>
+      <label>도착지 <input name="destination" type="text" maxlength="120" placeholder="시·군·구 또는 상세 장소" required></label>
+      <label class="request-wide">추가 요청사항 (선택) <textarea name="note" rows="3" maxlength="500" placeholder="예약 여부, 차량 인수·인계 관련 내용 등"></textarea></label>
+    </div>
+    <p class="request-privacy">※ 이름·휴대전화번호·주민등록번호 등 개인정보는 이 양식에 입력하지 마세요. 작성 내용은 이 페이지에서 상담 메시지로만 만들며 서버에 저장되지 않습니다.</p>
+    <div class="request-actions">
+      <button class="btn request-submit" type="submit">상담 메시지 만들기</button>
+      <a class="btn" href="tel:18773015">☎ 1877-3015 전화</a>
+      <a class="btn" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer">카카오톡 상담</a>
+    </div>
+    <div id="request-result" class="request-result" hidden aria-live="polite">
+      <label for="request-message">아래 내용을 복사한 뒤 카카오톡 상담창에 붙여넣어 주세요.</label>
+      <textarea id="request-message" rows="8" readonly></textarea>
+      <button class="btn" id="copy-request" type="button">상담 내용 복사</button>
+      <span id="copy-status" role="status"></span>
+    </div>
+  </form>
+</section>
 
 <section id="categories" class="gray">
 <h2>홈페이지 카테고리</h2>
@@ -185,6 +225,42 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 })();
 </script>
 <footer>스마트전국대리운전 스마트24탁송<br>대표 상담 전화: 1877-3015<br>전국 지역별 서비스 안내를 단계적으로 확장하고 있습니다.</footer>
+
+<script>
+(function(){
+  const form=document.getElementById("quick-request-form");
+  if(!form) return;
+  const result=document.getElementById("request-result");
+  const message=document.getElementById("request-message");
+  const status=document.getElementById("copy-status");
+  form.addEventListener("submit",function(event){
+    event.preventDefault();
+    const data=new FormData(form);
+    const fields=[
+      ["서비스",data.get("service")],
+      ["희망 운행일",data.get("date")||"상담 시 협의"],
+      ["희망 시간",data.get("time")||"상담 시 협의"],
+      ["출발지",String(data.get("origin")||"").trim()],
+      ["도착지",String(data.get("destination")||"").trim()],
+      ["차량 종류",String(data.get("vehicle")||"").trim()],
+      ["추가 요청사항",String(data.get("note")||"").trim()]
+    ];
+    message.value="스마트전국대리운전 스마트24탁송 상담 요청\\n"+fields.filter(item=>item[1]).map(item=>item[0]+": "+item[1]).join("\\n");
+    result.hidden=false;
+    status.textContent="";
+    result.scrollIntoView({behavior:"smooth",block:"nearest"});
+  });
+  document.getElementById("copy-request").addEventListener("click",async function(){
+    try{
+      await navigator.clipboard.writeText(message.value);
+      status.textContent="상담 내용이 복사되었습니다. 카카오톡 상담창에 붙여넣어 주세요.";
+    }catch(error){
+      message.focus();message.select();
+      status.textContent="자동 복사를 사용할 수 없습니다. 선택된 내용을 복사해 주세요.";
+    }
+  });
+})();
+</script>
 </body>
 </html>
 
