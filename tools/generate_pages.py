@@ -74,8 +74,8 @@ def related_trip_html(region, trips, limit=3):
         return ""
     def render_trip_card(t):
         raw_destination = str(t["도착지"])
-        is_transport = bool(re.search(r"톨포\\s*$", raw_destination))
-        destination = re.sub(r"\\s*톨포\\s*$", "", raw_destination).strip()
+        is_transport = bool(re.search(r"톨포\s*$", raw_destination))
+        destination = re.sub(r"\s*톨포\s*$", "", raw_destination).strip()
         service_label = "탁송" if is_transport else "대리운전"
         service_class = "transport" if is_transport else "daeri"
         return (
