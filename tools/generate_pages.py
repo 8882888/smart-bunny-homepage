@@ -233,11 +233,77 @@ def main():
         out.write_text(page(f"{province_name} 대리운전·탁송 지역 안내 | {BRAND}", f"{province_name} 대리운전, 자동차탁송, 장거리탁송 지역별 안내. 대표 전화 {PHONE}.", province_body, province_url), encoding="utf-8")
 
     directory_url = f"{SITE_URL}/region/"
+    # Search index lets visitors find a locality directly instead of opening province cards one by one.
+    search_records = [
+        {
+            "name": item.get("name", ""),
+            "parent_name": item.get("parent_name", ""),
+            "level": item.get("level", "지역"),
+            "slug": item["slug"].strip("/"),
+            "url": "/smart-bunny-homepage/region/" + item["slug"].strip("/") + "/"
+        }
+        for item in sorted(regions, key=lambda x: (x.get("parent_name", ""), x.get("name", "")))
+    ]
+    (region_root / "region-index.json").write_text(
+        json.dumps(search_records, ensure_ascii=False, separators=(",", ":")) + "\\n",
+        encoding="utf-8"
+    )
+    directory_script = """<script>
+(async function () {
+  const input = document.getElementById("region-search");
+  const results = document.getElementById("region-results");
+  const status = document.getElementById("region-search-status");
+  let regions = [];
+  try {
+    const response = await fetch("./region-index.json");
+    if (!response.ok) throw new Error("index unavailable");
+    regions = await response.json();
+    status.textContent = "전국 " + regions.length.toLocaleString("ko-KR") + "개 행정구역 검색 준비 완료";
+  } catch (_) {
+    status.textContent = "지역 검색 자료를 불러오지 못했습니다. 아래 시·도 목록을 이용해 주세요.";
+    return;
+  }
+  function render() {
+    const query = input.value.trim().toLocaleLowerCase("ko-KR");
+    results.replaceChildren();
+    if (!query) {
+      status.textContent = "지역명(예: 강남구, 역삼동, 속초시)을 입력해 주세요.";
+      return;
+    }
+    const matches = regions.filter(item =>
+      (item.parent_name + " " + item.name + " " + item.slug).toLocaleLowerCase("ko-KR").includes(query)
+    ).slice(0, 100);
+    if (!matches.length) {
+      status.textContent = "검색 결과가 없습니다. 시·군·구 또는 읍·면·동 이름으로 다시 검색해 주세요.";
+      return;
+    }
+    const list = document.createElement("ul");
+    matches.forEach(item => {
+      const li = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = item.url;
+      link.textContent = [item.parent_name, item.name].filter(Boolean).join(" ") + " (" + item.level + ")";
+      li.appendChild(link);
+      list.appendChild(li);
+    });
+    results.appendChild(list);
+    status.textContent = matches.length === 100 ? "검색 결과가 100개로 제한되어 있습니다. 더 구체적인 지역명을 입력해 주세요." : "검색 결과 " + matches.length.toLocaleString("ko-KR") + "개";
+  }
+  input.addEventListener("input", render);
+  input.addEventListener("search", render);
+})();
+</script>"""
     directory_body = f"""<p class="muted">전국 지역별 서비스 안내</p>
 <h1>전국 대리운전·자동차탁송 지역 찾기</h1>
-<p>시·도를 선택한 뒤 시·군·구, 읍·면·동 등 세부 지역 페이지로 이동할 수 있습니다. 실제 운행 사례와 요금은 확인된 정보만 별도로 안내합니다.</p>
+<p>전국 행정구역을 직접 검색하거나 시·도를 선택해 시·군·구, 읍·면·동 등 세부 지역 페이지로 이동할 수 있습니다. 실제 운행 사례와 요금은 확인된 정보만 별도로 안내합니다.</p>
+<label for="region-search">지역명 빠른 검색</label>
+<input id="region-search" type="search" placeholder="예: 서울 강남구, 역삼동, 속초시" autocomplete="off" style="width:100%;max-width:650px;padding:13px;border:1px solid #b9c5d3;border-radius:8px;font:inherit">
+<p id="region-search-status" class="muted" role="status">지역 검색 자료를 불러오는 중입니다.</p>
+<div id="region-results"></div>
+<h2>시·도별로 찾아보기</h2>
 <div class="cards">{''.join(province_cards)}</div>
-<p class="muted">지역 데이터 출처: 국토교통부 전국 법정동 데이터. 지역별 배차 가능 여부와 요금은 상담을 통해 확인해 주세요.</p>"""
+<p class="muted">지역 데이터 출처: 국토교통부 전국 법정동 데이터. 지역별 배차 가능 여부와 요금은 상담을 통해 확인해 주세요.</p>
+{directory_script}"""
     directory_path = region_root / "index.html"
     directory_path.write_text(page("전국 대리운전·자동차탁송 지역 안내 | " + BRAND, "전국 시·도별 대리운전·자동차탁송·장거리탁송 지역 안내. 대표 전화 " + PHONE + ".", directory_body, directory_url), encoding="utf-8")
     urls.add(directory_url)
