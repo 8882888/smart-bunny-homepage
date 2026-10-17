@@ -34,9 +34,12 @@ def load_completed_trips():
     except (OSError, json.JSONDecodeError):
         return []
     trips = data.get("trips", []) if isinstance(data, dict) else []
-    return [t for t in trips if isinstance(t, dict) and all(
+    valid = [t for t in trips if isinstance(t, dict) and all(
         key in t for key in ("운행일", "출발시간", "출발지", "도착지", "금액")
     )]
+    for trip in valid:
+        trip["_route_norm"] = re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
+    return valid
 
 
 def region_aliases(region):
@@ -49,17 +52,24 @@ def region_aliases(region):
     return [re.sub(r"\s+", "", alias) for alias in aliases if len(re.sub(r"\s+", "", alias)) >= 2]
 
 
+_RELATED_TRIP_CACHE = {}
+
+
 def related_trip_html(region, trips, limit=3):
     aliases = region_aliases(region)
     if not aliases or not trips:
         return ""
-    matched = []
-    for trip in trips:
-        route = re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
-        if any(alias in route for alias in aliases):
-            matched.append(trip)
-            if len(matched) >= limit:
-                break
+    cache_key = (str(region.get("name", "")), str(region.get("parent_name", "")))
+    if cache_key not in _RELATED_TRIP_CACHE:
+        matched = []
+        for trip in trips:
+            route = trip.get("_route_norm") or re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
+            if any(alias in route for alias in aliases):
+                matched.append(trip)
+                if len(matched) >= 4:
+                    break
+        _RELATED_TRIP_CACHE[cache_key] = matched
+    matched = _RELATED_TRIP_CACHE[cache_key][:limit]
     if not matched:
         return ""
     rows = "".join(
