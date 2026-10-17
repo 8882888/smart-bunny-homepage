@@ -54,7 +54,7 @@ def main():
         )
     route_section = (
         '<section id="route-search"><h2>구간별 실제 운행 사례</h2>'
-        '<p>완료 운행 기록에서 확인되는 출발지와 도착지별 사례입니다. 표시된 요금은 과거 기록이며 현재 확정요금이 아닙니다.</p>'
+        '<p>완료 운행 기록에서 확인되는 출발지와 도착지별 사례입니다. 운행 구분이 없는 기록은 60,000원 이상을 탁송으로 분류합니다. 표시된 요금은 과거 기록이며 현재 확정요금이 아닙니다.</p>'
         + ('<div class="route-grid">' + ''.join(route_cards) + '</div>' if route_cards else
            '<p class="empty">구간별 사례를 표시할 수 있는 운행 기록이 아직 없습니다.</p>')
         + '</section>'
@@ -88,7 +88,7 @@ main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28p
 <a href="/smart-bunny-homepage/#services">대리운전</a><a href="/smart-bunny-homepage/#transport">탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a>
 <a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
 <main><p>완료 운행 기록 · 개인정보 비공개</p><h1>구간별 실제 운행 후기</h1>
-<p>확인된 완료 운행 자료 중 운행일, 출발 시간, 출발지, 도착지, 금액만 공개합니다. 고객 이름, 전화번호, 주민등록번호 등 개인정보는 공개하지 않습니다.</p>
+<p>확인된 완료 운행 자료 중 운행일, 출발 시간, 출발지, 도착지, 금액만 공개합니다. 고객 이름, 전화번호, 주민등록번호 등 개인정보는 공개하지 않습니다. 운행 구분 자료가 없는 과거 기록은 금액 60,000원 이상을 탁송으로 분류하는 기준을 적용합니다.</p>
 {route_section}
 <section id="fare-guide" class="empty"><h2>탁송 요금은 어떻게 결정되나요?</h2>
 <p>실제 운행 사례의 요금은 각 운행 기록에 저장된 금액을 그대로 표시합니다. 다만 기존 기록에 세부 산정 사유가 별도로 저장되어 있지 않은 경우, 특정 요금이 왜 책정되었는지 단정하지 않습니다.</p>
