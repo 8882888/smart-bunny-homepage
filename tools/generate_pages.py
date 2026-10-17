@@ -246,7 +246,7 @@ def main():
     ]
     (region_root / "region-index.json").write_text(
         json.dumps(search_records, ensure_ascii=False, separators=(",", ":")) + "\\n",
-        encoding="utf-8"
+        json.dumps(search_records, ensure_ascii=False, separators=(",", ":")) + "\n",
     )
     directory_script = """<script>
 (async function () {
