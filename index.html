@@ -9,15 +9,18 @@
 body{margin:0;font-family:Arial,"Malgun Gothic",sans-serif;color:#172235;line-height:1.7}
 header{background:#102544;color:white;padding:16px 6%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
 header a{color:#ffd166;text-decoration:none;font-weight:bold}
-.topnav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:18px}
-.topnav a{color:white;padding:7px 0}
-.nav-dropdown{position:relative;display:inline-flex;align-items:center}
-.nav-dropdown>a{display:inline-block}
-.nav-dropdown-content{display:none;position:absolute;top:100%;left:0;min-width:220px;background:#fff;border:1px solid #dbe3ed;border-radius:9px;box-shadow:0 8px 22px #0002;padding:8px;z-index:20}
-.nav-dropdown-content a{display:block!important;color:#172235!important;padding:9px 12px!important;border-radius:6px;white-space:nowrap}
+.topnav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.topnav>a:not(.kakao){color:#fff;padding:9px 13px;border:1px solid #58708e;border-radius:8px;display:inline-block;white-space:nowrap}
+.topnav>a:not(.kakao):hover{background:#23466f;border-color:#ffd166}
+.nav-dropdown{position:relative;display:inline-block}
+.nav-dropdown summary{list-style:none;cursor:pointer;color:#fff;padding:9px 13px;border:1px solid #58708e;border-radius:8px;font-weight:bold;white-space:nowrap}
+.nav-dropdown summary::-webkit-details-marker{display:none}
+.nav-dropdown[open] summary,.nav-dropdown summary:hover{background:#23466f;border-color:#ffd166}
+.nav-dropdown-content{display:none;position:absolute;top:calc(100% + 4px);left:0;min-width:230px;background:#fff;border:1px solid #dbe3ed;border-radius:9px;box-shadow:0 8px 22px #0002;padding:8px;z-index:100}
+.nav-dropdown[open] .nav-dropdown-content{display:block}
+.nav-dropdown-content a{display:block!important;color:#172235!important;padding:9px 12px!important;border-radius:6px;white-space:nowrap;text-decoration:none}
 .nav-dropdown-content a:hover{background:#eef4fa}
-.nav-dropdown:hover .nav-dropdown-content,.nav-dropdown:focus-within .nav-dropdown-content{display:block}
-@media(max-width:650px){.nav-dropdown-content{left:0;min-width:200px}}
+@media(max-width:650px){.topnav{justify-content:flex-start;gap:7px}.topnav>a:not(.kakao),.nav-dropdown summary{font-size:14px;padding:8px 10px}.nav-dropdown-content{left:0;min-width:210px}.topnav a.kakao{font-size:14px}}
 .topnav a.kakao{background:#FEE500;color:#191919;padding:9px 13px;border-radius:7px;display:inline-flex;align-items:center;gap:7px}
 .kakao-icon{width:19px;height:17px;display:inline-block;vertical-align:middle}
 .kakao-hours{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;margin-left:-10px}
@@ -35,7 +38,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 </style>
 </head>
 <body>
-<header><strong>스마트전국대리운전 스마트24탁송</strong><nav class="topnav" aria-label="주요 메뉴"><a href="#services">대리운전</a><div class="nav-dropdown"><a href="#transport" aria-haspopup="true">탁송 ▾</a><div class="nav-dropdown-content" aria-label="탁송 하위 메뉴"><a href="#transport">전국 모든 차종 탁송</a><a href="#vehicle-types">승용차 탁송</a><a href="#vehicle-types">1톤~25톤 차량 탁송</a><a href="./special/seoraksan/">설악산탁송</a><a href="./special/jirisan/">지리산탁송</a><a href="./special/national-bicycle-road/">자전거종주탁송</a><a href="./special/national-cycling-tour/">국토종주 자전거길 탁송</a></div></div><a href="#corporate">법인대리운전</a><a href="#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담, 상담시간 오전 8시부터 오후 8시까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg><span>카톡상담 08:00~20:00</span></a></nav><a href="tel:18773015">대표 상담 1877-3015</a></header>
+<header><strong>스마트전국대리운전 스마트24탁송</strong><nav class="topnav" aria-label="주요 메뉴"><a href="#services">대리운전</a><details class="nav-dropdown"><summary>탁송 ▾</summary><div class="nav-dropdown-content" aria-label="탁송 하위 메뉴"><a href="#transport">전국 모든 차종 탁송</a><a href="#vehicle-types">승용차 탁송</a><a href="#vehicle-types">1톤~25톤 차량 탁송</a><a href="./special/seoraksan/">설악산탁송</a><a href="./special/jirisan/">지리산탁송</a><a href="./special/national-bicycle-road/">자전거종주탁송</a><a href="./special/national-cycling-tour/">국토종주 자전거길 탁송</a></div></details><a href="#corporate">법인대리운전</a><a href="#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담, 상담시간 오전 8시부터 오후 8시까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg><span>카톡상담 08:00~20:00</span></a></nav><a href="tel:18773015">대표 상담 1877-3015</a></header>
 <div class="hero">
 <p>전국 대리운전 · 자동차 탁송 상담</p>
 <h1>필요한 순간,<br>편리하게 연결하는 이동 서비스</h1>
