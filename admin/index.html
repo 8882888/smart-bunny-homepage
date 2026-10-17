@@ -44,9 +44,11 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <div><label for="trip-origin">출발지</label><input id="trip-origin" maxlength="200" required></div>
 <div><label for="trip-destination">도착지</label><input id="trip-destination" maxlength="200" required></div>
 <div><label for="trip-fare">금액 (원)</label><input id="trip-fare" type="number" min="1" step="1" required></div>
+<div><label for="trip-type">서비스 구분</label><select id="trip-type" required><option value="daeri">대리운전</option><option value="transport">탁송</option></select></div>
 <div><label for="trip-status">운행 상태</label><select id="trip-status"><option value="completed">완료 — 공개 후기</option><option value="pending">대기 — 비공개</option><option value="cancelled">취소 — 비공개</option></select></div>
 </div>
-<p class="small">등록 전 날짜, 출발·도착지, 금액을 확인하세요. 완료 상태인 기록만 공개 후기 목록에 표시됩니다.</p>
+<p class="small">서비스 구분은 반드시 선택하세요. 엑셀 첫 열도 서비스구분(탁송/대리운전)으로 준비합니다. 완료 상태인 기록만 공개 후기 목록에 표시됩니다.</p>
+<div class="panel" style="padding:14px;margin:14px 0;background:#f8fafc"><h3>엑셀/CSV 일괄 업로드</h3><p class="small">CSV UTF-8 파일을 선택하세요. 첫 행은 열 제목이며 열 순서는 서비스구분, 운행일, 출발시간, 출발지, 도착지, 금액입니다. 개인정보는 넣지 마세요.</p><input id="csv-file" type="file" accept=".csv,text/csv"><button id="csv-import" type="button" class="secondary">CSV 미리보기 및 등록</button><div id="csv-status" class="status" role="status"></div></div>
 <div class="actions"><button type="submit">저장</button><button id="cancel-edit" type="button" class="secondary hidden">수정 취소</button></div>
 <div id="save-status" class="status" role="status"></div>
 </form>
@@ -73,16 +75,16 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
  function statusText(message, id="save-status") { $(id).textContent = message; }
  async function loadRecords() {
    $("records").textContent = "불러오는 중…";
-   const {data,error} = await client.from("trip_records").select("id,trip_date,departure_time,origin,destination,fare_krw,status").order("trip_date",{ascending:false}).order("departure_time",{ascending:false}).limit(500);
+   const {data,error} = await client.from("trip_records").select("id,trip_date,departure_time,origin,destination,fare_krw,service_type,status").order("trip_date",{ascending:false}).order("departure_time",{ascending:false}).limit(500);
    if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}
    if(!data.length){$("records").innerHTML="<p>등록된 운행 기록이 없습니다.</p>";return;}
-   $("records").innerHTML = '<table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>상태</th><th>작업</th></tr></thead><tbody>' + data.map(t =>
-     '<tr><td>'+escapeHtml(t.trip_date)+'</td><td>'+escapeHtml(String(t.departure_time).slice(0,5))+'</td><td>'+escapeHtml(t.origin)+'</td><td>'+escapeHtml(t.destination)+'</td><td>'+money(t.fare_krw)+'</td><td>'+({"completed":"완료","pending":"대기","cancelled":"취소"}[t.status]||"미확인")+'</td><td><div class="actions"><button type="button" data-edit="'+escapeHtml(t.id)+'" class="secondary">수정</button><button type="button" data-delete="'+escapeHtml(t.id)+'" class="danger">삭제</button></div></td></tr>'
+   $("records").innerHTML = '<table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>구분</th><th>상태</th><th>작업</th></tr></thead><tbody>' + data.map(t =>
+     '<tr><td>'+escapeHtml(t.trip_date)+'</td><td>'+escapeHtml(String(t.departure_time).slice(0,5))+'</td><td>'+escapeHtml(t.origin)+'</td><td>'+escapeHtml(t.destination)+'</td><td>'+money(t.fare_krw)+'</td><td>'+((t.service_type==='transport')?'탁송':'대리운전')+'</td><td>'+({"completed":"완료","pending":"대기","cancelled":"취소"}[t.status]||"미확인")+'</td><td><div class="actions"><button type="button" data-edit="'+escapeHtml(t.id)+'" class="secondary">수정</button><button type="button" data-delete="'+escapeHtml(t.id)+'" class="danger">삭제</button></div></td></tr>'
    ).join("")+'</tbody></table>';
    data.forEach(t => { const edit = document.querySelector('[data-edit="'+t.id+'"]'); const del = document.querySelector('[data-delete="'+t.id+'"]'); if(edit) edit.addEventListener("click",()=>editRecord(t)); if(del) del.addEventListener("click",()=>deleteRecord(t)); });
  }
  function editRecord(t){
-   $("trip-id").value=t.id;$("trip-date").value=t.trip_date;$("trip-time").value=String(t.departure_time).slice(0,5);$("trip-origin").value=t.origin;$("trip-destination").value=t.destination;$("trip-fare").value=t.fare_krw;$("trip-status").value=t.status;
+   $("trip-id").value=t.id;$("trip-date").value=t.trip_date;$("trip-time").value=String(t.departure_time).slice(0,5);$("trip-origin").value=t.origin;$("trip-destination").value=t.destination;$("trip-fare").value=t.fare_krw;$("trip-type").value=t.service_type||"daeri";$("trip-status").value=t.status;
    $("form-title").textContent="운행 기록 수정";$("cancel-edit").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"});
  }
  function resetForm(){ $("trip-form").reset();$("trip-id").value="";$("form-title").textContent="운행 기록 등록";$("cancel-edit").classList.add("hidden"); }
@@ -120,13 +122,32 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
  $("cancel-edit").addEventListener("click",resetForm);
  $("trip-form").addEventListener("submit",async e=>{
    e.preventDefault();statusText("저장 중…");
-   const payload={trip_date:$("trip-date").value,departure_time:$("trip-time").value,origin:$("trip-origin").value.trim(),destination:$("trip-destination").value.trim(),fare_krw:Number($("trip-fare").value),status:$("trip-status").value};
+   const payload={trip_date:$("trip-date").value,departure_time:$("trip-time").value,origin:$("trip-origin").value.trim(),destination:$("trip-destination").value.trim(),fare_krw:Number($("trip-fare").value),service_type:$("trip-type").value,status:$("trip-status").value};
    if(!payload.origin||!payload.destination||!Number.isInteger(payload.fare_krw)||payload.fare_krw<=0){statusText("출발지·도착지와 올바른 금액을 입력하세요.");return;}
    const id=$("trip-id").value;const result=id?await client.from("trip_records").update(payload).eq("id",id):await client.from("trip_records").insert(payload);
    if(result.error){statusText("저장 실패: "+result.error.message);return;}
    statusText("저장했습니다.");resetForm();await loadRecords();
  });
- client.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){$("login-panel").classList.add("hidden");$("app-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");return;}setTimeout(showSession,0);});
+
+ $("csv-import").addEventListener("click",async()=>{
+   const file=$("csv-file").files[0];
+   if(!file){statusText("먼저 CSV 파일을 선택해 주세요.","csv-status");return;}
+   const raw=await file.text();
+   const lines=raw.replace(/^\\uFEFF/,"").split(/\\r?\\n/).filter(line=>line.trim());
+   if(lines.length<2){statusText("제목 행과 데이터 행이 필요합니다.","csv-status");return;}
+   const parseLine=line=>{const out=[];let cur="",quoted=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'&&quoted&&line[i+1]==='"'){cur+='"';i++;}else if(ch==='"'){quoted=!quoted;}else if(ch===","&&!quoted){out.push(cur.trim());cur="";}else cur+=ch;}out.push(cur.trim());return out;};
+   const header=parseLine(lines[0]).map(x=>x.replace(/^"|"$/g,"").trim().toLowerCase());
+   const aliases={type:["서비스구분","서비스 구분","구분","service_type","type"],date:["운행일","날짜","trip_date"],time:["출발시간","출발 시간","시간","departure_time"],origin:["출발지","origin"],destination:["도착지","destination"],fare:["금액","요금","fare_krw"]};
+   const idx={};for(const [key,names] of Object.entries(aliases))idx[key]=header.findIndex(h=>names.map(n=>n.toLowerCase()).includes(h));
+   if(Object.values(idx).some(i=>i<0)){statusText("필수 열이 없습니다. 서비스구분, 운행일, 출발시간, 출발지, 도착지, 금액 순서의 CSV를 확인하세요.","csv-status");return;}
+   const rows=[];for(let i=1;i<lines.length;i++){const c=parseLine(lines[i]);const kind=c[idx.type].trim();const service_type=kind==="탁송"||kind.toLowerCase()==="transport"?"transport":kind==="대리운전"||kind.toLowerCase()==="daeri"?"daeri":"";const trip_date=c[idx.date];const departure_time=c[idx.time];const origin=c[idx.origin];const destination=c[idx.destination];const fare_krw=Number(String(c[idx.fare]).replace(/[₩원,\\s]/g,""));if(!service_type||!/^\\d{4}-\\d{2}-\\d{2}$/.test(trip_date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(departure_time)||!origin||!destination||origin.length>200||destination.length>200||!Number.isInteger(fare_krw)||fare_krw<=0){statusText((i+1)+"행 데이터가 잘못되었습니다. 등록을 중단했습니다.","csv-status");return;}rows.push({trip_date,departure_time,origin,destination,fare_krw,service_type,status:"completed"});}
+   if(!rows.length){statusText("등록할 운행 데이터가 없습니다.","csv-status");return;}
+   if(!confirm(rows.length+"건을 완료 운행으로 등록할까요? 서비스 구분과 개인정보 제외 여부를 확인하세요."))return;
+   statusText(rows.length+"건 등록 중…","csv-status");
+   for(let i=0;i<rows.length;i+=100){const {error}=await client.from("trip_records").insert(rows.slice(i,i+100));if(error){statusText("등록 오류: "+error.message+" (앞서 저장된 묶음은 등록되어 있을 수 있습니다.)","csv-status");await loadRecords();return;}}
+   statusText(rows.length+"건을 등록했습니다.","csv-status");await loadRecords();
+ });
+\n client.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){$("login-panel").classList.add("hidden");$("app-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");return;}setTimeout(showSession,0);});
  if(location.hash.includes("type=recovery")){$("login-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");}
  showSession();
 })();
