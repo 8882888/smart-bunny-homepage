@@ -27,11 +27,10 @@ def main():
             f"<td>{esc(t['출발지'])}</td>" +
             f"<td>{esc(t['도착지'])}</td>" +
             f"<td class=\"amount\">{int(t['금액']):,}원</td>" +
-            f"<td>{'탁송' if t.get('서비스구분') == 'transport' else '대리운전'}</td>" +
             "</tr>"
             for t in ordered
         )
-        table = f"""<div class="table-wrap"><table id="trip-table"><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>서비스 구분</th></tr></thead><tbody>{rows}</tbody></table></div>"""
+        table = f"""<div class="table-wrap"><table id="trip-table"><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>{rows}</tbody></table></div>"""
     else:
         table = '<div class="empty"><h2>등록된 운행 후기가 아직 없습니다.</h2><p>확인된 완료 운행 자료를 정리한 뒤 이곳에 공개합니다.</p></div>'
 
@@ -137,7 +136,7 @@ document.querySelectorAll(".route-card").forEach(button => button.addEventListen
   try {{
     const client = window.supabase.createClient(cfg.url, cfg.anonKey);
     const {{data, error}} = await client.from("completed_trip_reviews")
-      .select('"운행일","출발 시간","출발지","도착지","금액","서비스구분"')
+      .select('"운행일","출발 시간","출발지","도착지","금액"')
       .order("운행일", {{ascending:false}})
       .order("출발 시간", {{ascending:false}})
       .limit(1000);
@@ -147,8 +146,8 @@ document.querySelectorAll(".route-card").forEach(button => button.addEventListen
       filterTripRows(tripSearch.value);
       return;
     }}
-    const rows = data.map(t => '<tr><td>'+escJs(t["운행일"])+'</td><td>'+escJs(String(t["출발 시간"]).slice(0,5))+'</td><td>'+escJs(t["출발지"])+'</td><td>'+escJs(t["도착지"])+'</td><td class="amount">'+Number(t["금액"]).toLocaleString("ko-KR")+'원</td><td>'+(t["서비스구분"]==="transport"?"탁송":"대리운전")+'</td></tr>').join("");
-    container.innerHTML = '<div class="table-wrap"><table id="trip-table"><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>서비스 구분</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    const rows = data.map(t => '<tr><td>'+escJs(t["운행일"])+'</td><td>'+escJs(String(t["출발 시간"]).slice(0,5))+'</td><td>'+escJs(t["출발지"])+'</td><td>'+escJs(t["도착지"])+'</td><td class="amount">'+Number(t["금액"]).toLocaleString("ko-KR")+'원</td></tr>').join("");
+    container.innerHTML = '<div class="table-wrap"><table id="trip-table"><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
     filterTripRows(tripSearch.value);
     status.textContent = "완료된 운행 기록 · 개인정보 비공개";
   }} catch (e) {{
