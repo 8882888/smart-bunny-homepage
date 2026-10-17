@@ -10,6 +10,7 @@ create table if not exists public.trip_records (
   origin text not null check (length(trim(origin)) between 1 and 200),
   destination text not null check (length(trim(destination)) between 1 and 200),
   fare_krw integer not null check (fare_krw > 0),
+  service_type text not null default 'daeri' check (service_type in ('daeri', 'transport')),
   status text not null default 'completed'
     check (status in ('pending', 'completed', 'cancelled')),
   created_at timestamptz not null default now(),
@@ -58,7 +59,8 @@ create policy "admin can delete trip records"
 
 -- 공개 페이지에 제공되는 열은 아래 5개뿐입니다.
 -- 기본 테이블의 id, status, created_at, updated_at 등은 공개 뷰에 포함하지 않습니다.
-create or replace view public.completed_trip_reviews
+drop view if exists public.completed_trip_reviews;
+create view public.completed_trip_reviews
 with (security_barrier = true, security_invoker = true)
 as
 select
