@@ -46,7 +46,7 @@ def region_aliases(region):
         if name.endswith(suffix) and len(name[:-len(suffix)]) >= 2:
             aliases.append(name[:-len(suffix)])
             break
-    return [re.sub(r"\\s+", "", alias) for alias in aliases if len(re.sub(r"\\s+", "", alias)) >= 2]
+    return [re.sub(r"\s+", "", alias) for alias in aliases if len(re.sub(r"\s+", "", alias)) >= 2]
 
 
 def related_trip_html(region, trips, limit=3):
@@ -55,7 +55,7 @@ def related_trip_html(region, trips, limit=3):
         return ""
     matched = []
     for trip in trips:
-        route = re.sub(r"\\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
+        route = re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
         if any(alias in route for alias in aliases):
             matched.append(trip)
             if len(matched) >= limit:
