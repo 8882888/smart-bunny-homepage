@@ -49,7 +49,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 .region-review-heading strong{font-size:1.05rem;color:#102544}
 .region-review-heading a{color:#155b98;font-weight:700;text-decoration:none}
 .region-review-track-wrap{overflow:hidden;width:100%}
-.region-review-track{display:flex;gap:12px;width:max-content;animation:region-review-flow 55s linear infinite}
+.region-review-track{display:flex;gap:12px;width:max-content;animation:region-review-flow 110s linear infinite}
 .region-review-ticker:hover .region-review-track,.region-review-ticker:focus-within .region-review-track{animation-play-state:paused}
 .region-review-card{flex:0 0 290px;max-width:82vw;padding:12px 15px;border:1px solid #d9e1ea;border-radius:10px;background:#fff;display:flex;flex-direction:column;gap:5px;white-space:normal;color:#172235;text-decoration:none}
 .region-review-card strong{line-height:1.45}
@@ -168,7 +168,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
       const cells=Array.from(row.cells).map(cell=>cell.textContent.trim());
       const [date,time,origin,destination,fare]=cells;
       const region=(origin+" "+destination).split(/\s+/).filter(Boolean).slice(0,4).join(" · ");
-      return '<a class="region-review-card" href="./reviews/" aria-label="'+esc(origin+'에서 '+destination+'까지 완료 운행 후기')+'"><span>'+esc(date)+' · '+esc(time)+'</span><strong>'+esc(origin)+' → '+esc(destination)+'</strong><span>'+esc(region)+' 관련 완료 운행</span><span class="region-review-price">기록 금액 '+esc(fare)+'</span><span>과거 기록 요금 · 현재 견적은 상담 확인</span></a>';
+      return '<a class="region-review-card" href="./reviews/" aria-label="'+esc(origin+'에서 '+destination+'까지 완료 운행 후기')+'"><span>'+esc(date)+' · '+esc(time)+'</span><strong>'+esc(origin)+' → '+esc(destination)+'</strong><span>'+esc(region)+' 관련 완료 운행</span><span class="region-review-price">요금 '+esc(fare)+'</span><span>과거 기록 요금 · 현재 견적은 상담 확인</span></a>';
     }).join("");
     track.innerHTML=cards+cards;
     status.textContent="확인된 완료 운행 기록 "+rows.length.toLocaleString("ko-KR")+"건 중 최신 기록을 표시합니다. 움직임을 멈추려면 마우스를 올리세요.";
