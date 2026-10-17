@@ -317,7 +317,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
   const origin=document.getElementById("fare-origin"),destination=document.getElementById("fare-destination");
   const service=document.getElementById("fare-service"),vehicle=document.getElementById("fare-vehicle"),time=document.getElementById("fare-time");
   const result=document.getElementById("fare-search-result"),regionOptions=document.getElementById("fare-region-options");
-  const normalize=s=>String(s||"").replace(/(특별자치도|특별자치시|광역시|특별시|자치시|자치도|시|군|구|읍|면|동|리|도)$/,"").replace(/\\s+/g,"").toLowerCase();
+  const normalize=s=>String(s||"").replace(/(특별자치도|특별자치시|광역시|특별시|자치시|자치도|시|군|구|읍|면|동|리|도)$/,"").replace(/\s+/g,"").toLowerCase();
   const esc=s=>String(s||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   let referenceFares=[];
   let pricingRules=null;
@@ -331,13 +331,18 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
     if(!Number.isFinite(base)||!Number.isFinite(perKm)||base<0||perKm<0)return null;
     const bands=Array.isArray(rule.distance_bands)?rule.distance_bands.slice().sort((a,b)=>Number(a.from_km)-Number(b.from_km)):[];
     let distanceCost=0,covered=0,currentMultiplier=1;
-    bands.forEach(b=>{
-      const threshold=Math.max(covered,Number(b.from_km)||0);
-      if(km>threshold)distanceCost+=(Math.min(km,threshold)-covered)*perKm*currentMultiplier;
+    for(const band of bands){
+      const threshold=Math.max(covered,Number(band.from_km)||0);
+      if(km<=threshold){
+        distanceCost+=Math.max(0,km-covered)*perKm*currentMultiplier;
+        covered=km;
+        break;
+      }
+      distanceCost+=(threshold-covered)*perKm*currentMultiplier;
       covered=threshold;
-      currentMultiplier=Number(b.extra_multiplier||1);
-    });
-    distanceCost+=Math.max(0,km-covered)*perKm*currentMultiplier;
+      currentMultiplier=Number(band.extra_multiplier||1);
+    }
+    if(km>covered)distanceCost+=(km-covered)*perKm*currentMultiplier;
     if(!bands.length)distanceCost=km*perKm;
     let subtotal=base+distanceCost;
     subtotal*=Number((rule.vehicle_multipliers||{})[vehicleLabel]||1);
