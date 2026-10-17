@@ -2,12 +2,13 @@
 """Generate public completed-trip records and route summaries using non-identifying fields."""
 import html
 import json
+import os
 from collections import defaultdict
 from pathlib import Path
 
 DATA = Path("data/completed_trips.json")
 OUT = Path("reviews/index.html")
-SITE_URL = "https://8882888.github.io/smart-bunny-homepage"
+SITE_URL = os.environ.get("SITE_URL", "https://8882888.github.io/smart-bunny-homepage").rstrip("/")
 BRAND = "스마트전국대리운전 스마트24탁송"
 PHONE = "1877-3015"
 
