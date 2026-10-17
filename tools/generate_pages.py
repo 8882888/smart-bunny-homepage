@@ -117,6 +117,12 @@ h1{{line-height:1.35;font-size:clamp(28px,5vw,42px)}}h2{{margin-top:32px}}
 .card{{border:1px solid #d9e1ea;border-radius:12px;padding:16px;margin:12px 0}}.review-ticker{{overflow:hidden;width:100%;padding:4px 0}}.review-ticker-track{{display:flex;gap:14px;width:max-content;animation:review-flow 90s linear infinite}}.review-ticker:hover .review-ticker-track,.review-ticker:focus-within .review-ticker-track{{animation-play-state:paused}}.review-ticker-card{{flex:0 0 280px;max-width:80vw;border:1px solid #d9e1ea;border-radius:12px;background:#f8fbff;padding:14px;display:flex;flex-direction:column;gap:8px;white-space:normal}}.review-ticker-card strong{{font-size:1.02rem;line-height:1.5}}.review-date,.review-verified{{font-size:.85rem;color:#536276}}.review-fare{{font-weight:700;color:#a34d00}}.review-fare-note{{font-size:.82rem;color:#536276;line-height:1.5}}.review-service-label{{align-self:flex-start;padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:700}}.review-service-label.transport{{background:#e2f7e9;color:#18723a}}.review-service-label.daeri{{background:#e7f0ff;color:#1d4ed8}}.review-verified{{color:#17633b;font-weight:700}}@keyframes review-flow{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}@media(prefers-reduced-motion:reduce){{.review-ticker-track{{animation:none}}}}
 .btn{{display:inline-block;background:#ffd166;color:#102544;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:bold;margin:6px 8px 6px 0}}
 .muted{{color:#536276;font-size:.95rem}}ul{{padding-left:22px}}
+
+html{{scroll-behavior:smooth}}
+.back-to-top{{position:fixed;right:20px;bottom:22px;z-index:1000;display:flex;align-items:center;gap:6px;padding:12px 15px;border-radius:999px;background:#102544;color:#fff;text-decoration:none;font-weight:700;box-shadow:0 4px 16px #0003;border:2px solid #ffd166}}
+.back-to-top:hover,.back-to-top:focus{{background:#234b7c;outline:3px solid #ffd166;outline-offset:2px}}
+.back-to-top .arrow{{font-size:1.25rem;line-height:1}}
+@media(max-width:600px){{.back-to-top{{right:12px;bottom:14px;padding:11px 13px}}.back-to-top .label{{font-size:.88rem}}}}
 </style></head><body>
 <header><strong>{BRAND}</strong><nav class="topnav" aria-label="주요 메뉴"><a href="/smart-bunny-homepage/#services">대리운전</a><a href="/smart-bunny-homepage/#transport">탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
 <div class="business-card"><span>전국 지역별 상담 · 명함 정보</span><strong>스마트전국대리운전24시탁송</strong><a class="phone" href="tel:18773015">☎ 1877-3015</a><span>대리운전 · 전국 자동차탁송 · 장거리탁송</span></div>
@@ -126,6 +132,8 @@ h1{{line-height:1.35;font-size:clamp(28px,5vw,42px)}}h2{{margin-top:32px}}
 <a class="btn" href="https://open.kakao.com/o/sGV88r7h">카카오톡 오픈채팅</a>
 <p class="muted">요금과 배차 가능 여부는 거리, 시간, 차량 및 현장 상황에 따라 달라질 수 있습니다.</p></div>
 </main><footer>{BRAND}<br>대표 상담 전화: {PHONE}<br><a href="/smart-bunny-homepage/">홈페이지 첫 화면</a></footer>
+
+<a class="back-to-top" href="#" aria-label="페이지 맨 위로 이동" title="맨 위로 이동"><span class="arrow" aria-hidden="true">↑</span><span class="label">맨 위로</span></a>
 </body></html>"""
 
 def service_body(location, level, service, region, trips=None):
