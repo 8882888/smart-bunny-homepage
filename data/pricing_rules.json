@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "draft_requires_operator_review",
+  "description": "초기 거리 기반 예상요금 시범 산식입니다. 실제 확정요금이 아니며, 운영자가 지역·차종별 운행 실적과 배차 원가를 확인한 뒤 수정해야 합니다.",
+  "currency": "KRW",
+  "rounding_unit": 5000,
+  "rules": {
+    "transport": {
+      "label": "자동차 탁송",
+      "base": 20000,
+      "per_km": 400,
+      "night_multiplier": 1.2,
+      "dawn_multiplier": 1.2,
+      "range_ratio": 0.12,
+      "note": "거리 기준 시범 산식"
+    },
+    "daeri": {
+      "label": "대리운전",
+      "base": 15000,
+      "per_km": 450,
+      "night_multiplier": 1.2,
+      "dawn_multiplier": 1.2,
+      "range_ratio": 0.12,
+      "note": "거리 기준 시범 산식"
+    }
+  }
+}
