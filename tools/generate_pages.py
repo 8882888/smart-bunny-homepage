@@ -37,7 +37,7 @@ def load_completed_trips():
     trips = data.get("trips", []) if isinstance(data, dict) else []
     valid = [t for t in trips if isinstance(t, dict) and all(
         key in t for key in ("운행일", "출발시간", "출발지", "도착지", "금액")
-    )]
+    ) and public_route_safe(t)]
     for trip in valid:
         trip["_route_norm"] = re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
     return valid
@@ -51,6 +51,13 @@ def region_aliases(region):
             aliases.append(name[:-len(suffix)])
             break
     return [re.sub(r"\s+", "", alias) for alias in aliases if len(re.sub(r"\s+", "", alias)) >= 2]
+
+
+PUBLIC_ROUTE_REDACTION = re.compile(r"자택|집앞|일일\s*기사|건당\s*[xX×]|고정\s*[-:.：]|대기\s*기사|지인\s*빌딩\s*뒤", re.I)
+
+def public_route_safe(trip):
+    route = " ".join(str(trip.get(key, "")) for key in ("출발지", "도착지"))
+    return not PUBLIC_ROUTE_REDACTION.search(route)
 
 
 _RELATED_TRIP_CACHE = {}
