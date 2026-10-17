@@ -73,15 +73,10 @@ def related_trip_html(region, trips, limit=3):
     if not matched:
         return ""
     def render_trip_card(t):
-        raw_destination = str(t["도착지"])
-        is_transport = bool(re.search(r"톨포\s*$", raw_destination))
-        destination = re.sub(r"\s*톨포\s*$", "", raw_destination).strip()
-        service_label = "탁송" if is_transport else "대리운전"
-        service_class = "transport" if is_transport else "daeri"
         return (
-            f'<article class="review-ticker-card"><span class="review-service-label {service_class}">{service_label}</span>'
+            '<article class="review-ticker-card">'
             f'<span class="review-date">{esc(t["운행일"])} · {esc(t["출발시간"])}</span>'
-            f'<strong>{esc(t["출발지"])} → {esc(destination)}</strong>'
+            f'<strong>{esc(t["출발지"])} → {esc(t["도착지"])}</strong>'
             f'<span class="review-fare">요금 {int(t["금액"]):,}원</span>'
             '<span class="review-fare-note">과거 운행 기록 금액이며 현재 확정요금은 아닙니다.</span>'
             '<span class="review-verified">완료 운행 기록</span></article>'
