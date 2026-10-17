@@ -22,9 +22,17 @@ create index if not exists trip_records_public_completed_idx
 
 alter table public.trip_records enable row level security;
 
--- 공개 방문자는 기본 테이블에 직접 접근하지 못합니다.
+-- 익명 방문자는 완료된 운행의 공개용 열만 조회할 수 있습니다.
+-- SECURITY INVOKER 뷰가 기본 테이블 권한/RLS를 그대로 따르도록 설정합니다.
 revoke all on table public.trip_records from anon;
+grant select (trip_date, departure_time, origin, destination, fare_krw, status)
+  on table public.trip_records to anon;
 grant select, insert, update, delete on table public.trip_records to authenticated;
+
+drop policy if exists "public can read completed trips" on public.trip_records;
+create policy "public can read completed trips"
+  on public.trip_records for select to anon
+  using (status = 'completed');
 
 -- 관리자 역할은 Supabase Auth의 app_metadata.role = 'admin'으로 부여합니다.
 drop policy if exists "admin can read trip records" on public.trip_records;
@@ -51,7 +59,7 @@ create policy "admin can delete trip records"
 -- 공개 페이지에 제공되는 열은 아래 5개뿐입니다.
 -- 기본 테이블의 id, status, created_at, updated_at 등은 공개 뷰에 포함하지 않습니다.
 create or replace view public.completed_trip_reviews
-with (security_barrier = true)
+with (security_barrier = true, security_invoker = true)
 as
 select
   trip_date as "운행일",
