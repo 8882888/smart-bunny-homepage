@@ -1,1 +1,1 @@
-
+window.SMART_BUNNY_SUPABASE = {\n  url: "https://pgcattabskibexsetlzp.supabase.co",\n  anonKey: ""\n};\n
