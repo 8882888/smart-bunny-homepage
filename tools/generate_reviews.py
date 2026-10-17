@@ -91,6 +91,12 @@ main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28p
 .route-card{{display:flex;flex-direction:column;align-items:flex-start;gap:7px;text-align:left;padding:15px;border:1px solid #d9e1ea;border-radius:10px;background:#f8fafc;color:#172235;cursor:pointer;font:inherit}}
 .route-card:hover{{border-color:#1769aa;background:#eef6ff}}.route-card span{{font-size:.9rem;color:#526276}}tr.filtered-out{{display:none}}
 @media(max-width:700px){{header{{align-items:flex-start}}.topnav{{justify-content:flex-start;gap:10px}}.topnav a{{font-size:.9rem}}.kakao-hours{{font-size:.82rem}}}}
+
+html{{scroll-behavior:smooth}}
+.back-to-top{{position:fixed;right:20px;bottom:22px;z-index:1000;display:flex;align-items:center;gap:6px;padding:12px 15px;border-radius:999px;background:#102544;color:#fff;text-decoration:none;font-weight:700;box-shadow:0 4px 16px #0003;border:2px solid #ffd166}}
+.back-to-top:hover,.back-to-top:focus{{background:#234b7c;outline:3px solid #ffd166;outline-offset:2px}}
+.back-to-top .arrow{{font-size:1.25rem;line-height:1}}
+@media(max-width:600px){{.back-to-top{{right:12px;bottom:14px;padding:11px 13px}}.back-to-top .label{{font-size:.88rem}}}}
 </style></head><body>
 <header><strong>{BRAND}</strong><nav class="topnav" aria-label="주요 메뉴">
 <a href="/smart-bunny-homepage/#services">대리운전</a><a href="/smart-bunny-homepage/#transport">탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a>
@@ -172,7 +178,9 @@ document.querySelectorAll(".route-card").forEach(button => button.addEventListen
     filterTripRows(tripSearch.value);
   }}
 }})();
-</script></body></html>""", encoding="utf-8")
+</script>
+<a class="back-to-top" href="#" aria-label="페이지 맨 위로 이동" title="맨 위로 이동"><span class="arrow" aria-hidden="true">↑</span><span class="label">맨 위로</span></a>
+</body></html>""", encoding="utf-8")
     print(f"운행 후기 페이지 생성 완료: {len(trips):,}건, 구간 사례 {len(route_groups):,}개")
 
 if __name__ == "__main__":
