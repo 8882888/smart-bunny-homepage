@@ -25,6 +25,12 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <form id="login-form"><label for="email">관리자 이메일</label><input id="email" type="email" autocomplete="username" required><label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">로그인</button></form>
 <div id="login-status" class="status" role="status"></div>
 </section>
+<section id="recovery-panel" class="panel hidden">
+<h2>관리자 비밀번호 재설정</h2>
+<p>새 비밀번호를 두 번 입력해 주세요. 설정이 완료되면 새 비밀번호로 로그인할 수 있습니다.</p>
+<form id="recovery-form"><label for="new-password">새 비밀번호</label><input id="new-password" type="password" autocomplete="new-password" minlength="8" required><label for="confirm-password">새 비밀번호 확인</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required><button type="submit">새 비밀번호 저장</button></form>
+<div id="recovery-status" class="status" role="status"></div>
+</section>
 <section id="app-panel" class="hidden">
 <div class="panel"><div class="grid"><div><strong id="signed-in"></strong><p class="small">인증된 계정만 데이터베이스 정책에 따라 관리할 수 있습니다.</p></div><div><button id="logout" class="secondary" type="button">로그아웃</button></div></div></div>
 <div class="panel">
@@ -89,9 +95,23 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    if(!session){$("login-panel").classList.remove("hidden");$("app-panel").classList.add("hidden");return;}
    const role=session.user.app_metadata?.role;
    if(role!=="admin"){await client.auth.signOut();$("login-panel").classList.remove("hidden");$("app-panel").classList.add("hidden");statusText("이 계정에는 관리자 권한이 없습니다.","login-status");return;}
-   $("login-panel").classList.add("hidden");$("app-panel").classList.remove("hidden");$("signed-in").textContent=session.user.email||"관리자";await loadRecords();
+   $("login-panel").classList.add("hidden");$("recovery-panel").classList.add("hidden");$("app-panel").classList.remove("hidden");$("signed-in").textContent=session.user.email||"관리자";await loadRecords();
  }
  $("login-form").addEventListener("submit",async e=>{e.preventDefault();statusText("로그인 확인 중…","login-status");const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){statusText("로그인 실패: "+error.message,"login-status");return;}statusText("","login-status");await showSession();});
+ $("recovery-form").addEventListener("submit",async e=>{
+   e.preventDefault();
+   const password=$("new-password").value;
+   if(password.length<8){statusText("비밀번호는 8자 이상으로 입력해 주세요.","recovery-status");return;}
+   if(password!==$("confirm-password").value){statusText("두 비밀번호가 일치하지 않습니다.","recovery-status");return;}
+   statusText("새 비밀번호 저장 중…","recovery-status");
+   const {error}=await client.auth.updateUser({password});
+   if(error){statusText("비밀번호 변경 실패: "+error.message,"recovery-status");return;}
+   await client.auth.signOut();
+   $("recovery-panel").classList.add("hidden");$("login-panel").classList.remove("hidden");
+   $("new-password").value="";$("confirm-password").value="";
+   statusText("비밀번호를 변경했습니다. 새 비밀번호로 로그인해 주세요.","login-status");
+   history.replaceState(null,"",location.pathname);
+ });
  $("logout").addEventListener("click",async()=>{await client.auth.signOut();resetForm();await showSession();});
  $("cancel-edit").addEventListener("click",resetForm);
  $("trip-form").addEventListener("submit",async e=>{
@@ -102,7 +122,8 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    if(result.error){statusText("저장 실패: "+result.error.message);return;}
    statusText("저장했습니다.");resetForm();await loadRecords();
  });
- client.auth.onAuthStateChange(()=>{setTimeout(showSession,0);});
+ client.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){$("login-panel").classList.add("hidden");$("app-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");return;}setTimeout(showSession,0);});
+ if(location.hash.includes("type=recovery")){$("login-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");}
  showSession();
 })();
 </script>
