@@ -19,7 +19,7 @@
 <input id="file" type="file" accept=".json,application/json">
 <div id="status" class="muted">파일을 선택하면 브라우저에서 분석합니다.</div>
 </section>
-<section id="summary" class="panel hidden"><h2>2. 분석 결과</h2><div id="stats"></div><p class="muted">현재 기록에는 서비스 종류(대리운전/탁송), 차종, 주행거리, 시간대별 요금 구분이 없으므로 아래 결과는 참고용 집계이며 확정 요율 산정에 바로 사용할 수 없습니다.</p><div class="table-wrap"><table><thead><tr><th>출발지 → 도착지</th><th>건수</th><th>중앙값</th><th>최저</th><th>최고</th></tr></thead><tbody id="rows"></tbody></table></div><button id="download">집계 JSON 다운로드</button></section>
+<section id="summary" class="panel hidden"><h2>2. 분석 결과</h2><div id="stats"></div><p class="muted">현재 기록에는 서비스 종류(대리운전/탁송), 차종, 주행거리, 시간대별 요금 구분이 없으므로 아래 결과는 참고용 집계이며 확정 요율 산정에 바로 사용할 수 없습니다.</p><div class="table-wrap"><table><thead><tr><th>서비스</th><th>출발지 → 도착지</th><th>건수</th><th>중앙값</th><th>최저</th><th>최고</th></tr></thead><tbody id="rows"></tbody></table></div><button id="download">집계 JSON 다운로드</button></section>
 <script>
 (function(){
 const file=document.getElementById('file'),status=document.getElementById('status'),summary=document.getElementById('summary'),stats=document.getElementById('stats'),rows=document.getElementById('rows'),download=document.getElementById('download');
@@ -32,7 +32,7 @@ file.addEventListener('change',async()=>{
  try{
   const data=JSON.parse(await f.text());const trips=Array.isArray(data)?data:data.trips;
   if(!Array.isArray(trips))throw new Error('파일에서 운행 기록 배열(trips)을 찾지 못했습니다.');
-  const groups=new Map();let valid=0,skipped=0;
+  const groups=new Map();let valid=0,skipped=0,unknownService=0;
   for(const t of trips){
    const origin=String(t['출발지']??t.origin??'').trim(),destination=String(t['도착지']??t.destination??'').trim();
    const amount=Number(t['금액']??t.amount??t.fare_amount);
@@ -41,11 +41,11 @@ file.addEventListener('change',async()=>{
    valid++;const key=origin+' → '+destination;
    if(!groups.has(key))groups.set(key,[]);groups.get(key).push(amount);
   }
-  const aggregate=[...groups.entries()].map(([route,amounts])=>({route,count:amounts.length,median_krw:Math.round(median(amounts)),min_krw:Math.min(...amounts),max_krw:Math.max(...amounts)})).sort((a,b)=>b.count-a.count||a.route.localeCompare(b.route,'ko'));
-  output={schema_version:1,generated_at:new Date().toISOString(),status:'review_only_not_approved',source_record_count:trips.length,valid_record_count:valid,skipped_record_count:skipped,warning:'서비스 종류·차종·주행거리·시간대가 확인되지 않은 집계입니다. 승인 요금표로 자동 적용하지 마세요.',route_aggregates:aggregate};
-  stats.innerHTML='<p><span class="stat">'+trips.length.toLocaleString('ko-KR')+'</span> 전체 기록 · <strong>'+valid.toLocaleString('ko-KR')+'</strong> 분석 가능 · '+skipped+'건 제외</p><p>'+aggregate.length.toLocaleString('ko-KR')+'개 경로 조합</p>';
-  rows.innerHTML=aggregate.slice(0,200).map(x=>'<tr><td>'+escapeHtml(x.route)+'</td><td>'+x.count+'</td><td>'+money(x.median_krw)+'</td><td>'+money(x.min_krw)+'</td><td>'+money(x.max_krw)+'</td></tr>').join('');
-  summary.classList.remove('hidden');status.textContent='분석 완료. 개별 운행 내역은 결과 파일에 포함하지 않았습니다.';
+  const aggregate=[...groups.entries()].map(([key,amounts])=>{const split=key.split('||');return {service:split[0],route:split[1],count:amounts.length,median_krw:Math.round(median(amounts)),min_krw:Math.min(...amounts),max_krw:Math.max(...amounts),review_status:split[0]==='서비스 미분류'?'서비스 확인 필요':(amounts.length<3?'표본 부족 — 검토만':'운영자 검토 필요')}}).sort((a,b)=>b.count-a.count||a.route.localeCompare(b.route,'ko'));
+  output={schema_version:1,generated_at:new Date().toISOString(),status:'review_only_not_approved',source_record_count:trips.length,valid_record_count:valid,skipped_record_count:skipped,unknown_service_record_count:unknownService,warning:'서비스 미분류 기록은 대리운전·탁송 요금 비교에 사용하지 마세요. 차종·주행거리·시간대도 확인되지 않으므로 승인 요금표로 자동 적용하지 마세요.',route_aggregates:aggregate};
+  stats.innerHTML='<p><span class="stat">'+trips.length.toLocaleString('ko-KR')+'</span> 전체 기록 · <strong>'+valid.toLocaleString('ko-KR')+'</strong> 분석 가능 · '+skipped+'건 제외</p><p>'+aggregate.length.toLocaleString('ko-KR')+'개 서비스별 경로 조합 · 서비스 미분류 '+unknownService+'건</p>';
+  rows.innerHTML=aggregate.slice(0,200).map(x=>'<tr><td>'+escapeHtml(x.service)+'</td><td>'+escapeHtml(x.route)+'</td><td>'+x.count+'</td><td>'+money(x.median_krw)+'</td><td>'+money(x.min_krw)+'</td><td>'+money(x.max_krw)+'</td></tr>').join('');
+  summary.classList.remove('hidden');status.textContent='분석 완료. 서비스 종류가 기록된 건만 서비스별로 분리했습니다. 개별 운행 내역은 결과 파일에 포함하지 않았습니다.';
  }catch(e){status.textContent='파일을 분석하지 못했습니다: '+e.message}
 });
 function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
