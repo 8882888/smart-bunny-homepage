@@ -19,12 +19,11 @@ select
   to_char(departure_time, 'HH24:MI') as "출발 시간",
   origin as "출발지",
   destination as "도착지",
-  fare_krw as "금액",
-  service_type as "서비스구분"
+  fare_krw as "금액"
 from public.trip_records
 where status = 'completed';
 
--- SECURITY INVOKER 뷰가 service_type을 조회할 수 있도록 공개 역할에 해당 열의 SELECT 권한을 부여합니다.
-grant select (service_type) on table public.trip_records to anon;
+-- 공개 방문자는 서비스 구분 열을 직접 조회할 수 없도록 제한합니다.
+revoke select (service_type) on table public.trip_records from anon;
 revoke all on public.completed_trip_reviews from public;
 grant select on public.completed_trip_reviews to anon, authenticated;
