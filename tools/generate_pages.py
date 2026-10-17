@@ -250,9 +250,15 @@ def main():
             f'<p><a href="/smart-bunny-homepage/region/{esc(parent_item["slug"].strip("/"))}/">← {esc(parent)} 상위 지역으로</a></p>'
             if parent_item and parent_item.get("slug", "").strip("/") != slug else ""
         )
+        # Generate separate service landing pages only for major administrative areas
+        # or places supported by an actual completed-trip record. This avoids thousands
+        # of near-identical thin pages for every neighborhood and village.
+        service_pages_enabled = level in ("시·도", "시·군·구") or bool(related_trip_html(r, completed_trips, limit=1))
         local_services = r.get("services", [s["slug"] for s in SERVICES])
         links = []
         for s in SERVICES:
+            if not service_pages_enabled:
+                continue
             if s["slug"] not in local_services:
                 continue
             href = f"/smart-bunny-homepage/region/{slug}/{s['slug']}/"
@@ -272,6 +278,13 @@ def main():
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(page(title, description, body, service_url), encoding="utf-8")
             count += 1
+        if not links:
+            links = [
+                f'<div class="card"><h3><a href="/smart-bunny-homepage/#services">{esc(location)} 대리운전</a></h3><p>지역별 이용 상황과 상담 전 확인사항을 안내합니다.</p></div>',
+                f'<div class="card"><h3><a href="/smart-bunny-homepage/#transport">{esc(location)} 자동차탁송</a></h3><p>출발지·도착지와 차량 종류를 확인해 상담합니다.</p></div>',
+                f'<div class="card"><h3><a href="/smart-bunny-homepage/#corporate">{esc(location)} 법인대리운전</a></h3><p>법인 이용은 일정과 이용 조건을 확인해 상담합니다.</p></div>',
+                f'<div class="card"><h3><a href="/smart-bunny-homepage/#golf">{esc(location)} 골프대리운전</a></h3><p>골프장 출발·도착 위치와 희망 시간을 알려주세요.</p></div>',
+            ]
         body = f"""<p class="muted">전국 지역별 서비스 안내 · {esc(level)}</p>
 <h1>{esc(location)} 대리운전 · 자동차탁송</h1>
 <p>{esc(location)}에서 대리운전이나 차량 이동이 필요할 때 확인할 상담 정보를 정리했습니다. 실제 배차 가능 여부와 요금은 출발지, 목적지, 차종, 희망 시간에 따라 달라질 수 있습니다.</p>
