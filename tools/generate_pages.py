@@ -88,14 +88,20 @@ def service_body(location, level, service, region):
 <h2>예약 및 배차</h2>
 <p>주말이나 이용이 몰리는 시간대, 외곽 골프장은 배차 상황이 달라질 수 있습니다. 예약이 필요한 일정은 미리 상담하고 최종 배차 가능 여부를 확인해 주세요.</p>"""
     elif slug == "taksong":
-        intro = f"{location}에서 다른 지역으로 차량을 보내거나 정비·매매·개인 일정에 맞춰 차량을 이동해야 한다면 자동차탁송을 상담할 수 있습니다."
+        intro = f"{location}에서 차량을 다른 지역으로 이동해야 한다면 출발지와 도착지, 차종, 희망 날짜를 기준으로 자동차탁송 요금과 배차 가능 여부를 상담해 주세요."
+        route_note = ""
+        if "강릉시" in location:
+            route_note = f"""
+<h2>{esc(location)} 출발·도착 탁송 경로</h2>
+<p>강릉에서 서울·수도권으로 보내는 탁송이나 서울·수도권에서 강릉으로 들어오는 탁송은 정확한 인수 장소와 도착 주소에 따라 조건이 달라집니다. 속초·동해 등 강원 동해안 지역 간 이동도 실제 출발지와 도착지를 기준으로 확인해 주세요. 아래 경로는 상담 시 출발·도착지를 설명하기 위한 예시이며, 고정 요금이나 즉시 배차를 의미하지 않습니다.</p>"""
         sections = f"""
-<h2>{esc(location)} 자동차탁송 상담 사례를 준비하는 방법</h2>
-<p>탁송 상담은 출발지와 도착지를 구체적으로 확인하는 것부터 시작합니다. 같은 지역명이라도 차량 인수 장소와 최종 도착 지점에 따라 이동 경로가 달라질 수 있으므로 주소를 가능한 한 정확하게 준비해 주세요.</p>
-<h2>탁송 문의 시 알려주세요</h2>
-<ul><li>차량을 인수할 장소와 도착할 주소</li><li>차종 및 운행에 필요한 차량 상태 정보</li><li>희망 인수 시간과 도착 일정</li><li>현장 연락 담당자와 인수·인계 방법</li></ul>
-<h2>진행 전 확인 순서</h2>
-<p>출발지와 도착지 확인 → 차종 및 일정 확인 → 요금과 배차 가능 여부 안내 → 진행 여부 결정 순서로 상담합니다. 차량 상태나 현장 조건에 따라 추가 확인이 필요할 수 있습니다.</p>"""
+<h2>{esc(location)} 탁송 예약 및 요금 확인</h2>
+<p>차량탁송 비용은 이동 거리, 차량 종류, 인수·인계 장소, 희망 시간과 현장 조건에 따라 달라질 수 있습니다. 출발지와 도착지를 확인한 뒤 해당 조건의 견적을 안내받는 방식이 정확합니다. 확인되지 않은 금액을 고정 요금처럼 표시하지 않습니다.</p>
+{route_note}
+<h2>탁송 견적 문의 시 준비할 내용</h2>
+<ul><li>차량을 인수할 정확한 장소와 최종 도착 주소</li><li>차종 및 차량 운행에 필요한 상태 정보</li><li>희망 인수 날짜와 시간</li><li>차량 인수·인계 방법과 현장 접근 안내</li></ul>
+<h2>탁송 진행 순서</h2>
+<p>출발지·도착지 확인 → 차종·일정 확인 → 요금과 배차 가능 여부 안내 → 조건 확인 후 진행 결정 순서입니다. 장거리 이동이나 일정이 정해진 탁송은 미리 상담하면 조건을 확인하기 좋습니다.</p>"""
     else:
         intro = f"{location}에서 출발해 먼 지역까지 차량을 이동해야 한다면 장거리탁송을 상담할 때 출발지, 도착지, 차량 종류와 희망 일정을 함께 확인하는 것이 중요합니다."
         sections = f"""
@@ -168,8 +174,12 @@ def main():
             service_url = f"{SITE_URL}/region/{slug}/{s['slug']}/"
             urls.add(service_url)
             body = service_body(location, level, s, r)
-            title = f"{location} {s['keyword']} 이용 안내 | {BRAND}"
-            description = f"{location} {s['keyword']} 이용 상황과 상담 전 확인사항 안내. 대표 전화 {PHONE}."
+            if s["slug"] == "taksong":
+                title = f"{location} 탁송 예약·요금 안내 | {BRAND}"
+                description = f"{location} 자동차탁송·장거리탁송 상담 안내. 출발지, 도착지, 차종과 희망 시간을 기준으로 요금 및 배차 가능 여부를 확인하세요. 대표 전화 {PHONE}."
+            else:
+                title = f"{location} {s['keyword']} 이용 안내 | {BRAND}"
+                description = f"{location} {s['keyword']} 이용 상황과 상담 전 확인사항 안내. 대표 전화 {PHONE}."
             out = ROOT / "region" / slug / s["slug"] / "index.html"
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_text(page(title, description, body, service_url), encoding="utf-8")
