@@ -2,12 +2,14 @@
 """Generate useful local service pages for Smart Bunny Driver Service."""
 import json
 import html
+import re
 from pathlib import Path
 from datetime import date
 from urllib.parse import quote, urlsplit, urlunsplit
 
 ROOT = Path(".")
 DATA = ROOT / "data" / "regions.json"
+TRIP_DATA = ROOT / "data" / "completed_trips.json"
 SITE_URL = "https://8882888.github.io/smart-bunny-homepage"
 BRAND = "스마트전국대리운전 스마트24탁송"
 PHONE = "1877-3015"
@@ -22,6 +24,60 @@ SERVICES = [
 
 def esc(value):
     return html.escape(str(value), quote=True)
+
+
+def load_completed_trips():
+    if not TRIP_DATA.is_file():
+        return []
+    try:
+        data = json.loads(TRIP_DATA.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    trips = data.get("trips", []) if isinstance(data, dict) else []
+    return [t for t in trips if isinstance(t, dict) and all(
+        key in t for key in ("운행일", "출발시간", "출발지", "도착지", "금액")
+    )]
+
+
+def region_aliases(region):
+    name = str(region.get("name", "")).strip()
+    aliases = [name]
+    for suffix in ("특별자치도", "특별자치시", "특별시", "광역시", "자치도", "시", "군", "구", "읍", "면", "동", "리", "도"):
+        if name.endswith(suffix) and len(name[:-len(suffix)]) >= 2:
+            aliases.append(name[:-len(suffix)])
+            break
+    return [re.sub(r"\\s+", "", alias) for alias in aliases if len(re.sub(r"\\s+", "", alias)) >= 2]
+
+
+def related_trip_html(region, trips, limit=3):
+    aliases = region_aliases(region)
+    if not aliases or not trips:
+        return ""
+    matched = []
+    for trip in trips:
+        route = re.sub(r"\\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
+        if any(alias in route for alias in aliases):
+            matched.append(trip)
+            if len(matched) >= limit:
+                break
+    if not matched:
+        return ""
+    rows = "".join(
+        "<tr>"
+        f"<td>{esc(t['운행일'])}</td>"
+        f"<td>{esc(t['출발시간'])}</td>"
+        f"<td>{esc(t['출발지'])}</td>"
+        f"<td>{esc(t['도착지'])}</td>"
+        f"<td>{int(t['금액']):,}원</td>"
+        "</tr>"
+        for t in matched
+    )
+    return f"""<section class="card"><h2>{esc(region.get("name", "지역"))} 관련 완료 운행 기록</h2>
+<p>등록된 운행내역 중 해당 지역과 연결되는 실제 기록입니다. 공개 가능한 항목만 표시합니다.</p>
+<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:560px">
+<thead><tr><th>운행일</th><th>기록 시각</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>{rows}</tbody></table></div>
+<p><a href="/smart-bunny-homepage/reviews/">전국 완료 운행 내역 더 보기 →</a></p></section>"""
+
 
 def page(title, description, body, canonical):
     return f"""<!doctype html>
@@ -49,7 +105,7 @@ h1{{line-height:1.35;font-size:clamp(28px,5vw,42px)}}h2{{margin-top:32px}}
 </main><footer>{BRAND}<br>대표 상담 전화: {PHONE}<br><a href="/smart-bunny-homepage/">홈페이지 첫 화면</a></footer>
 </body></html>"""
 
-def service_body(location, level, service, region):
+def service_body(location, level, service, region, trips=None):
     slug = service["slug"]
     if slug == "daeri":
         intro = f"{location}에서 모임이나 식사, 업무를 마친 뒤 차량을 직접 운전하기 어려운 상황이라면 출발 위치와 목적지를 정리해 대리운전을 상담할 수 있습니다."
@@ -115,17 +171,20 @@ def service_body(location, level, service, region):
     local_html = ""
     if local_notes:
         local_html = "<h2>지역 이용 참고사항</h2><ul>" + "".join(f"<li>{esc(note)}</li>" for note in local_notes) + "</ul>"
+    trip_html = related_trip_html(region, trips or [], limit=2)
     return f"""<p class="muted">전국 지역별 서비스 안내 · {esc(level)}</p>
 <h1>{esc(location)} {esc(service["keyword"])}</h1>
 <p>{esc(intro)}</p>
 {sections}
 {local_html}
+{trip_html}
 <div class="card"><h2>실제 이용 후기 안내</h2><p>이 페이지는 지역 서비스 이용을 돕기 위한 안내입니다. 실제 운행 후기와 운행 경로, 요금은 확인된 사례가 있을 때에만 추가합니다. 확인되지 않은 고객 경험이나 운행 실적을 임의로 작성하지 않습니다.</p></div>
 <p class="muted">지역 정보: {esc(location)} · 안내 업데이트: {date.today().isoformat()}</p>"""
 
 def main():
     data = json.loads(DATA.read_text(encoding="utf-8"))
     regions = data.get("regions", [])
+    completed_trips = load_completed_trips()
     if not regions:
         raise SystemExit("data/regions.json에 지역을 입력해야 합니다.")
     urls = {SITE_URL + "/"}
@@ -173,7 +232,7 @@ def main():
             links.append(f'<div class="card"><h3><a href="{href}">{esc(location)} {esc(s["keyword"])}</a></h3><p>{esc(location)} 지역의 이용 상황, 상담 전 확인사항과 진행 순서를 안내합니다.</p></div>')
             service_url = f"{SITE_URL}/region/{slug}/{s['slug']}/"
             urls.add(service_url)
-            body = service_body(location, level, s, r)
+            body = service_body(location, level, s, r, completed_trips)
             if s["slug"] == "taksong":
                 title = f"{location} 탁송 예약·요금 안내 | {BRAND}"
                 description = f"{location} 자동차탁송·장거리탁송 상담 안내. 출발지, 도착지, 차종과 희망 시간을 기준으로 요금 및 배차 가능 여부를 확인하세요. 대표 전화 {PHONE}."
@@ -191,6 +250,7 @@ def main():
 {parent_section}
 {child_section}
 {''.join(links)}
+{related_trip_html(r, completed_trips, limit=4)}
 <h2>상담 전에 준비하면 좋은 정보</h2>
 <ul><li>출발지와 도착지의 정확한 위치</li><li>차량 종류 및 차량 상태</li><li>이용 날짜와 희망 시간</li><li>현장 연락 담당자와 인수·인계 방법(탁송 시)</li></ul>
 <h2>지역별 후기 콘텐츠 운영 기준</h2>
@@ -235,6 +295,7 @@ def main():
         province_body = f"""<p class="muted">전국 지역별 서비스 안내</p>
 <h1>{esc(province_name)} 대리운전·자동차탁송 지역 안내</h1>
 <p>{esc(province_name)}의 법정동 데이터를 바탕으로 지역별 서비스 페이지를 구성했습니다. 원하는 시·군·구를 선택한 뒤 세부 지역과 서비스를 확인하세요.</p>
+{related_trip_html({"name": province_name}, completed_trips, limit=4)}
 <h2>시·군·구 찾아보기</h2>
 <ul>{''.join(district_links) if district_links else '<li>세부 지역 정보는 데이터 갱신 후 표시됩니다.</li>'}</ul>
 <p><a href="/smart-bunny-homepage/region/">전국 지역 안내로 돌아가기</a></p>"""
@@ -305,6 +366,7 @@ def main():
     directory_body = f"""<p class="muted">전국 지역별 서비스 안내</p>
 <h1>전국 대리운전·자동차탁송 지역 찾기</h1>
 <p>전국 행정구역을 직접 검색하거나 시·도를 선택해 시·군·구, 읍·면·동 등 세부 지역 페이지로 이동할 수 있습니다. 실제 운행 사례와 요금은 확인된 정보만 별도로 안내합니다.</p>
+<p><a href="/smart-bunny-homepage/reviews/">실제 완료 운행 내역 {len(completed_trips):,}건 확인하기 →</a></p>
 <label for="region-search">지역명 빠른 검색</label>
 <input id="region-search" type="search" placeholder="예: 서울 강남구, 역삼동, 속초시" autocomplete="off" style="width:100%;max-width:650px;padding:13px;border:1px solid #b9c5d3;border-radius:8px;font:inherit">
 <p id="region-search-status" class="muted" role="status">지역 검색 자료를 불러오는 중입니다.</p>
