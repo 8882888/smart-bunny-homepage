@@ -72,20 +72,17 @@ def related_trip_html(region, trips, limit=3):
     matched = _RELATED_TRIP_CACHE[cache_key][:limit]
     if not matched:
         return ""
-    rows = "".join(
-        "<tr>"
-        f"<td>{esc(t['운행일'])}</td>"
-        f"<td>{esc(t['출발시간'])}</td>"
-        f"<td>{esc(t['출발지'])}</td>"
-        f"<td>{esc(t['도착지'])}</td>"
-        f"<td>{int(t['금액']):,}원</td>"
-        "</tr>"
+    cards = "".join(
+        f'<article class="review-ticker-card"><span class="review-date">{esc(t["운행일"])} · {esc(t["출발시간"])}</span>'
+        f'<strong>{esc(t["출발지"])} → {esc(t["도착지"])}</strong>'
+        f'<span class="review-fare">기록 금액 {int(t["금액"]):,}원</span>'
+        '<span class="review-verified">완료 운행 기록</span></article>'
         for t in matched
     )
     return f"""<section class="card"><h2>{esc(region.get("name", "지역"))} 관련 완료 운행 기록</h2>
-<p>등록된 운행내역 중 해당 지역과 연결되는 실제 기록입니다. 공개 가능한 항목만 표시합니다.</p>
-<div style="overflow-x:auto"><table style="border-collapse:collapse;width:100%;min-width:560px">
-<thead><tr><th>운행일</th><th>기록 시각</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>{rows}</tbody></table></div>
+<p>등록된 운행내역 중 해당 지역과 연결되는 실제 완료 기록입니다. 개인정보는 제외하고 공개 가능한 운행 정보만 표시합니다.</p>
+<div class="review-ticker" aria-label="지역 관련 실제 완료 운행 기록"><div class="review-ticker-track">{cards}{cards}</div></div>
+<p class="muted">자동으로 가로 이동합니다. 멈춰서 보려면 마우스를 올리거나 키보드 포커스를 이동하세요.</p>
 <p><a href="/smart-bunny-homepage/reviews/">전국 완료 운행 내역 더 보기 →</a></p></section>"""
 
 
@@ -102,7 +99,7 @@ header,footer{{background:#102544;color:white;padding:18px max(5%,calc((100% - 1
 header{{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}}
 header a,footer a{{color:#ffd166}}.topnav{{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}}.topnav a{{color:white;text-decoration:none;font-weight:bold;padding:6px 0}}.topnav a.kakao{{background:#FEE500;color:#191919;padding:8px 11px;border-radius:7px;display:inline-flex;align-items:center;gap:6px}}.kakao-icon{{width:18px;height:16px;display:inline-block}}.kakao-hours{{font-size:.9rem;color:white;font-weight:bold;white-space:nowrap}}.business-card{{background:#fff7df;color:#102544;border-bottom:3px solid #ffd166;padding:13px 5%;text-align:center;font-weight:700}}.business-card strong{{font-size:clamp(19px,3.6vw,27px);display:block;line-height:1.4}}.business-card .phone{{font-size:clamp(25px,4vw,34px);color:#a34d00;display:block}}.business-card a{{color:#102544;text-decoration:none}}@media(max-width:700px){{header{{align-items:flex-start}}.topnav{{justify-content:flex-start;gap:10px}}.topnav a{{font-size:.9rem}}.kakao-hours{{font-size:.82rem}}}}main{{max-width:1000px;margin:auto;padding:28px 5% 50px}}
 h1{{line-height:1.35;font-size:clamp(28px,5vw,42px)}}h2{{margin-top:32px}}
-.card{{border:1px solid #d9e1ea;border-radius:12px;padding:16px;margin:12px 0}}
+.card{{border:1px solid #d9e1ea;border-radius:12px;padding:16px;margin:12px 0}}.review-ticker{{overflow:hidden;width:100%;padding:4px 0}}.review-ticker-track{{display:flex;gap:14px;width:max-content;animation:review-flow 42s linear infinite}}.review-ticker:hover .review-ticker-track,.review-ticker:focus-within .review-ticker-track{{animation-play-state:paused}}.review-ticker-card{{flex:0 0 280px;max-width:80vw;border:1px solid #d9e1ea;border-radius:12px;background:#f8fbff;padding:14px;display:flex;flex-direction:column;gap:8px;white-space:normal}}.review-ticker-card strong{{font-size:1.02rem;line-height:1.5}}.review-date,.review-verified{{font-size:.85rem;color:#536276}}.review-fare{{font-weight:700;color:#a34d00}}.review-verified{{color:#17633b;font-weight:700}}@keyframes review-flow{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}@media(prefers-reduced-motion:reduce){{.review-ticker-track{{animation:none}}}}
 .btn{{display:inline-block;background:#ffd166;color:#102544;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:bold;margin:6px 8px 6px 0}}
 .muted{{color:#536276;font-size:.95rem}}ul{{padding-left:22px}}
 </style></head><body>
