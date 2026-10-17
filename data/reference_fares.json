@@ -1,0 +1,5 @@
+{
+  "schema_version": 1,
+  "description": "운영자가 검증하고 승인한 경로별 참고요금만 등록합니다. completed_trips.json의 실제 운행 기록과 별도로 관리합니다.",
+  "fares": []
+}
