@@ -1,4 +1,4 @@
 window.SMART_BUNNY_SUPABASE = {
   url: "https://pgcattabskibexsetlzp.supabase.co",
-  anonKey: "여기에_Publishable_key_붙여넣기"
-};
+
+anonKey: "sb_publishable_실제키값"
