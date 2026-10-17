@@ -350,7 +350,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
   let referenceFares=[];
   let pricingRules=null;
   fetch("/smart-bunny-homepage/data/reference_fares.json").then(r=>r.ok?r.json():Promise.reject()).then(data=>{referenceFares=Array.isArray(data.fares)?data.fares.filter(f=>f.status==="approved"&&Number.isFinite(Number(f.amount))&&Number(f.amount)>0):[];}).catch(()=>{referenceFares=[];});
-  fetch("/smart-bunny-homepage/data/pricing_rules.json").then(r=>r.ok?r.json():Promise.reject()).then(data=>{if(data&&data.rules)pricingRules=data;}).catch(()=>{pricingRules=null;});
+  fetch("/smart-bunny-homepage/data/pricing_rules.json").then(r=>r.ok?r.json():Promise.reject()).then(data=>{if(data&&data.status==="approved"&&data.rules)pricingRules=data;}).catch(()=>{pricingRules=null;});
   const won=n=>Math.round(n/5000)*5000;
   function estimateFare(km,kind,timeLabel,vehicleLabel){
     if(!pricingRules||!pricingRules.rules[kind])return null;
@@ -418,7 +418,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
       if(estimate){
         priceHtml='<span class="fare-status">자동 산출 예상요금 · 참고용</span><div class="fare-price">'+estimate.low.toLocaleString("ko-KR")+'원 ~ '+estimate.high.toLocaleString("ko-KR")+'원</div><p>계산 기준 금액 약 '+estimate.center.toLocaleString("ko-KR")+'원</p><p><strong>중요:</strong> 이 금액은 거리 기반 초기 산정식으로 계산한 참고 범위이며, 실제 확정 요금이나 승인된 요금표가 아닙니다. 운영자가 지역·차종별 운행 실적과 배차비용을 검토해 기준을 조정해야 합니다.</p>';
       }else{
-        priceHtml='<span class="fare-status">상담 견적 필요</span><p><strong>이 경로의 예상요금을 자동 산출하지 못했습니다.</strong></p><p>지도 경로 또는 요금 산정 기준을 불러오지 못해 임의의 금액을 표시하지 않습니다.</p>';
+        priceHtml='<span class="fare-status">상담 견적 필요</span><p><strong>이 경로의 예상요금을 자동 산출하지 못했습니다.</strong></p><p>운영자가 검토·승인한 요금 산정 기준이 준비되지 않았거나 지도 경로를 확인할 수 없어 임의의 금액을 표시하지 않습니다. 출발지와 도착지를 알려주시면 상담으로 확인해 드립니다.</p>';
       }
     }
     result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+'</h3><p>'+ (kind==="transport"?"자동차 탁송":"대리운전")+' · '+esc(vehicle.value)+' · '+esc(time.value)+'</p>'+routeHtml+priceHtml+'<p class="fare-disclaimer">차량 종류, 시간대, 상세 주소, 기사 수급 및 현장 여건에 따라 최종 요금이 달라질 수 있습니다.</p><div class="fare-result-actions"><a class="btn" href="tel:18773015">전화로 견적 확인</a><a class="btn" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer">카카오톡 상담</a><button class="btn" type="button" id="fare-copy-route">경로를 상담 양식에 전달</button></div>';
