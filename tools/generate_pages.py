@@ -81,7 +81,7 @@ def related_trip_html(region, trips, limit=3):
             f'<strong>{esc(t["출발지"])} → {esc(t["도착지"])}</strong>'
             f'{service_badge}'
             f'<span class="review-fare">요금 {int(t["금액"]):,}원</span>'
-            '<span class="review-fare-note">6만원 이상은 탁송으로 분류한 과거 기록이며, 현재 확정요금은 아닙니다.</span>'
+            ('<span class="review-fare-note">금액 기준으로 탁송 분류한 과거 기록이며, 현재 확정요금은 아닙니다.</span>' if int(t["금액"]) >= 60000 else '')
             '<span class="review-verified">완료 운행 기록</span></article>'
         )
     cards = "".join(render_trip_card(t) for t in matched)
