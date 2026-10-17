@@ -51,6 +51,7 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <div id="save-status" class="status" role="status"></div>
 </form>
 </div>
+<div class="panel"><h2>관리자 비밀번호 변경</h2><p class="small">로그인한 관리자만 현재 비밀번호를 변경할 수 있습니다. 새 비밀번호는 8자 이상으로 입력하세요.</p><form id="change-password-form"><label for="change-password">새 비밀번호</label><input id="change-password" type="password" autocomplete="new-password" minlength="8" required><label for="change-password-confirm">새 비밀번호 확인</label><input id="change-password-confirm" type="password" autocomplete="new-password" minlength="8" required><button type="submit">비밀번호 변경</button></form><div id="change-password-status" class="status" role="status"></div></div>
 <div class="panel"><h2>등록된 운행</h2><p class="small">이 목록은 관리자에게만 표시됩니다.</p><div id="records" class="table-wrap">로그인 후 불러옵니다.</div><div id="records-status" class="status" role="status"></div></div>
 </section>
 </main>
@@ -99,6 +100,7 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    $("login-panel").classList.add("hidden");$("recovery-panel").classList.add("hidden");$("app-panel").classList.remove("hidden");$("signed-in").textContent=session.user.email||"관리자";await loadRecords();
  }
  $("login-form").addEventListener("submit",async e=>{e.preventDefault();statusText("로그인 확인 중…","login-status");const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){statusText("로그인 실패: "+error.message,"login-status");return;}statusText("","login-status");await showSession();});
+ $("change-password-form").addEventListener("submit",async e=>{e.preventDefault();const password=$("change-password").value;if(password.length<8){statusText("비밀번호는 8자 이상으로 입력해 주세요.","change-password-status");return;}if(password!==$("change-password-confirm").value){statusText("두 비밀번호가 일치하지 않습니다.","change-password-status");return;}statusText("비밀번호 변경 중…","change-password-status");const {error}=await client.auth.updateUser({password});if(error){statusText("비밀번호 변경 실패: "+error.message,"change-password-status");return;}$("change-password").value="";$("change-password-confirm").value="";statusText("비밀번호를 변경했습니다. 다음 로그인부터 새 비밀번호를 사용하세요.","change-password-status");});
  $("forgot-password").addEventListener("click",async()=>{const email=$("email").value.trim();if(!email){statusText("먼저 관리자 이메일을 입력해 주세요.","login-status");$("email").focus();return;}statusText("재설정 이메일 발송 요청 중…","login-status");const redirectTo=new URL("index.html",location.href).href;const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});if(error){statusText("이메일 발송 실패: "+error.message,"login-status");return;}statusText("비밀번호 재설정 이메일을 요청했습니다. 받은편지함과 스팸함을 확인해 주세요.","login-status");});
  $("recovery-form").addEventListener("submit",async e=>{
    e.preventDefault();
