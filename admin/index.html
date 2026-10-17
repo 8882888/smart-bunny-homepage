@@ -23,6 +23,7 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <section id="login-panel" class="panel">
 <h2>관리자 로그인</h2>
 <form id="login-form"><label for="email">관리자 이메일</label><input id="email" type="email" autocomplete="username" required><label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">로그인</button></form>
+<button id="forgot-password" class="secondary" type="button">비밀번호 재설정 이메일 받기</button>
 <div id="login-status" class="status" role="status"></div>
 </section>
 <section id="recovery-panel" class="panel hidden">
@@ -98,6 +99,7 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    $("login-panel").classList.add("hidden");$("recovery-panel").classList.add("hidden");$("app-panel").classList.remove("hidden");$("signed-in").textContent=session.user.email||"관리자";await loadRecords();
  }
  $("login-form").addEventListener("submit",async e=>{e.preventDefault();statusText("로그인 확인 중…","login-status");const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){statusText("로그인 실패: "+error.message,"login-status");return;}statusText("","login-status");await showSession();});
+ $("forgot-password").addEventListener("click",async()=>{const email=$("email").value.trim();if(!email){statusText("먼저 관리자 이메일을 입력해 주세요.","login-status");$("email").focus();return;}statusText("재설정 이메일 발송 요청 중…","login-status");const redirectTo=new URL("index.html",location.href).href;const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});if(error){statusText("이메일 발송 실패: "+error.message,"login-status");return;}statusText("비밀번호 재설정 이메일을 요청했습니다. 받은편지함과 스팸함을 확인해 주세요.","login-status");});
  $("recovery-form").addEventListener("submit",async e=>{
    e.preventDefault();
    const password=$("new-password").value;
