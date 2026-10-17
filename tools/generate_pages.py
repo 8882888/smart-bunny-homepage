@@ -72,16 +72,21 @@ def related_trip_html(region, trips, limit=3):
     matched = _RELATED_TRIP_CACHE[cache_key][:limit]
     if not matched:
         return ""
-    cards = "".join(
-        f'<article class="review-ticker-card">'
-        f'<span class="review-service-label {"transport" if re.search(r"톨포\\s*$", str(t["도착지"])) else "daeri"}">{"탁송" if re.search(r"톨포\\s*$", str(t["도착지"])) else "대리운전"}</span>'
-        f'<span class="review-date">{esc(t["운행일"])} · {esc(t["출발시간"])}</span>'
-        f'<strong>{esc(t["출발지"])} → {esc(re.sub(r"\\s*톨포\\s*$", "", str(t["도착지"])).strip())}</strong>'
-        f'<span class="review-fare">요금 {int(t["금액"]):,}원</span>'
-        '<span class="review-fare-note">과거 운행 기록 금액이며 현재 확정요금은 아닙니다.</span>'
-        '<span class="review-verified">완료 운행 기록</span></article>'
-        for t in matched
-    )
+    def render_trip_card(t):
+        raw_destination = str(t["도착지"])
+        is_transport = bool(re.search(r"톨포\\s*$", raw_destination))
+        destination = re.sub(r"\\s*톨포\\s*$", "", raw_destination).strip()
+        service_label = "탁송" if is_transport else "대리운전"
+        service_class = "transport" if is_transport else "daeri"
+        return (
+            f'<article class="review-ticker-card"><span class="review-service-label {service_class}">{service_label}</span>'
+            f'<span class="review-date">{esc(t["운행일"])} · {esc(t["출발시간"])}</span>'
+            f'<strong>{esc(t["출발지"])} → {esc(destination)}</strong>'
+            f'<span class="review-fare">요금 {int(t["금액"]):,}원</span>'
+            '<span class="review-fare-note">과거 운행 기록 금액이며 현재 확정요금은 아닙니다.</span>'
+            '<span class="review-verified">완료 운행 기록</span></article>'
+        )
+    cards = "".join(render_trip_card(t) for t in matched)
     return f"""<section class="card"><h2>{esc(region.get("name", "지역"))} 관련 완료 운행 기록</h2>
 <p>등록된 운행내역 중 해당 지역과 연결되는 실제 완료 기록입니다. 개인정보는 제외하고 공개 가능한 운행 정보만 표시합니다.</p>
 <div class="review-ticker" aria-label="지역 관련 실제 완료 운행 기록"><div class="review-ticker-track">{cards}{cards}</div></div>
