@@ -49,7 +49,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 .region-review-heading strong{font-size:1.05rem;color:#102544}
 .region-review-heading a{color:#155b98;font-weight:700;text-decoration:none}
 .region-review-track-wrap{overflow:hidden;width:100%}
-.region-review-track{display:flex;gap:12px;width:max-content;animation:brand-ticker-flow 900s linear infinite}
+.region-review-track{display:flex;gap:12px;width:max-content;animation:brand-ticker-flow 720s linear infinite}
 .region-review-ticker:hover .region-review-track,.region-review-ticker:focus-within .region-review-track{animation-play-state:paused}
 .region-review-card{flex:0 0 290px;max-width:82vw;padding:12px 15px;border:1px solid #d9e1ea;border-radius:10px;background:#fff;display:flex;flex-direction:column;gap:5px;white-space:normal;color:#172235;text-decoration:none}
 .region-review-card strong{line-height:1.45}
@@ -242,6 +242,19 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
   const track=document.getElementById("region-review-track");
   const status=document.getElementById("region-review-status");
   const esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  // Match the lower ticker's pixel speed to the upper brand ticker, regardless of
+  // how many completed-trip cards are available.
+  function matchTickerSpeed(){
+    const upper=document.querySelector(".brand-ticker-track");
+    if(!upper||!track||!track.children.length)return;
+    const upperLoopWidth=upper.scrollWidth/2;
+    const reviewLoopWidth=track.scrollWidth/2;
+    const upperSeconds=parseFloat(getComputedStyle(upper).animationDuration)||32;
+    if(upperLoopWidth>0&&reviewLoopWidth>0){
+      track.style.animationDuration=(upperSeconds*reviewLoopWidth/upperLoopWidth)+"s";
+    }
+  }
+  window.addEventListener("resize",matchTickerSpeed);
   try{
     const response=await fetch("./reviews/",{cache:"no-cache"});
     if(!response.ok) throw new Error("review page unavailable");
@@ -262,6 +275,7 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
       return '<a class="region-review-card" href="./reviews/" aria-label="'+esc(origin+'에서 '+destination+'까지 완료 운행 기록')+'"><span class="review-service-label">완료 운행 기록</span><span>'+esc(date)+' · '+esc(time)+'</span><strong>'+esc(origin)+' → '+esc(destination)+'</strong><span>'+esc(region)+' 관련 운행 기록</span><span class="region-review-price">기록 요금 '+esc(fare)+'</span><span>과거 기록 금액 · 현재 견적은 상담 확인</span></a>';
     }).join("");
     track.innerHTML=cards+cards;
+    requestAnimationFrame(matchTickerSpeed);
     status.textContent="확인된 완료 운행 기록 "+rows.length.toLocaleString("ko-KR")+"건 중 최신 기록을 표시합니다. 움직임을 멈추려면 마우스를 올리세요.";
   }catch(error){
     track.innerHTML='<a class="region-review-card" href="./reviews/"><strong>전국 완료 운행 후기 보기</strong><span>출발지·도착지·기록 요금을 확인하세요.</span></a>';
