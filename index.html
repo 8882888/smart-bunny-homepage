@@ -124,11 +124,9 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
       <button id="fare-swap" type="button" class="fare-swap" aria-label="출발지와 도착지 바꾸기">⇄</button>
       <label>도착 지역 <input id="fare-destination" required maxlength="80" list="fare-region-options" placeholder="예: 인천"></label>
     </div>
-    <datalist id="fare-region-options">
-      <option value="서울"></option><option value="인천"></option><option value="수원"></option><option value="성남"></option><option value="고양"></option><option value="춘천"></option><option value="속초"></option><option value="강릉"></option><option value="원주"></option><option value="청주"></option><option value="대전"></option><option value="전주"></option><option value="광주"></option><option value="대구"></option><option value="부산"></option><option value="울산"></option><option value="포항"></option><option value="경주"></option><option value="여수"></option><option value="제주"></option>
-    </datalist>
+    <datalist id="fare-region-options"></datalist>
     <button class="btn fare-search-button" type="submit">참고요금 검색</button>
-    <p class="fare-note">※ 아래 예시 금액은 운영자 확인 전 테스트 데이터입니다. 실제 판매 요금이나 확정 견적이 아니며, 확인된 참고요금이 없는 경로는 상담으로 안내합니다.</p>
+    <p class="fare-note">전국 지역명을 직접 입력할 수 있습니다. 확인된 참고요금이 없는 경로는 임의의 금액을 만들지 않고 상담 견적으로 안내합니다.</p>
   </form>
   <div id="fare-search-result" class="fare-result" role="status" aria-live="polite" hidden></div>
 </section>
@@ -299,45 +297,52 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
   const destination=document.getElementById("fare-destination");
   const service=document.getElementById("fare-service");
   const result=document.getElementById("fare-search-result");
-  const esc=s=>String(s||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-  const normalize=s=>String(s||"").replace(/(특별자치도|특별자치시|광역시|특별시|자치시|자치도|시|군|구|읍|면|동)$/,"").replace(/\s+/g,"").toLowerCase();
-  // 테스트 레코드: 공개 전 운영자 검증이 필요하므로 실제 확정요금으로 표시하지 않습니다.
-  const referenceFares=[
-    {service:"transport",origin:"속초",destination:"인천",amount:120000,status:"draft",note:"운영자 확인 전 테스트 금액"}
-  ];
+  const regionOptions=document.getElementById("fare-region-options");
+  const normalize=s=>String(s||"").replace(/(특별자치도|특별자치시|광역시|특별시|자치시|자치도|시|군|구|읍|면|동|리|도)$/,"").replace(/\\s+/g,"").toLowerCase();
+  let referenceFares=[];
+  // 승인된 참고요금만 불러옵니다. 운행기록과 참고요금은 서로 다른 데이터입니다.
+  fetch("/smart-bunny-homepage/data/reference_fares.json").then(r=>r.ok?r.json():Promise.reject()).then(data=>{
+    referenceFares=Array.isArray(data.fares)?data.fares.filter(f=>f.status==="approved"&&Number.isFinite(Number(f.amount))&&Number(f.amount)>0):[];
+  }).catch(()=>{referenceFares=[];});
+  // 생성된 전국 행정구역 인덱스가 있으면 자동완성에 사용합니다. 직접 입력도 항상 허용합니다.
+  fetch("/smart-bunny-homepage/region/region-index.json").then(r=>r.ok?r.json():Promise.reject()).then(regions=>{
+    const seen=new Set();
+    regions.forEach(item=>{
+      [item.name, [item.parent_name,item.name].filter(Boolean).join(" ")].forEach(label=>{
+        if(label&&!seen.has(label)){seen.add(label);const option=document.createElement("option");option.value=label;regionOptions.appendChild(option);}
+      });
+    });
+  }).catch(()=>{});
   document.getElementById("fare-swap").addEventListener("click",function(){const old=origin.value;origin.value=destination.value;destination.value=old;});
   form.addEventListener("submit",function(event){
     event.preventDefault();
     const from=origin.value.trim(),to=destination.value.trim(),kind=service.value;
-    if(!from||!to){return;}
+    if(!from||!to)return;
     if(normalize(from)===normalize(to)){
       result.hidden=false;result.className="fare-result fare-empty";result.innerHTML="<h3>출발지와 도착지를 확인해 주세요.</h3><p>서로 다른 지역을 입력해 주세요.</p>";return;
     }
-    const hit=referenceFares.find(r=>r.service===kind&&normalize(r.origin)===normalize(from)&&normalize(r.destination)===normalize(to));
-    const reverse=referenceFares.find(r=>r.service===kind&&normalize(r.origin)===normalize(to)&&normalize(r.destination)===normalize(from));
+    const hit=referenceFares.find(f=>f.service===kind&&normalize(f.origin)===normalize(from)&&normalize(f.destination)===normalize(to));
+    const reverse=referenceFares.find(f=>f.service===kind&&normalize(f.origin)===normalize(to)&&normalize(f.destination)===normalize(from));
     result.hidden=false;result.className="fare-result";
     if(hit){
-      result.innerHTML='<span class="fare-status">테스트 데이터 · 운영자 검증 전</span><h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><div class="fare-price">'+hit.amount.toLocaleString("ko-KR")+'원</div><p>위 금액은 화면 작동 확인을 위한 예시값이며, 실제 참고요금이나 확정 견적이 아닙니다.</p><p class="fare-disclaimer">차종, 거리, 인수·인계 위치, 시간, 현장 여건 등에 따라 실제 상담 견적은 달라질 수 있습니다. 운영자가 요금을 검토·승인한 뒤에만 확인된 참고요금으로 공개해야 합니다.</p>';
+      result.innerHTML='<span class="fare-status">승인된 참고요금</span><h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><div class="fare-price">'+Number(hit.amount).toLocaleString("ko-KR")+'원</div><p>운영자가 확인한 참고요금입니다. 실제 상담 견적이나 최종 결제 금액과 다를 수 있습니다.</p><p class="fare-disclaimer">차종, 상세 주소, 시간대 및 현장 여건에 따라 최종 요금이 달라질 수 있습니다.</p>';
     }else if(reverse){
-      result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><p>반대 방향 테스트 데이터만 있습니다. 방향별 요금은 다를 수 있어 자동으로 같은 금액을 적용하지 않습니다.</p><p>현재 확인된 참고요금이 없습니다. 상담으로 견적을 확인해 주세요.</p>';
+      result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><p>반대 방향 참고요금만 등록되어 있습니다. 방향별 요금이 다를 수 있어 같은 금액을 자동 적용하지 않습니다.</p><p><strong>이 경로는 상담 견적이 필요합니다.</strong></p>';
     }else{
-      result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><p><strong>아직 등록된 참고요금이 없습니다.</strong></p><p>실제 운행기록이 없는 경로도 검색할 수 있습니다. 다만 확인되지 않은 금액은 임의로 표시하지 않으며, 운영자 검증 전까지 상담 견적으로 안내합니다.</p>';
+      result.innerHTML='<span class="fare-status">상담 견적 필요</span><h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><p><strong>등록된 참고요금이 아직 없습니다.</strong></p><p>실제 운행기록이 없는 경로도 검색할 수 있습니다. 다만 승인된 요금표가 없는 경로에는 임의의 금액을 표시하지 않습니다.</p>';
     }
     result.insertAdjacentHTML("beforeend",'<div class="fare-result-actions"><a class="btn" href="tel:18773015">전화로 견적 확인</a><a class="btn" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer">카카오톡 상담</a><button class="btn" type="button" id="fare-copy-route">경로를 상담 양식에 전달</button></div>');
     document.getElementById("fare-copy-route").addEventListener("click",function(){
       const requestForm=document.getElementById("quick-request-form");
       if(requestForm){
-        const svc=requestForm.querySelector('[name="service"]');
-        const o=requestForm.querySelector('[name="origin"]');
-        const d=requestForm.querySelector('[name="destination"]');
+        const svc=requestForm.querySelector('[name="service"]'),o=requestForm.querySelector('[name="origin"]'),d=requestForm.querySelector('[name="destination"]');
         if(svc)svc.value=kind==="transport"?"자동차 탁송":"대리운전";
         if(o)o.value=from;if(d)d.value=to;
         document.getElementById("quick-request").scrollIntoView({behavior:"smooth"});
-      }else{
-        window.location.hash="quick-request";
-      }
+      }else{window.location.hash="quick-request";}
     });
   });
+  function esc(s){return String(s||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));}
 })();
 </script>
 </body>
