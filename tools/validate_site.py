@@ -22,9 +22,31 @@ def main():
     if len(html_files) > 160000:
         raise SystemExit(f"지역별 서비스 확장 안전 한도를 넘습니다: HTML {len(html_files)}개")
 
-    tree = ET.parse(ROOT / "sitemap.xml")
     namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    urls = [node.text for node in tree.findall(".//sm:loc", namespace) if node.text]
+    root_tree = ET.parse(ROOT / "sitemap.xml")
+    root_tag = root_tree.getroot().tag.rsplit("}", 1)[-1]
+    if root_tag == "sitemapindex":
+        child_sitemaps = [node.text for node in root_tree.findall(".//sm:sitemap/sm:loc", namespace) if node.text]
+        if not child_sitemaps:
+            raise SystemExit("sitemap.xml에 하위 사이트맵이 없습니다.")
+        urls = []
+        for sitemap_url in child_sitemaps:
+            parsed_sitemap = urlsplit(sitemap_url)
+            sitemap_path = unquote(parsed_sitemap.path)
+            if not sitemap_path.startswith(SITE_PREFIX + "/"):
+                raise SystemExit("하위 사이트맵 경로가 잘못되었습니다: " + sitemap_url)
+            local_sitemap = ROOT / sitemap_path[len(SITE_PREFIX) + 1:]
+            if not local_sitemap.is_file():
+                raise SystemExit("하위 사이트맵 파일이 없습니다: " + str(local_sitemap))
+            child_tree = ET.parse(local_sitemap)
+            child_urls = [node.text for node in child_tree.findall(".//sm:url/sm:loc", namespace) if node.text]
+            if len(child_urls) > 50000:
+                raise SystemExit("하위 사이트맵이 50,000 URL 한도를 초과했습니다: " + str(local_sitemap))
+            urls.extend(child_urls)
+    else:
+        urls = [node.text for node in root_tree.findall(".//sm:url/sm:loc", namespace) if node.text]
+        if len(urls) > 50000:
+            raise SystemExit("단일 사이트맵이 50,000 URL 한도를 초과했습니다. 사이트맵 분할이 필요합니다.")
     if not urls:
         raise SystemExit("sitemap.xml에 URL이 없습니다.")
 
