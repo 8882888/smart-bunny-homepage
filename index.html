@@ -320,7 +320,20 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
   const normalize=s=>String(s||"").replace(/(특별자치도|특별자치시|광역시|특별시|자치시|자치도|시|군|구|읍|면|동|리|도)$/,"").replace(/\\s+/g,"").toLowerCase();
   const esc=s=>String(s||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
   let referenceFares=[];
+  let pricingRules=null;
   fetch("/smart-bunny-homepage/data/reference_fares.json").then(r=>r.ok?r.json():Promise.reject()).then(data=>{referenceFares=Array.isArray(data.fares)?data.fares.filter(f=>f.status==="approved"&&Number.isFinite(Number(f.amount))&&Number(f.amount)>0):[];}).catch(()=>{referenceFares=[];});
+  fetch("/smart-bunny-homepage/data/pricing_rules.json").then(r=>r.ok?r.json():Promise.reject()).then(data=>{if(data&&data.rules)pricingRules=data;}).catch(()=>{pricingRules=null;});
+  const won=n=>Math.round(n/5000)*5000;
+  function estimateFare(km,kind,timeLabel){
+    if(!pricingRules||!pricingRules.rules[kind])return null;
+    const rule=pricingRules.rules[kind];
+    let base=Number(rule.base),perKm=Number(rule.per_km);
+    if(!Number.isFinite(base)||!Number.isFinite(perKm)||base<0||perKm<0)return null;
+    let subtotal=base+km*perKm;
+    if(timeLabel==="야간")subtotal*=Number(rule.night_multiplier||1);
+    if(timeLabel==="새벽")subtotal*=Number(rule.dawn_multiplier||1);
+    return {low:won(subtotal*(1-Number(rule.range_ratio||0.12))),high:won(subtotal*(1+Number(rule.range_ratio||0.12))),center:won(subtotal),note:rule.note||""};
+  }
   fetch("/smart-bunny-homepage/region/region-index.json").then(r=>r.ok?r.json():Promise.reject()).then(regions=>{const seen=new Set();regions.forEach(item=>{[item.name,[item.parent_name,item.name].filter(Boolean).join(" ")].forEach(label=>{if(label&&!seen.has(label)){seen.add(label);const option=document.createElement("option");option.value=label;regionOptions.appendChild(option);}});});}).catch(()=>{});
   document.getElementById("fare-swap").addEventListener("click",()=>{const old=origin.value;origin.value=destination.value;destination.value=old;});
   async function getCoordinates(place){
@@ -356,7 +369,14 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
     let priceHtml="";
     if(hit){priceHtml='<span class="fare-status">승인된 참고요금</span><div class="fare-price">'+Number(hit.amount).toLocaleString("ko-KR")+'원</div><p>운영자가 확인한 참고요금입니다. 실제 상담 견적이나 최종 결제 금액과 다를 수 있습니다.</p>';}
     else if(reverse){priceHtml='<p>반대 방향 참고요금만 등록되어 있습니다. 방향별 요금이 다를 수 있어 같은 금액을 자동 적용하지 않습니다.</p><p><strong>이 경로는 상담 견적이 필요합니다.</strong></p>';}
-    else{priceHtml='<span class="fare-status">상담 견적 필요</span><p><strong>아직 승인된 참고요금이 등록되지 않은 경로입니다.</strong></p><p>주행거리·시간 정보와 요금은 별개입니다. 운영자가 확인한 요금표가 없는 경우 임의의 금액을 표시하지 않습니다.</p>';}
+    else{
+      const estimate=routeHtml&&routeHtml.includes("예상 주행거리")?estimateFare((route.km||0),kind,time.value):null;
+      if(estimate){
+        priceHtml='<span class="fare-status">자동 산출 예상요금 · 참고용</span><div class="fare-price">'+estimate.low.toLocaleString("ko-KR")+'원 ~ '+estimate.high.toLocaleString("ko-KR")+'원</div><p>계산 기준 금액 약 '+estimate.center.toLocaleString("ko-KR")+'원</p><p><strong>중요:</strong> 이 금액은 거리 기반 초기 산정식으로 계산한 참고 범위이며, 실제 확정 요금이나 승인된 요금표가 아닙니다. 운영자가 지역·차종별 운행 실적과 배차비용을 검토해 기준을 조정해야 합니다.</p>';
+      }else{
+        priceHtml='<span class="fare-status">상담 견적 필요</span><p><strong>이 경로의 예상요금을 자동 산출하지 못했습니다.</strong></p><p>지도 경로 또는 요금 산정 기준을 불러오지 못해 임의의 금액을 표시하지 않습니다.</p>';
+      }
+    }
     result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+'</h3><p>'+ (kind==="transport"?"자동차 탁송":"대리운전")+' · '+esc(vehicle.value)+' · '+esc(time.value)+'</p>'+routeHtml+priceHtml+'<p class="fare-disclaimer">차량 종류, 시간대, 상세 주소, 기사 수급 및 현장 여건에 따라 최종 요금이 달라질 수 있습니다.</p><div class="fare-result-actions"><a class="btn" href="tel:18773015">전화로 견적 확인</a><a class="btn" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer">카카오톡 상담</a><button class="btn" type="button" id="fare-copy-route">경로를 상담 양식에 전달</button></div>';
     document.getElementById("fare-copy-route").addEventListener("click",()=>{
       const requestForm=document.getElementById("quick-request-form");
