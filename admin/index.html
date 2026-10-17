@@ -54,6 +54,10 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 </form>
 </div>
 <div class="panel"><h2>관리자 비밀번호 변경</h2><p class="small">로그인한 관리자만 현재 비밀번호를 변경할 수 있습니다. 새 비밀번호는 8자 이상으로 입력하세요.</p><form id="change-password-form"><label for="change-password">새 비밀번호</label><input id="change-password" type="password" autocomplete="new-password" minlength="8" required><label for="change-password-confirm">새 비밀번호 확인</label><input id="change-password-confirm" type="password" autocomplete="new-password" minlength="8" required><button type="submit">비밀번호 변경</button></form><div id="change-password-status" class="status" role="status"></div></div>
+<div class="panel"><h2>경로별 참고요금 검토·승인</h2>
+<p class="small">완료 운행만 서비스별·출발지·도착지별로 묶어 후보 금액(중앙값)을 계산합니다. 후보는 자동 승인되지 않습니다. 운영자가 각 경로의 금액을 직접 승인한 뒤 JSON을 내려받아 <code>data/reference_fares.json</code>에 반영해야 홈페이지 요금계산기에 표시됩니다.</p>
+<div class="actions"><button id="build-fare-candidates" type="button">완료 기록에서 후보 만들기</button><button id="export-reference-fares" type="button" class="secondary">승인 요금 JSON 다운로드</button></div>
+<div id="fare-review-status" class="status" role="status"></div><div id="fare-candidates" class="table-wrap"></div></div>
 <div class="panel"><h2>등록된 운행</h2><p class="small">이 목록은 관리자에게만 표시됩니다.</p><div id="records" class="table-wrap">로그인 후 불러옵니다.</div><div id="records-status" class="status" role="status"></div></div>
 </section>
 </main>
@@ -73,10 +77,27 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
  const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
  const money = value => Number(value).toLocaleString("ko-KR") + "원";
  function statusText(message, id="save-status") { $(id).textContent = message; }
+ let currentRecords=[],approvedFares=[];
+ async function loadApprovedFares(){
+   try{const response=await fetch("../data/reference_fares.json",{cache:"no-store"});const data=await response.json();approvedFares=Array.isArray(data.fares)?data.fares:[];}catch(e){approvedFares=[];}
+ }
+ function buildFareCandidates(){
+   const completed=currentRecords.filter(t=>t.status==="completed"&&Number(t.fare_krw)>0&&t.origin&&t.destination&&["daeri","transport"].includes(t.service_type));
+   const groups=new Map();
+   completed.forEach(t=>{const key=[t.service_type,String(t.origin).trim(),String(t.destination).trim()].join("||");if(!groups.has(key))groups.set(key,[]);groups.get(key).push(Number(t.fare_krw));});
+   const candidates=[...groups.entries()].map(([key,fares])=>{const [service,origin,destination]=key.split("||");const sorted=[...fares].sort((a,b)=>a-b),mid=Math.floor(sorted.length/2),median=sorted.length%2?sorted[mid]:(sorted[mid-1]+sorted[mid])/2;return {service,origin,destination,amount:Math.round(median),count:fares.length,min:Math.min(...fares),max:Math.max(...fares)};}).sort((a,b)=>b.count-a.count);
+   const el=$("fare-candidates");
+   if(!candidates.length){el.innerHTML="<p>요금 후보를 만들 수 있는 완료 기록이 없습니다. 서비스 구분이 있는 완료 기록을 확인하세요.</p>";$("fare-review-status").textContent="완료 기록 "+completed.length+"건 확인; 후보 없음.";return;}
+   el.innerHTML='<table><thead><tr><th>서비스</th><th>경로</th><th>건수</th><th>중앙값 후보</th><th>금액 범위</th><th>승인</th></tr></thead><tbody>'+candidates.slice(0,300).map((c,i)=>'<tr><td>'+ (c.service==="transport"?"자동차 탁송":"대리운전")+'</td><td>'+escapeHtml(c.origin)+' → '+escapeHtml(c.destination)+'</td><td>'+c.count+'</td><td>'+money(c.amount)+'</td><td>'+money(c.min)+' ~ '+money(c.max)+'</td><td><button type="button" data-approve-fare="'+i+'">이 금액 승인</button></td></tr>').join("")+'</tbody></table>';
+   el.querySelectorAll("[data-approve-fare]").forEach(btn=>btn.addEventListener("click",()=>{const c=candidates[Number(btn.dataset.approveFare)];if(!c)return;if(!confirm((c.service==="transport"?"자동차 탁송":"대리운전")+"\n"+c.origin+" → "+c.destination+"\n참고요금 "+money(c.amount)+"\n\n이 경로의 참고요금으로 승인하시겠습니까?"))return;const existing=approvedFares.findIndex(f=>f.service===c.service&&f.origin===c.origin&&f.destination===c.destination);const fare={service:c.service,origin:c.origin,destination:c.destination,amount:c.amount,status:"approved",source:"completed_trip_median_operator_approved",sample_count:c.count};if(existing>=0)approvedFares[existing]=fare;else approvedFares.push(fare);$("fare-review-status").textContent="승인 목록에 추가했습니다. 아직 홈페이지 파일에는 반영되지 않았습니다. 승인 JSON을 다운로드한 뒤 data/reference_fares.json을 업데이트하세요.";btn.textContent="승인됨";btn.disabled=true;}));
+   $("fare-review-status").textContent="완료 기록 "+completed.length+"건에서 경로 후보 "+candidates.length+"개를 만들었습니다. 승인 전에는 요금계산기에 반영되지 않습니다.";
+ }
+ $("build-fare-candidates").addEventListener("click",buildFareCandidates);
+ $("export-reference-fares").addEventListener("click",()=>{const payload={schema_version:1,description:"운영자가 검증하고 승인한 경로별 참고요금만 등록합니다. 실제 확정 견적은 상담으로 확인합니다.",fares:approvedFares};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="reference_fares.json";a.click();URL.revokeObjectURL(url);$("fare-review-status").textContent="승인 목록 "+approvedFares.length+"건을 JSON으로 내보냈습니다. GitHub의 data/reference_fares.json에 반영해야 사이트에 적용됩니다.";});
  async function loadRecords() {
    $("records").textContent = "불러오는 중…";
    const {data,error} = await client.from("trip_records").select("id,trip_date,departure_time,origin,destination,fare_krw,service_type,status").order("trip_date",{ascending:false}).order("departure_time",{ascending:false}).limit(500);
-   if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}
+   if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}\n   currentRecords=data; await loadApprovedFares();
    if(!data.length){$("records").innerHTML="<p>등록된 운행 기록이 없습니다.</p>";return;}
    $("records").innerHTML = '<table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>구분</th><th>상태</th><th>작업</th></tr></thead><tbody>' + data.map(t =>
      '<tr><td>'+escapeHtml(t.trip_date)+'</td><td>'+escapeHtml(String(t.departure_time).slice(0,5))+'</td><td>'+escapeHtml(t.origin)+'</td><td>'+escapeHtml(t.destination)+'</td><td>'+money(t.fare_krw)+'</td><td>'+((t.service_type==='transport')?'탁송':'대리운전')+'</td><td>'+({"completed":"완료","pending":"대기","cancelled":"취소"}[t.status]||"미확인")+'</td><td><div class="actions"><button type="button" data-edit="'+escapeHtml(t.id)+'" class="secondary">수정</button><button type="button" data-delete="'+escapeHtml(t.id)+'" class="danger">삭제</button></div></td></tr>'
