@@ -81,8 +81,19 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
  async function loadApprovedFares(){
    try{const response=await fetch("../data/reference_fares.json",{cache:"no-store"});const data=await response.json();approvedFares=Array.isArray(data.fares)?data.fares:[];}catch(e){approvedFares=[];}
  }
- function buildFareCandidates(){
-   const completed=currentRecords.filter(t=>t.status==="completed"&&Number(t.fare_krw)>0&&t.origin&&t.destination&&["daeri","transport"].includes(t.service_type));
+ async function loadAllCompletedForFareReview(){
+   const all=[];let offset=0;const pageSize=500;
+   while(true){
+     const {data,error}=await client.from("trip_records").select("trip_date,departure_time,origin,destination,fare_krw,service_type,status").eq("status","completed").order("trip_date",{ascending:false}).range(offset,offset+pageSize-1);
+     if(error)throw error;
+     const page=data||[];all.push(...page);
+     if(page.length<pageSize)break;
+     offset+=page.length;
+   }
+   return all;
+ }
+ function buildFareCandidates(records){
+   const completed=records.filter(t=>Number(t.fare_krw)>0&&t.origin&&t.destination&&["daeri","transport"].includes(t.service_type));
    const groups=new Map();
    completed.forEach(t=>{const key=[t.service_type,String(t.origin).trim(),String(t.destination).trim()].join("||");if(!groups.has(key))groups.set(key,[]);groups.get(key).push(Number(t.fare_krw));});
    const candidates=[...groups.entries()].map(([key,fares])=>{const [service,origin,destination]=key.split("||");const sorted=[...fares].sort((a,b)=>a-b),mid=Math.floor(sorted.length/2),median=sorted.length%2?sorted[mid]:(sorted[mid-1]+sorted[mid])/2;return {service,origin,destination,amount:Math.round(median),count:fares.length,min:Math.min(...fares),max:Math.max(...fares)};}).sort((a,b)=>b.count-a.count);
@@ -92,7 +103,12 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    el.querySelectorAll("[data-approve-fare]").forEach(btn=>btn.addEventListener("click",()=>{const c=candidates[Number(btn.dataset.approveFare)];if(!c)return;if(!confirm((c.service==="transport"?"자동차 탁송":"대리운전")+"\n"+c.origin+" → "+c.destination+"\n참고요금 "+money(c.amount)+"\n\n이 경로의 참고요금으로 승인하시겠습니까?"))return;const existing=approvedFares.findIndex(f=>f.service===c.service&&f.origin===c.origin&&f.destination===c.destination);const fare={service:c.service,origin:c.origin,destination:c.destination,amount:c.amount,status:"approved",source:"completed_trip_median_operator_approved",sample_count:c.count};if(existing>=0)approvedFares[existing]=fare;else approvedFares.push(fare);$("fare-review-status").textContent="승인 목록에 추가했습니다. 아직 홈페이지 파일에는 반영되지 않았습니다. 승인 JSON을 다운로드한 뒤 data/reference_fares.json을 업데이트하세요.";btn.textContent="승인됨";btn.disabled=true;}));
    $("fare-review-status").textContent="완료 기록 "+completed.length+"건에서 경로 후보 "+candidates.length+"개를 만들었습니다. 승인 전에는 요금계산기에 반영되지 않습니다.";
  }
- $("build-fare-candidates").addEventListener("click",buildFareCandidates);
+ $("build-fare-candidates").addEventListener("click",async()=>{
+   const btn=$("build-fare-candidates");btn.disabled=true;$("fare-review-status").textContent="완료 운행 전체 기록을 불러오는 중입니다…";
+   try{const records=await loadAllCompletedForFareReview();buildFareCandidates(records);}
+   catch(error){$("fare-review-status").textContent="완료 기록을 불러오지 못했습니다: "+(error.message||"데이터베이스 오류");}
+   finally{btn.disabled=false;}
+ });
  $("export-reference-fares").addEventListener("click",()=>{const payload={schema_version:1,description:"운영자가 검증하고 승인한 경로별 참고요금만 등록합니다. 실제 확정 견적은 상담으로 확인합니다.",fares:approvedFares};const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="reference_fares.json";a.click();URL.revokeObjectURL(url);$("fare-review-status").textContent="승인 목록 "+approvedFares.length+"건을 JSON으로 내보냈습니다. GitHub의 data/reference_fares.json에 반영해야 사이트에 적용됩니다.";});
  async function loadRecords() {
    $("records").textContent = "불러오는 중…";
