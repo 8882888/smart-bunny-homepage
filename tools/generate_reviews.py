@@ -89,6 +89,10 @@ main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28p
 <main><p>완료 운행 기록 · 개인정보 비공개</p><h1>구간별 실제 운행 후기</h1>
 <p>확인된 완료 운행 자료 중 운행일, 출발 시간, 출발지, 도착지, 금액만 공개합니다. 고객 이름, 전화번호, 주민등록번호 등 개인정보는 공개하지 않습니다.</p>
 {route_section}
+<section id="fare-guide" class="empty"><h2>탁송 요금은 어떻게 결정되나요?</h2>
+<p>실제 운행 사례의 요금은 각 운행 기록에 저장된 금액을 그대로 표시합니다. 다만 기존 기록에 세부 산정 사유가 별도로 저장되어 있지 않은 경우, 특정 요금이 왜 책정되었는지 단정하지 않습니다.</p>
+<ul><li><strong>이동 구간:</strong> 정확한 출발지와 도착지, 실제 이동 거리</li><li><strong>차량 조건:</strong> 차종, 차량 상태, 운행에 필요한 조건</li><li><strong>일정과 시간:</strong> 희망 인수 시간, 야간·주말 등 배차 여건</li><li><strong>현장 조건:</strong> 인수·인계 장소, 접근성 및 대기 필요 여부</li></ul>
+<p>위 항목은 일반적으로 견적에 영향을 줄 수 있는 요소이며, 개별 과거 운행의 실제 요금 산정 사유를 뜻하지는 않습니다. 현재 요금은 출발지·도착지와 차량·일정을 확인한 뒤 상담으로 안내받으세요.</p></section>
 <h2 id="all-trips">전체 운행 기록 검색</h2>
 <label for="trip-search">출발지·도착지·운행일 검색</label><br>
 <input class="search-box" id="trip-search" type="search" placeholder="예: 강릉, 부산, 성남, 출발지 또는 도착지">
