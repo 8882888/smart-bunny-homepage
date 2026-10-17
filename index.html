@@ -329,9 +329,16 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
     const rule=pricingRules.rules[kind];
     let base=Number(rule.base),perKm=Number(rule.per_km);
     if(!Number.isFinite(base)||!Number.isFinite(perKm)||base<0||perKm<0)return null;
-    let distanceCost=km*perKm;
-    const bands=Array.isArray(rule.distance_bands)?rule.distance_bands:[];
-    bands.forEach(b=>{if(km>Number(b.from_km))distanceCost+=Math.max(0,km-Math.max(Number(b.from_km),0))*perKm*(Number(b.extra_multiplier||1)-1);});
+    const bands=Array.isArray(rule.distance_bands)?rule.distance_bands.slice().sort((a,b)=>Number(a.from_km)-Number(b.from_km)):[];
+    let distanceCost=0,covered=0,currentMultiplier=1;
+    bands.forEach(b=>{
+      const threshold=Math.max(covered,Number(b.from_km)||0);
+      if(km>threshold)distanceCost+=(Math.min(km,threshold)-covered)*perKm*currentMultiplier;
+      covered=threshold;
+      currentMultiplier=Number(b.extra_multiplier||1);
+    });
+    distanceCost+=Math.max(0,km-covered)*perKm*currentMultiplier;
+    if(!bands.length)distanceCost=km*perKm;
     let subtotal=base+distanceCost;
     subtotal*=Number((rule.vehicle_multipliers||{})[vehicleLabel]||1);
     if(timeLabel==="야간")subtotal*=Number(rule.night_multiplier||1);
