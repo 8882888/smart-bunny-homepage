@@ -62,6 +62,8 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 
 
 .request-intro{max-width:850px;margin:0 auto 18px}.request-kicker{font-size:12px;font-weight:800;letter-spacing:2px;color:#1769aa}.request-form{max-width:950px;margin:auto;background:#fff;border:1px solid #d9e2ee;border-radius:16px;padding:clamp(16px,3vw,28px);box-shadow:0 8px 28px #1025440d}.request-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.request-grid label,.request-result label{display:flex;flex-direction:column;gap:6px;font-weight:700}.request-grid input,.request-grid select,.request-grid textarea,.request-result textarea{box-sizing:border-box;width:100%;padding:12px;border:1px solid #c7d2e0;border-radius:8px;background:#fff;color:#172235;font:inherit}.request-grid input:focus,.request-grid select:focus,.request-grid textarea:focus,.request-result textarea:focus{outline:2px solid #1769aa;outline-offset:1px}.request-wide{grid-column:1/-1}.request-privacy{font-size:13px;color:#526174}.request-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.request-actions .btn,.request-result .btn{border:0;cursor:pointer;font:inherit;font-weight:700}.request-submit{background:#1769aa;color:white}.request-submit:hover{background:#124f83}.request-result{margin-top:20px;padding:16px;border:1px solid #d9e2ee;border-radius:10px;background:#f7faff}.request-result textarea{margin-top:8px;white-space:pre-wrap}.request-result button{margin-top:8px}.request-result #copy-status{font-size:13px;color:#17603b}@media(max-width:600px){.request-grid{grid-template-columns:1fr}.request-wide{grid-column:auto}.request-actions .btn{width:100%;box-sizing:border-box;text-align:center}}
+
+.fare-section{background:#fff;padding:44px 7%;border-bottom:1px solid #e1e8f0}.fare-intro{max-width:900px;margin:0 auto 18px}.fare-kicker{font-size:12px;font-weight:800;letter-spacing:1.8px;color:#1769aa}.fare-form{max-width:900px;margin:auto;border:1px solid #d9e2ee;border-radius:16px;padding:clamp(16px,3vw,26px);background:#f8fbff}.fare-form>label{display:flex;flex-direction:column;gap:6px;font-weight:700}.fare-form input,.fare-form select{width:100%;box-sizing:border-box;padding:13px;border:1px solid #c7d2e0;border-radius:8px;font:inherit;background:white;color:#172235}.fare-route-fields{display:grid;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr);gap:12px;align-items:end;margin:14px 0}.fare-route-fields label{display:flex;flex-direction:column;gap:6px;font-weight:700}.fare-swap{height:46px;border:1px solid #c7d2e0;border-radius:8px;background:#fff;font-size:23px;cursor:pointer}.fare-search-button{background:#1769aa;color:white;border:0;cursor:pointer}.fare-note{font-size:12px;color:#5c6675;margin-bottom:0}.fare-result{max-width:900px;margin:18px auto 0;padding:20px;border:1px solid #c9d7e7;border-radius:14px;background:#f7faff}.fare-result h3{margin:0 0 10px}.fare-price{font-size:30px;font-weight:800;color:#102544;margin:6px 0}.fare-status{display:inline-block;padding:4px 8px;border-radius:5px;background:#fff0d1;color:#6e4b00;font-size:12px;font-weight:800}.fare-result p{margin:8px 0}.fare-result .fare-result-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.fare-result .btn{border:0;cursor:pointer}.fare-empty{background:#fff}.fare-disclaimer{font-size:12px;color:#596579}@media(max-width:600px){.fare-route-fields{grid-template-columns:1fr}.fare-swap{width:100%;height:38px}.fare-result .fare-price{font-size:25px}}
 </style>
 </head>
 <body>
@@ -103,6 +105,33 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 </div>
 <section><strong>상담 시 출발지 · 도착지 · 차량 종류 · 희망 시간을 알려주세요.</strong></section>
 
+
+<section id="fare-search" class="fare-section">
+  <div class="fare-intro">
+    <p class="fare-kicker">NATIONWIDE ROUTE FARE SEARCH</p>
+    <h2>전국 지역별 참고요금 검색</h2>
+    <p>실제 운행기록이 없는 경로도 출발지와 도착지로 검색할 수 있습니다. 확인된 참고요금과 상담으로 확정되는 실제 견적을 구분해 안내합니다.</p>
+  </div>
+  <form id="fare-search-form" class="fare-form">
+    <label>서비스 구분
+      <select id="fare-service" required>
+        <option value="transport">자동차 탁송</option>
+        <option value="daeri">대리운전</option>
+      </select>
+    </label>
+    <div class="fare-route-fields">
+      <label>출발 지역 <input id="fare-origin" required maxlength="80" list="fare-region-options" placeholder="예: 속초"></label>
+      <button id="fare-swap" type="button" class="fare-swap" aria-label="출발지와 도착지 바꾸기">⇄</button>
+      <label>도착 지역 <input id="fare-destination" required maxlength="80" list="fare-region-options" placeholder="예: 인천"></label>
+    </div>
+    <datalist id="fare-region-options">
+      <option value="서울"></option><option value="인천"></option><option value="수원"></option><option value="성남"></option><option value="고양"></option><option value="춘천"></option><option value="속초"></option><option value="강릉"></option><option value="원주"></option><option value="청주"></option><option value="대전"></option><option value="전주"></option><option value="광주"></option><option value="대구"></option><option value="부산"></option><option value="울산"></option><option value="포항"></option><option value="경주"></option><option value="여수"></option><option value="제주"></option>
+    </datalist>
+    <button class="btn fare-search-button" type="submit">참고요금 검색</button>
+    <p class="fare-note">※ 아래 예시 금액은 운영자 확인 전 테스트 데이터입니다. 실제 판매 요금이나 확정 견적이 아니며, 확인된 참고요금이 없는 경로는 상담으로 안내합니다.</p>
+  </form>
+  <div id="fare-search-result" class="fare-result" role="status" aria-live="polite" hidden></div>
+</section>
 <section id="quick-request" class="gray">
   <div class="request-intro">
     <p class="request-kicker">SMART QUICK CONSULTATION</p>
@@ -258,6 +287,56 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
       message.focus();message.select();
       status.textContent="자동 복사를 사용할 수 없습니다. 선택된 내용을 복사해 주세요.";
     }
+  });
+})();
+</script>
+
+<script>
+(function(){
+  const form=document.getElementById("fare-search-form");
+  if(!form) return;
+  const origin=document.getElementById("fare-origin");
+  const destination=document.getElementById("fare-destination");
+  const service=document.getElementById("fare-service");
+  const result=document.getElementById("fare-search-result");
+  const esc=s=>String(s||"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  const normalize=s=>String(s||"").replace(/(특별자치도|특별자치시|광역시|특별시|자치시|자치도|시|군|구|읍|면|동)$/,"").replace(/\s+/g,"").toLowerCase();
+  // 테스트 레코드: 공개 전 운영자 검증이 필요하므로 실제 확정요금으로 표시하지 않습니다.
+  const referenceFares=[
+    {service:"transport",origin:"속초",destination:"인천",amount:120000,status:"draft",note:"운영자 확인 전 테스트 금액"}
+  ];
+  document.getElementById("fare-swap").addEventListener("click",function(){const old=origin.value;origin.value=destination.value;destination.value=old;});
+  form.addEventListener("submit",function(event){
+    event.preventDefault();
+    const from=origin.value.trim(),to=destination.value.trim(),kind=service.value;
+    if(!from||!to){return;}
+    if(normalize(from)===normalize(to)){
+      result.hidden=false;result.className="fare-result fare-empty";result.innerHTML="<h3>출발지와 도착지를 확인해 주세요.</h3><p>서로 다른 지역을 입력해 주세요.</p>";return;
+    }
+    const hit=referenceFares.find(r=>r.service===kind&&normalize(r.origin)===normalize(from)&&normalize(r.destination)===normalize(to));
+    const reverse=referenceFares.find(r=>r.service===kind&&normalize(r.origin)===normalize(to)&&normalize(r.destination)===normalize(from));
+    result.hidden=false;result.className="fare-result";
+    if(hit){
+      result.innerHTML='<span class="fare-status">테스트 데이터 · 운영자 검증 전</span><h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><div class="fare-price">'+hit.amount.toLocaleString("ko-KR")+'원</div><p>위 금액은 화면 작동 확인을 위한 예시값이며, 실제 참고요금이나 확정 견적이 아닙니다.</p><p class="fare-disclaimer">차종, 거리, 인수·인계 위치, 시간, 현장 여건 등에 따라 실제 상담 견적은 달라질 수 있습니다. 운영자가 요금을 검토·승인한 뒤에만 확인된 참고요금으로 공개해야 합니다.</p>';
+    }else if(reverse){
+      result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><p>반대 방향 테스트 데이터만 있습니다. 방향별 요금은 다를 수 있어 자동으로 같은 금액을 적용하지 않습니다.</p><p>현재 확인된 참고요금이 없습니다. 상담으로 견적을 확인해 주세요.</p>';
+    }else{
+      result.innerHTML='<h3>'+esc(from)+' → '+esc(to)+' · '+(kind==="transport"?"자동차 탁송":"대리운전")+'</h3><p><strong>아직 등록된 참고요금이 없습니다.</strong></p><p>실제 운행기록이 없는 경로도 검색할 수 있습니다. 다만 확인되지 않은 금액은 임의로 표시하지 않으며, 운영자 검증 전까지 상담 견적으로 안내합니다.</p>';
+    }
+    result.insertAdjacentHTML("beforeend",'<div class="fare-result-actions"><a class="btn" href="tel:18773015">전화로 견적 확인</a><a class="btn" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer">카카오톡 상담</a><button class="btn" type="button" id="fare-copy-route">경로를 상담 양식에 전달</button></div>');
+    document.getElementById("fare-copy-route").addEventListener("click",function(){
+      const requestForm=document.getElementById("quick-request-form");
+      if(requestForm){
+        const svc=requestForm.querySelector('[name="service"]');
+        const o=requestForm.querySelector('[name="origin"]');
+        const d=requestForm.querySelector('[name="destination"]');
+        if(svc)svc.value=kind==="transport"?"자동차 탁송":"대리운전";
+        if(o)o.value=from;if(d)d.value=to;
+        document.getElementById("quick-request").scrollIntoView({behavior:"smooth"});
+      }else{
+        window.location.hash="quick-request";
+      }
+    });
   });
 })();
 </script>
