@@ -42,12 +42,12 @@ header a{color:#ffd166;text-decoration:none;font-weight:bold}
 .kakao-icon{width:19px;height:17px;display:inline-block;vertical-align:middle}
 .kakao-hours{font-size:12px;font-weight:600;color:#fff;white-space:nowrap;margin-left:-10px}
 @media(max-width:650px){header{align-items:flex-start}.topnav{justify-content:flex-start;gap:12px}.topnav a{font-size:14px}}
-.hero{background:linear-gradient(135deg,#102544,#1769aa);color:white;padding:60px 7%}
+.hero{background:linear-gradient(90deg,rgba(16,37,68,.96) 0%,rgba(16,37,68,.86) 48%,rgba(16,37,68,.35) 100%),url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1800&q=85") center 55%/cover no-repeat;color:white;padding:60px 7%;min-height:260px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
 h1{font-size:clamp(30px,5vw,48px);line-height:1.3}
 .btn{display:inline-block;background:#ffd166;color:#102544;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;margin:8px 8px 0 0}
 section{padding:40px 7%}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
-.card{border:1px solid #ddd;border-radius:12px;padding:20px;overflow:hidden}.service-image{display:block;width:100%;height:155px;object-fit:cover;border-radius:8px;margin:0 0 14px;background:#e8eef5}
+.card{border:1px solid #ddd;border-radius:12px;padding:20px;overflow:hidden;background:#fff;transition:transform .18s ease,box-shadow .18s ease}.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px #10254412}.service-image{display:block;width:100%;height:175px;object-fit:cover;object-position:center;border-radius:8px;margin:0 0 14px;background:#e8eef5}.card h3{line-height:1.4}.card p{margin-bottom:0}@media(prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 .gray{background:#f3f7fb}
 .contact{background:#102544;color:white}
 .phone{font-size:40px;font-weight:bold;color:#ffd166}
@@ -210,12 +210,12 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 <h2>홈페이지 카테고리</h2>
 <p>서비스별 메뉴와 지역별 메뉴를 분리해 방문자가 필요한 정보를 쉽게 찾도록 구성합니다.</p>
 <div class="cards">
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>대리운전</h3><p>전국 대리운전 안내 · 지역별 대리운전 · 예약 및 이용 전 확인사항</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>자동차탁송</h3><p>전국 자동차탁송 · 차량 인수·인계 안내 · 차종별 상담</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>장거리탁송</h3><p>지역 간 장거리 차량 이동 · 일정 및 배차 상담 · 장거리 이용 안내</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>법인·업무용 차량</h3><p>법인 차량 이동 상담 · 업무 일정에 맞춘 차량 인수·인계 안내</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>지역별 서비스</h3><p>시·도 → 시·군·구 → 읍·면·동 → 리 순서로 지역 안내 페이지를 연결합니다.</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./reviews/">실제 운행 후기</a></h3><p>완료된 운행 중 확인된 자료만 공개합니다. 운행일·출발 시간·출발지·도착지·금액만 표시하고 개인정보는 공개하지 않습니다.</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&w=900&q=80" alt="대리운전과 자동차탁송 서비스 안내 사진" loading="lazy" decoding="async"><h3>대리운전</h3><p>전국 대리운전 안내 · 지역별 대리운전 · 예약 및 이용 전 확인사항</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80" alt="자동차탁송 서비스 안내 사진" loading="lazy" decoding="async"><h3>자동차탁송</h3><p>전국 자동차탁송 · 차량 인수·인계 안내 · 차종별 상담</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=900&q=80" alt="장거리탁송과 차량 이동 안내 사진" loading="lazy" decoding="async"><h3>장거리탁송</h3><p>지역 간 장거리 차량 이동 · 일정 및 배차 상담 · 장거리 이용 안내</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="법인 차량 이동 서비스 안내 사진" loading="lazy" decoding="async"><h3>법인·업무용 차량</h3><p>법인 차량 이동 상담 · 업무 일정에 맞춘 차량 인수·인계 안내</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&w=900&q=80" alt="전국 지역별 서비스 안내 사진" loading="lazy" decoding="async"><h3>지역별 서비스</h3><p>시·도 → 시·군·구 → 읍·면·동 → 리 순서로 지역 안내 페이지를 연결합니다.</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" alt="완료된 실제 운행 기록 안내 사진" loading="lazy" decoding="async"><h3><a href="./reviews/">실제 운행 후기</a></h3><p>완료된 운행 중 확인된 자료만 공개합니다. 운행일·출발 시간·출발지·도착지·금액만 표시하고 개인정보는 공개하지 않습니다.</p></div>
 </div>
 </section>
 
@@ -224,23 +224,23 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 <h2>전문 탁송 서비스</h2>
 <p>산행 종주와 자전거 국토종주처럼 출발지와 도착지가 다른 차량 이동을 위한 전문 안내입니다. 코스별 상담 전 확인사항을 살펴보고 전화 또는 카카오톡으로 문의하세요.</p>
 <div class="cards">
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1541625602330-2277e4d9e0d4?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/national-bicycle-road/">전국 자전거길 탁송</a></h3><p>자전거길 출발·도착 지점과 차량 회수 계획 안내</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/national-cycling-tour/">국토종주 자전거길 탁송</a></h3><p>국토종주·4대강 자전거길 이용 전 확인사항</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/seoraksan/">설악산 종주탁송</a></h3><p><a href="./special/osaek/">오색탁송</a> · <a href="./special/hangyeryeong/">한계령탁송</a> · <a href="./special/baekdamsa/">백담사탁송</a> · <a href="./special/namgyori/">남교리탁송</a></p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/jirisan/">지리산 종주탁송</a></h3><p><a href="./special/seongdae-jongju/">성대종주</a> · <a href="./special/hwadae-jongju/">화대종주</a> · <a href="./special/seongjung-jongju/">성중종주</a> · <a href="./special/hwajung-jongju/">화중종주</a></p><p><a href="./special/baekmudong/">백무동탁송</a> · <a href="./special/jungsanri/">중산리탁송</a></p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/deogyusan/">덕유산 종주탁송</a></h3><p>육십령·무주구천동 등 산행 구간별 차량 이동 안내</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/baekdudaegan/">백두대간 탁송</a></h3><p>백두대간 구간 종주 출발지·하산 지점별 상담 안내</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1541625602330-2277e4d9e0d4?auto=format&fit=crop&w=900&q=80" alt="전국 자전거길 탁송 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/national-bicycle-road/">전국 자전거길 탁송</a></h3><p>자전거길 출발·도착 지점과 차량 회수 계획 안내</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=900&q=80" alt="국토종주 자전거길 차량 이동 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/national-cycling-tour/">국토종주 자전거길 탁송</a></h3><p>국토종주·4대강 자전거길 이용 전 확인사항</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80" alt="설악산 종주탁송과 산행 출발지 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/seoraksan/">설악산 종주탁송</a></h3><p><a href="./special/osaek/">오색탁송</a> · <a href="./special/hangyeryeong/">한계령탁송</a> · <a href="./special/baekdamsa/">백담사탁송</a> · <a href="./special/namgyori/">남교리탁송</a></p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&q=80" alt="지리산 종주탁송과 하산지 이동 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/jirisan/">지리산 종주탁송</a></h3><p><a href="./special/seongdae-jongju/">성대종주</a> · <a href="./special/hwadae-jongju/">화대종주</a> · <a href="./special/seongjung-jongju/">성중종주</a> · <a href="./special/hwajung-jongju/">화중종주</a></p><p><a href="./special/baekmudong/">백무동탁송</a> · <a href="./special/jungsanri/">중산리탁송</a></p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80" alt="덕유산 종주탁송 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/deogyusan/">덕유산 종주탁송</a></h3><p>육십령·무주구천동 등 산행 구간별 차량 이동 안내</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=900&q=80" alt="백두대간 구간별 탁송 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/baekdudaegan/">백두대간 탁송</a></h3><p>백두대간 구간 종주 출발지·하산 지점별 상담 안내</p></div>
 </div>
 </section>
 
 <section id="services">
 <h2>주요 서비스</h2>
 <div class="cards">
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3>대리운전</h3><p>모임, 회식, 골프장 이용 후 귀가 등 필요한 운행을 상담합니다.</p></div>
-<div class="card" id="transport"><h3>전국 자동차탁송 · 장거리탁송</h3><p><strong>스마트24탁송의 주요 서비스</strong>입니다. 승용차·경차·수입차·전기차부터 1톤·2.5톤·3.5톤·5톤·8톤·11톤·25톤 차량까지 출발지와 도착지를 기준으로 상담합니다.</p><p>차량을 직접 운전해 이동하기 어려운 경우, 장거리 이동이나 지역 간 차량 이동이 필요한 경우 이용 목적과 차종에 맞춰 문의해 주세요.</p><p><a href="#vehicle-types">차종별 탁송 안내 보기 ↓</a> · <a href="./reviews/">확인된 완료 운행 기록 보기</a></p><p><strong>전문 탁송:</strong> <a href="./special/seoraksan/">설악산탁송</a> · <a href="./special/jirisan/">지리산탁송</a> · <a href="./special/national-bicycle-road/">자전거종주탁송</a></p></div>
-<div class="card" id="vehicle-types"><h3>차종별 전국 탁송</h3><p><strong>전국 모든 차종 탁송</strong>을 가장 먼저 안내합니다.</p><p>승용차 탁송 · 경차 탁송 · 수입차 탁송 · 전기차 탁송</p><p>1톤 탁송 · 2.5톤 탁송 · 3.5톤 탁송 · 5톤 탁송 · 8톤 탁송 · 11톤 탁송 · 25톤 탁송</p><p>그 외 특수차량은 차종과 출발지·도착지를 확인해 상담합니다.</p></div>
-<div class="card" id="corporate"><h3>법인대리운전</h3><p>기업 임직원과 업무 일정에 필요한 법인 대리운전 상담을 안내합니다.</p></div>
-<div class="card" id="golf"><h3>골프장 대리운전 · 골프장 출발 탁송</h3><p>라운딩 후 귀가를 위한 골프대리운전과, 차량을 다른 지역으로 이동해야 할 때의 자동차탁송은 이용 목적에 맞춰 구분해 상담합니다.</p><p><strong>안내 주제:</strong> 골프장 라운딩 후 귀가 · 지방 골프장 단체배차 문의 · 법인대리운전 · 골프장 출발 장거리탁송</p><p>골프장별 실제 운행 사례는 확인된 기록만 후기 형태로 소개하며, 운행 기록이 없는 골프장은 서비스 안내 콘텐츠로 구분합니다.</p><p><a href="#regions">지역별 서비스 안내 찾기 ↓</a> · <a href="./reviews/">확인된 완료 운행 기록 보기</a></p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=900&q=80" alt="지역별 대리운전 이용 안내 사진" loading="lazy" decoding="async"><h3>대리운전</h3><p>모임, 회식, 골프장 이용 후 귀가 등 필요한 운행을 상담합니다.</p></div>
+<div class="card" id="transport"><img class="service-image" src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80" alt="전국 자동차탁송과 장거리 차량 이동 안내용 승용차 사진" loading="lazy" decoding="async"><h3>전국 자동차탁송 · 장거리탁송</h3><p><strong>스마트24탁송의 주요 서비스</strong>입니다. 승용차·경차·수입차·전기차부터 1톤·2.5톤·3.5톤·5톤·8톤·11톤·25톤 차량까지 출발지와 도착지를 기준으로 상담합니다.</p><p>차량을 직접 운전해 이동하기 어려운 경우, 장거리 이동이나 지역 간 차량 이동이 필요한 경우 이용 목적과 차종에 맞춰 문의해 주세요.</p><p><a href="#vehicle-types">차종별 탁송 안내 보기 ↓</a> · <a href="./reviews/">확인된 완료 운행 기록 보기</a></p><p><strong>전문 탁송:</strong> <a href="./special/seoraksan/">설악산탁송</a> · <a href="./special/jirisan/">지리산탁송</a> · <a href="./special/national-bicycle-road/">자전거종주탁송</a></p></div>
+<div class="card" id="vehicle-types"><img class="service-image" src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=900&q=80" alt="차종별 자동차탁송 안내용 승용차 사진" loading="lazy" decoding="async"><h3>차종별 전국 탁송</h3><p><strong>전국 모든 차종 탁송</strong>을 가장 먼저 안내합니다.</p><p>승용차 탁송 · 경차 탁송 · 수입차 탁송 · 전기차 탁송</p><p>1톤 탁송 · 2.5톤 탁송 · 3.5톤 탁송 · 5톤 탁송 · 8톤 탁송 · 11톤 탁송 · 25톤 탁송</p><p>그 외 특수차량은 차종과 출발지·도착지를 확인해 상담합니다.</p></div>
+<div class="card" id="corporate"><img class="service-image" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=80" alt="기업 업무와 법인 차량 이동 서비스 안내용 사무공간 사진" loading="lazy" decoding="async"><h3>법인대리운전</h3><p>기업 임직원과 업무 일정에 필요한 법인 대리운전 상담을 안내합니다.</p></div>
+<div class="card" id="golf"><img class="service-image" src="https://images.unsplash.com/photo-1535131749006-b7f58c99034b?auto=format&fit=crop&w=900&q=80" alt="골프장 라운딩 후 대리운전과 차량탁송 서비스 안내용 골프장 전경" loading="lazy" decoding="async"><h3>골프장 대리운전 · 골프장 출발 탁송</h3><p>라운딩 후 귀가를 위한 골프대리운전과, 차량을 다른 지역으로 이동해야 할 때의 자동차탁송은 이용 목적에 맞춰 구분해 상담합니다.</p><p><strong>안내 주제:</strong> 골프장 라운딩 후 귀가 · 지방 골프장 단체배차 문의 · 법인대리운전 · 골프장 출발 장거리탁송</p><p>골프장별 실제 운행 사례는 확인된 기록만 후기 형태로 소개하며, 운행 기록이 없는 골프장은 서비스 안내 콘텐츠로 구분합니다.</p><p><a href="#regions">지역별 서비스 안내 찾기 ↓</a> · <a href="./reviews/">확인된 완료 운행 기록 보기</a></p></div>
 </div>
 </section>
 <section class="gray"><h2>이용 방법</h2><p>1. 대표 전화로 연락해 주세요.</p><p>2. 출발지와 도착지, 차량 종류, 희망 시간을 알려주세요.</p><p>3. 요금과 배차 가능 여부를 확인한 후 진행 여부를 결정하세요.</p><p>※ 요금과 배차 가능 여부는 거리와 시간, 차량 및 현장 상황에 따라 달라질 수 있습니다.</p></section>
@@ -248,8 +248,8 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
 <h2>전국 지역별 대리운전 · 탁송 안내</h2>
 <p>전국 행정구역별 안내에서 지역에 맞는 서비스를 찾아보세요. 자동차탁송·장거리탁송을 중심으로, 지역별 대리운전·골프장 대리운전도 검색 목적에 맞게 구분해 연결합니다.</p><p>가평현리·산정호수·남한산성·백운계곡처럼 관광지와 생활권에 따라 이용 상황이 달라지는 대리운전은 지역 안내를, 출발지와 도착지가 중요한 탁송은 경로와 차종 안내를 중심으로 구성합니다.</p>
 <div class="cards">
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1500534314209-a25d2a5b2c6b?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./region/">전국 지역 안내 바로가기</a></h3><p>시·도별 지역 목록에서 원하는 행정구역을 찾아보세요.</p></div>
-<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1520052205864-92d242b3a76b?auto=format&fit=crop&w=900&q=80" alt="서비스 관련 사진" loading="lazy" decoding="async"><h3><a href="./special/">전문 탁송 안내</a></h3><p>산행 종주탁송과 전국 자전거길 탁송은 전문 탁송 메뉴에서 확인할 수 있습니다.</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1500534314209-a25d2a5b2c6b?auto=format&fit=crop&w=900&q=80" alt="전국 지역별 자동차탁송 안내 사진" loading="lazy" decoding="async"><h3><a href="./region/">전국 지역 안내 바로가기</a></h3><p>시·도별 지역 목록에서 원하는 행정구역을 찾아보세요.</p></div>
+<div class="card"><img class="service-image" src="https://images.unsplash.com/photo-1520052205864-92d242b3a76b?auto=format&fit=crop&w=900&q=80" alt="전문 산행 종주탁송 안내 사진" loading="lazy" decoding="async"><h3><a href="./special/">전문 탁송 안내</a></h3><p>산행 종주탁송과 전국 자전거길 탁송은 전문 탁송 메뉴에서 확인할 수 있습니다.</p></div>
 </div>
 <p>지역별 요금과 배차 가능 여부는 실제 출발지·도착지와 이용 시간을 확인한 뒤 안내합니다. 확인되지 않은 후기나 운행 실적은 게시하지 않습니다.</p>
 </section>
