@@ -56,6 +56,17 @@ def main():
             )
         file_path.write_text(text, encoding="utf-8")
 
+    # The region search index stores absolute paths; keep those compatible with either
+    # the GitHub project subpath or a custom-domain root.
+    region_index = ROOT / "region" / "region-index.json"
+    if region_index.is_file():
+        index_text = region_index.read_text(encoding="utf-8")
+        index_text = index_text.replace(
+            "/smart-bunny-homepage/region/",
+            (BASE_PATH + "/region/") if BASE_PATH else "/region/",
+        )
+        region_index.write_text(index_text, encoding="utf-8")
+
     (ROOT / "robots.txt").write_text(
         "User-agent: *\nAllow: /\n\nSitemap: " + SITE_URL + "/sitemap.xml\n",
         encoding="utf-8",
