@@ -3,6 +3,7 @@
 import html
 import json
 import os
+import re
 from collections import defaultdict
 from pathlib import Path
 
@@ -15,9 +16,16 @@ PHONE = "1877-3015"
 def esc(value):
     return html.escape(str(value), quote=True)
 
+PUBLIC_ROUTE_REDACTION = re.compile(r"자택|집앞|일일\s*기사|건당\s*[xX×]|고정\s*[-:.：]|대기\s*기사|지인\s*빌딩\s*뒤", re.I)
+
+def is_public_route_safe(trip):
+    route = " ".join(str(trip.get(key, "")) for key in ("출발지", "도착지"))
+    return not PUBLIC_ROUTE_REDACTION.search(route)
+
 def main():
     data = json.loads(DATA.read_text(encoding="utf-8"))
-    trips = data.get("trips", [])
+    all_trips = data.get("trips", [])
+    trips = [trip for trip in all_trips if is_public_route_safe(trip)]
     ordered = sorted(trips, key=lambda t: (t["운행일"], t["출발시간"]), reverse=True)
 
     if ordered:
@@ -33,7 +41,7 @@ def main():
         )
         table = f"""<div class="table-wrap"><table id="trip-table"><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>{rows}</tbody></table></div>"""
     else:
-        table = '<div class="empty"><h2>등록된 운행 후기가 아직 없습니다.</h2><p>확인된 완료 운행 자료를 정리한 뒤 이곳에 공개합니다.</p></div>'
+        table = '<div class="empty"><h2>등록된 운행 후기가 아직 없습니다.</h2><p>공개 안전 기준을 통과한 완료 운행 자료가 없으면 기록을 정리한 뒤 이곳에 공개합니다.</p></div>'
 
     route_map = defaultdict(list)
     for trip in trips:
@@ -88,7 +96,7 @@ main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28p
 <a href="/smart-bunny-homepage/#services">대리운전</a><a href="/smart-bunny-homepage/#transport">탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a>
 <a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
 <main><p>완료 운행 기록 · 개인정보 비공개</p><h1>구간별 실제 운행 후기</h1>
-<p>확인된 완료 운행 자료 중 운행일, 출발 시간, 출발지, 도착지, 금액만 공개합니다. 고객 이름, 전화번호, 주민등록번호 등 개인정보는 공개하지 않습니다. 운행 구분 자료가 없는 과거 기록은 금액 60,000원 이상을 탁송으로 분류하는 기준을 적용합니다. 이 금액 기준은 자료를 정리하기 위한 분류 기준이며 실제 서비스 종류를 확정하는 증거는 아닙니다.</p>
+<p>공개 안전 기준을 통과한 완료 운행 자료 중 운행일, 출발 시간, 출발지, 도착지, 금액만 공개합니다. 고객 이름, 전화번호, 주민등록번호 등 개인정보는 공개하지 않습니다. 운행 구분 자료가 없는 과거 기록은 금액 60,000원 이상을 탁송으로 분류하는 기준을 적용합니다. 이 금액 기준은 자료를 정리하기 위한 분류 기준이며 실제 서비스 종류를 확정하는 증거는 아닙니다. 개인 주거지 표시나 기사 배차 메모 등 공개에 부적절할 수 있는 경로는 공개 목록에서 제외합니다.</p>
 <section class="empty" id="service-difference"><h2>대리운전과 자동차탁송은 어떻게 다를까요?</h2>
 <p><strong>대리운전</strong>은 고객이 있는 장소에서 고객 차량을 목적지까지 운전해 이동하는 서비스입니다. 식사·모임 후 귀가, 업무 일정 종료 후 이동, 골프장이나 관광지에서의 귀가처럼 고객이 직접 운전하기 어려운 상황에서 출발 위치와 도착지를 확인해 상담합니다.</p>
 <p><strong>자동차탁송</strong>은 차량 자체를 지정한 장소에서 다른 장소로 이동시키는 서비스입니다. 차량을 다른 지역으로 보내야 하거나, 장거리 이동·차량 인수 및 인계 일정이 필요한 경우 출발 주소, 도착 주소, 차종, 차량 상태와 희망 일정을 알려주면 상담에 도움이 됩니다.</p>
