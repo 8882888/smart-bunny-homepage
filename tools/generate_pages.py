@@ -117,6 +117,11 @@ h1{{line-height:1.35;font-size:clamp(28px,5vw,42px)}}h2{{margin-top:32px}}
 .card{{border:1px solid #d9e1ea;border-radius:12px;padding:16px;margin:12px 0}}.review-ticker{{overflow:hidden;width:100%;padding:4px 0}}.review-ticker-track{{display:flex;gap:14px;width:max-content;animation:review-flow 90s linear infinite}}.review-ticker:hover .review-ticker-track,.review-ticker:focus-within .review-ticker-track{{animation-play-state:paused}}.review-ticker-card{{flex:0 0 280px;max-width:80vw;border:1px solid #d9e1ea;border-radius:12px;background:#f8fbff;padding:14px;display:flex;flex-direction:column;gap:8px;white-space:normal}}.review-ticker-card strong{{font-size:1.02rem;line-height:1.5}}.review-date,.review-verified{{font-size:.85rem;color:#536276}}.review-fare{{font-weight:700;color:#a34d00}}.review-fare-note{{font-size:.82rem;color:#536276;line-height:1.5}}.review-service-label{{align-self:flex-start;padding:2px 8px;border-radius:999px;font-size:.78rem;font-weight:700}}.review-service-label.transport{{background:#e2f7e9;color:#18723a}}.review-service-label.daeri{{background:#e7f0ff;color:#1d4ed8}}.review-verified{{color:#17633b;font-weight:700}}@keyframes review-flow{{from{{transform:translateX(0)}}to{{transform:translateX(-50%)}}}}@media(prefers-reduced-motion:reduce){{.review-ticker-track{{animation:none}}}}
 .btn{{display:inline-block;background:#ffd166;color:#102544;text-decoration:none;padding:10px 16px;border-radius:8px;font-weight:bold;margin:6px 8px 6px 0}}
 .muted{{color:#536276;font-size:.95rem}}ul{{padding-left:22px}}
+html{{scroll-behavior:smooth;scroll-padding-top:84px}}
+.region-jump-nav{{position:sticky;top:0;z-index:900;display:flex;flex-wrap:wrap;gap:8px;padding:10px;margin:12px 0 18px;background:#fff;border:1px solid #d9e1ea;border-radius:10px;box-shadow:0 3px 12px #10254412}}
+.region-jump-nav a{{display:inline-block;padding:6px 10px;border-radius:7px;background:#eef4fa;color:#102544;text-decoration:none;font-size:.9rem;font-weight:700}}
+.region-jump-nav a:hover,.region-jump-nav a:focus{{background:#102544;color:#fff;outline:2px solid #ffd166;outline-offset:1px}}
+h2{{scroll-margin-top:86px}}
 
 html{{scroll-behavior:smooth}}
 .back-to-top{{position:fixed;right:20px;bottom:22px;z-index:1000;display:flex;align-items:center;gap:6px;padding:12px 15px;border-radius:999px;background:#102544;color:#fff;text-decoration:none;font-weight:700;box-shadow:0 4px 16px #0003;border:2px solid #ffd166}}
@@ -306,22 +311,23 @@ def main():
             ]
         body = f"""<p class="muted">전국 지역별 서비스 안내 · {esc(level)}</p>
 <h1>{esc(location)} 대리운전 · 자동차탁송</h1>
+<nav class="region-jump-nav" aria-label="페이지 바로가기"><a href="#service-difference">서비스 차이</a><a href="#checklist">이용 체크리스트</a><a href="#local-navigation">지역·서비스 목록</a><a href="#consult-prep">상담 준비</a><a href="/smart-bunny-homepage/region/">전국 지역 찾기</a></nav>
 <p>{esc(location)}에서 대리운전이나 차량 이동이 필요할 때 확인할 상담 정보를 정리했습니다. 실제 배차 가능 여부와 요금은 출발지, 목적지, 차종, 희망 시간에 따라 달라질 수 있습니다. 문의할 때는 지역명뿐 아니라 실제 차량 위치와 이동 목적을 함께 알려주시면 필요한 서비스를 구분하고 상담하기가 수월합니다.</p>
-<h2>{esc(location)} 대리운전과 자동차탁송의 차이</h2>
+<h2 id="service-difference">{esc(location)} 대리운전과 자동차탁송의 차이</h2>
 <div class="card"><h3>{esc(location)} 대리운전</h3>
 <p>고객 차량을 현재 주차된 장소에서 목적지까지 운전해 이동하는 서비스입니다. 식사·모임 후 귀가, 업무 일정 종료 후 이동, 골프장이나 관광지 방문 후 귀가 등 운전자를 따로 요청해야 하는 상황에서 이용 목적과 출발·도착 위치를 확인합니다.</p>
 <p>상담 전에는 차량이 주차된 곳, 기사와 만날 출입구, 목적지 주소, 희망 출발 시간을 준비해 주세요. 건물이나 시설의 출입구가 여러 곳이면 주차장 이름이나 가까운 표지를 함께 알려주시면 좋습니다.</p></div>
 <div class="card"><h3>{esc(location)} 자동차탁송·장거리탁송</h3>
 <p>차량 자체를 지정한 출발지에서 도착지로 이동시키는 서비스입니다. 차량을 다른 지역으로 보내야 하거나 장거리 차량 이동, 차량 인수·인계 일정이 필요한 경우에 출발 주소와 도착 주소, 차종, 차량 상태 및 희망 일정을 기준으로 상담합니다.</p>
 <p>장거리 구간은 시·군·구 이름만으로 견적이 정확하지 않을 수 있으므로 상세 주소와 인수 가능 시간, 도착 희망 일정, 차량 종류를 준비해 주세요. 요금과 배차 가능 여부는 실제 조건을 확인한 뒤 안내받으시기 바랍니다.</p></div>
-<h2>{esc(location)} 지역 서비스 이용 전 체크리스트</h2>
+<h2 id="checklist">{esc(location)} 지역 서비스 이용 전 체크리스트</h2>
 <ul><li><strong>이동 목적:</strong> 고객의 귀가를 위한 대리운전인지 차량 이동을 위한 탁송인지 구분합니다.</li><li><strong>출발·도착 위치:</strong> 정확한 주소, 건물명, 주차 구역 또는 만날 출입구를 확인합니다.</li><li><strong>차량 정보:</strong> 차종과 차량 상태, 탁송 시 인수·인계에 필요한 현장 조건을 알려줍니다.</li><li><strong>일정:</strong> 이용 날짜, 희망 출발·인수 시간, 도착 희망 시간을 전달합니다.</li><li><strong>요금 확인:</strong> 과거 운행 사례의 금액과 현재 견적은 다를 수 있으므로 현재 조건으로 다시 확인합니다.</li></ul>
-<h2>{esc(location)} 서비스 안내 및 관련 운행 사례</h2>
+<h2 id="local-navigation">{esc(location)} 서비스 안내 및 관련 운행 사례</h2>
 {parent_section}
-{child_section}
-{''.join(links)}
-{related_trip_html(r, completed_trips, limit=4)}
-<h2>상담 전에 준비하면 좋은 정보</h2>
+{('<section id="child-regions"><h3>하위 행정구역</h3>'+child_section.removeprefix('<h2>하위 행정구역</h2>')+'</section>') if child_section else ''}
+<div id="service-links">{''.join(links)}</div>
+<div id="related-records">{related_trip_html(r, completed_trips, limit=4)}</div>
+<h2 id="consult-prep">상담 전에 준비하면 좋은 정보</h2>
 <ul><li>출발지와 도착지의 정확한 위치</li><li>차량 종류 및 차량 상태</li><li>이용 날짜와 희망 시간</li><li>현장 연락 담당자와 인수·인계 방법(탁송 시)</li></ul>
 <h2>지역별 후기 콘텐츠 운영 기준</h2>
 <p>실제 이용 후기가 확인되면 해당 지역, 운행 경로, 차량 정보와 상담 과정 등 공개 가능한 사실을 바탕으로 추가합니다. 실제 사례가 없는 경우에는 이용 안내를 제공하며, 고객 후기나 운행 실적을 만들어 쓰지 않습니다.</p>
@@ -437,11 +443,12 @@ def main():
 <h1>전국 대리운전·자동차탁송 지역 찾기</h1>
 <p>전국 행정구역을 직접 검색하거나 시·도를 선택해 시·군·구, 읍·면·동 등 세부 지역 페이지로 이동할 수 있습니다. 실제 운행 사례와 요금은 확인된 정보만 별도로 안내합니다.</p>
 <p><a href="/smart-bunny-homepage/reviews/">실제 완료 운행 내역 {len(completed_trips):,}건 확인하기 →</a></p>
+<nav class="region-jump-nav" aria-label="지역 안내 바로가기"><a href="#region-search">지역 검색</a><a href="#province-list">시·도별 목록</a><a href="/smart-bunny-homepage/reviews/">완료 운행 후기</a></nav>
 <label for="region-search">지역명 빠른 검색</label>
 <input id="region-search" type="search" placeholder="예: 서울 강남구, 역삼동, 속초시" autocomplete="off" style="width:100%;max-width:650px;padding:13px;border:1px solid #b9c5d3;border-radius:8px;font:inherit">
 <p id="region-search-status" class="muted" role="status">지역 검색 자료를 불러오는 중입니다.</p>
 <div id="region-results"></div>
-<h2>시·도별로 찾아보기</h2>
+<h2 id="province-list">시·도별로 찾아보기</h2>
 <div class="cards">{''.join(province_cards)}</div>
 <p class="muted">지역 데이터 출처: 국토교통부 전국 법정동 데이터. 지역별 배차 가능 여부와 요금은 상담을 통해 확인해 주세요.</p>
 {directory_script}"""
