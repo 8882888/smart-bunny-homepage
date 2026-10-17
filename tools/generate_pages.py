@@ -245,7 +245,6 @@ def main():
         for item in sorted(regions, key=lambda x: (x.get("parent_name", ""), x.get("name", "")))
     ]
     (region_root / "region-index.json").write_text(
-        json.dumps(search_records, ensure_ascii=False, separators=(",", ":")) + "\\n",
         json.dumps(search_records, ensure_ascii=False, separators=(",", ":")) + "\n",
     )
     directory_script = """<script>
