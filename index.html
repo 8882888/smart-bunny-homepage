@@ -361,16 +361,16 @@ footer{background:#09172b;color:#ddd;padding:24px 7%}
     const hit=referenceFares.find(f=>f.service===kind&&normalize(f.origin)===normalize(from)&&normalize(f.destination)===normalize(to));
     const reverse=referenceFares.find(f=>f.service===kind&&normalize(f.origin)===normalize(to)&&normalize(f.destination)===normalize(from));
     result.hidden=false;result.className="fare-result";result.innerHTML="<h3>전국 경로 조회 중입니다</h3><p>지도에서 출발지와 도착지의 예상 주행정보를 확인하고 있습니다. 잠시 기다려 주세요.</p>";
-    let routeHtml="";
+    let routeHtml="",routeInfo=null;
     try{
-      const route=await getRoute(from,to);
+      const route=await getRoute(from,to);routeInfo=route;
       routeHtml='<div class="fare-route-metrics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0"><div style="padding:14px;background:#fff;border:1px solid #d9e2ee;border-radius:10px"><small>예상 주행거리</small><div style="font-size:22px;font-weight:800">'+route.km.toLocaleString("ko-KR",{maximumFractionDigits:1})+' km</div></div><div style="padding:14px;background:#fff;border:1px solid #d9e2ee;border-radius:10px"><small>예상 운행시간</small><div style="font-size:22px;font-weight:800">'+Math.round(route.minutes/60)+'시간 '+Math.round(route.minutes%60)+'분</div></div></div><p class="fare-disclaimer">지도 서비스가 산출한 일반 주행 경로 기준이며 실제 경로·시간은 교통상황, 휴게, 출발지 상세 주소에 따라 달라질 수 있습니다.</p>';
     }catch(error){routeHtml='<p class="fare-disclaimer">현재 입력한 지역의 지도 주행정보를 가져오지 못했습니다. 시·군·구 또는 도로명 주소를 조금 더 구체적으로 입력하거나 상담으로 확인해 주세요.</p>';}
     let priceHtml="";
     if(hit){priceHtml='<span class="fare-status">승인된 참고요금</span><div class="fare-price">'+Number(hit.amount).toLocaleString("ko-KR")+'원</div><p>운영자가 확인한 참고요금입니다. 실제 상담 견적이나 최종 결제 금액과 다를 수 있습니다.</p>';}
     else if(reverse){priceHtml='<p>반대 방향 참고요금만 등록되어 있습니다. 방향별 요금이 다를 수 있어 같은 금액을 자동 적용하지 않습니다.</p><p><strong>이 경로는 상담 견적이 필요합니다.</strong></p>';}
     else{
-      const estimate=routeHtml&&routeHtml.includes("예상 주행거리")?estimateFare((route.km||0),kind,time.value):null;
+      const estimate=routeInfo?estimateFare(routeInfo.km,kind,time.value):null;
       if(estimate){
         priceHtml='<span class="fare-status">자동 산출 예상요금 · 참고용</span><div class="fare-price">'+estimate.low.toLocaleString("ko-KR")+'원 ~ '+estimate.high.toLocaleString("ko-KR")+'원</div><p>계산 기준 금액 약 '+estimate.center.toLocaleString("ko-KR")+'원</p><p><strong>중요:</strong> 이 금액은 거리 기반 초기 산정식으로 계산한 참고 범위이며, 실제 확정 요금이나 승인된 요금표가 아닙니다. 운영자가 지역·차종별 운행 실적과 배차비용을 검토해 기준을 조정해야 합니다.</p>';
       }else{
