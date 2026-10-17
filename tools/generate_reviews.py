@@ -7,7 +7,7 @@ from pathlib import Path
 DATA = Path("data/completed_trips.json")
 OUT = Path("reviews/index.html")
 SITE_URL = "https://8882888.github.io/smart-bunny-homepage"
-BRAND = "스마트전국대리운전 스마트 24시탁송"
+BRAND = "스마트전국대리운전 스마트24탁송"
 PHONE = "1877-3015"
 
 def esc(value):
