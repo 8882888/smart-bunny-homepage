@@ -80,7 +80,8 @@ main{{max-width:1000px;margin:auto;padding:30px 5% 55px}}h1{{font-size:clamp(28p
       .limit(1000);
     if (error) throw error;
     if (!data || data.length === 0) {{
-      container.innerHTML = '<div class="empty"><h2>등록된 운행 후기가 아직 없습니다.</h2><p>확인된 완료 운행 자료를 정리한 뒤 이곳에 공개합니다.</p></div>';
+      status.textContent = "실시간 데이터에 새 기록이 없어 공개용으로 정리된 완료 운행 내역을 표시합니다.";
+      return;
     }} else {{
       const rows = data.map(t => '<tr><td>'+esc(t["운행일"])+'</td><td>'+esc(String(t["출발 시간"]).slice(0,5))+'</td><td>'+esc(t["출발지"])+'</td><td>'+esc(t["도착지"])+'</td><td class="amount">'+Number(t["금액"]).toLocaleString("ko-KR")+'원</td></tr>').join("");
       container.innerHTML = '<div class="table-wrap"><table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
