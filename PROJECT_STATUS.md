@@ -44,3 +44,13 @@
 - 전국자동차탁송서비스 기존 기준 유지: 요청 시 약 5,000자, 제목 아래 '전 직원 100% 보험가입 안전운행', 모바일 가독성, 사실 기반 후기, 관련 해시태그 30개 한 줄.
 - 대표 1877-3015 / 직통 010-4072-1577 / 카카오 친구추가 010-3471-7001 / 상담 08:00~20:00 / 오픈채팅 https://open.kakao.com/o/sGV88r7h
 - 후기 데이터베이스와 블로그 원고는 구분하며 확인되지 않은 후기를 실제 운행으로 표시하지 않음.
+
+
+## 2026-10-19 deployment audit fixes
+- Fixed escaped whitespace in homepage/admin viewport audit; both existing tags are now recognized.
+- Fixed consultation message newlines and route duration hour/minute rounding.
+- Replaced the 1,000-row live review cap with paginated reads; failures preserve static fallback.
+- Local generated-site link validation and structural audit passed (2 seed regions, not a nationwide import).
+- Approved reference fares remain empty and pricing rules remain draft; operator review is still required.
+- Deployment and Naver verification must be checked after GitHub Actions finishes.
+- Also fixed a literal backslash-n outside a string in admin loadRecords that prevented the entire admin script from parsing.

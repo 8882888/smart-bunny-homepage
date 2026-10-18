@@ -339,7 +339,7 @@ html{scroll-behavior:smooth}
       ["차량 종류",String(data.get("vehicle")||"").trim()],
       ["추가 요청사항",String(data.get("note")||"").trim()]
     ];
-    message.value="스마트전국대리운전 스마트24탁송 상담 요청\\n"+fields.filter(item=>item[1]).map(item=>item[0]+": "+item[1]).join("\\n");
+    message.value="스마트전국대리운전 스마트24탁송 상담 요청\n"+fields.filter(item=>item[1]).map(item=>item[0]+": "+item[1]).join("\n");
     result.hidden=false;
     status.textContent="";
     result.scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -426,7 +426,7 @@ html{scroll-behavior:smooth}
     let routeHtml="",routeInfo=null;
     try{
       const route=await getRoute(from,to);routeInfo=route;
-      routeHtml='<div class="fare-route-metrics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0"><div style="padding:14px;background:#fff;border:1px solid #d9e2ee;border-radius:10px"><small>예상 주행거리</small><div style="font-size:22px;font-weight:800">'+route.km.toLocaleString("ko-KR",{maximumFractionDigits:1})+' km</div></div><div style="padding:14px;background:#fff;border:1px solid #d9e2ee;border-radius:10px"><small>예상 운행시간</small><div style="font-size:22px;font-weight:800">'+Math.round(route.minutes/60)+'시간 '+Math.round(route.minutes%60)+'분</div></div></div><p class="fare-disclaimer">지도 서비스가 산출한 일반 주행 경로 기준이며 실제 경로·시간은 교통상황, 휴게, 출발지 상세 주소에 따라 달라질 수 있습니다.</p>';
+      routeHtml='<div class="fare-route-metrics" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin:16px 0"><div style="padding:14px;background:#fff;border:1px solid #d9e2ee;border-radius:10px"><small>예상 주행거리</small><div style="font-size:22px;font-weight:800">'+route.km.toLocaleString("ko-KR",{maximumFractionDigits:1})+' km</div></div><div style="padding:14px;background:#fff;border:1px solid #d9e2ee;border-radius:10px"><small>예상 운행시간</small><div style="font-size:22px;font-weight:800">'+Math.floor(Math.round(route.minutes)/60)+'시간 '+(Math.round(route.minutes)%60)+'분</div></div></div><p class="fare-disclaimer">지도 서비스가 산출한 일반 주행 경로 기준이며 실제 경로·시간은 교통상황, 휴게, 출발지 상세 주소에 따라 달라질 수 있습니다.</p>';
     }catch(error){routeHtml='<p class="fare-disclaimer">현재 입력한 지역의 지도 주행정보를 가져오지 못했습니다. 시·군·구 또는 도로명 주소를 조금 더 구체적으로 입력하거나 상담으로 확인해 주세요.</p>';}
     let priceHtml="";
     if(hit){priceHtml='<span class="fare-status">승인된 참고요금</span><div class="fare-price">'+Number(hit.amount).toLocaleString("ko-KR")+'원</div><p>운영자가 확인한 참고요금입니다. 실제 상담 견적이나 최종 결제 금액과 다를 수 있습니다.</p>';}

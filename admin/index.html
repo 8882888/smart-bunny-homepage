@@ -12,6 +12,7 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 .small{font-size:.92rem;color:#526176}.notice{padding:12px;background:#fff7df;border:1px solid #f1d58a;border-radius:8px}.status{min-height:1.5em;margin-top:10px}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:10px;border-bottom:1px solid #e0e6ee;text-align:left}th{background:#f3f6fa}.actions{display:flex;gap:8px}.actions button{margin:0;min-width:90px}
 .hidden{display:none!important}
 </style>
+<link rel="canonical" href="https://8882888.github.io/smart-bunny-homepage/admin/">
 </head>
 <body>
 <header><strong>스마트전국대리운전 스마트24탁송 · 관리자</strong><a href="../">홈페이지로</a></header>
@@ -164,7 +165,8 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
  async function loadRecords() {
    $("records").textContent = "불러오는 중…";
    const {data,error} = await client.from("trip_records").select("id,trip_date,departure_time,origin,destination,fare_krw,service_type,status").order("trip_date",{ascending:false}).order("departure_time",{ascending:false}).limit(500);
-   if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}\n   currentRecords=data; await loadDashboardStats(data); await loadApprovedFares();
+   if(error){$("records").textContent="목록을 불러오지 못했습니다.";statusText(error.message,"records-status");return;}
+   currentRecords=data; await loadDashboardStats(data); await loadApprovedFares();
    if(!data.length){$("records").innerHTML="<p>등록된 운행 기록이 없습니다.</p>";return;}
    $("records").innerHTML = '<table><thead><tr><th>운행일</th><th>출발 시간</th><th>출발지</th><th>도착지</th><th>금액</th><th>구분</th><th>상태</th><th>작업</th></tr></thead><tbody>' + data.map(t =>
      '<tr><td>'+escapeHtml(t.trip_date)+'</td><td>'+escapeHtml(String(t.departure_time).slice(0,5))+'</td><td>'+escapeHtml(t.origin)+'</td><td>'+escapeHtml(t.destination)+'</td><td>'+money(t.fare_krw)+'</td><td>'+((t.service_type==='transport')?'탁송':'대리운전')+'</td><td>'+({"completed":"완료","pending":"대기","cancelled":"취소"}[t.status]||"미확인")+'</td><td><div class="actions"><button type="button" data-edit="'+escapeHtml(t.id)+'" class="secondary">수정</button><button type="button" data-delete="'+escapeHtml(t.id)+'" class="danger">삭제</button></div></td></tr>'

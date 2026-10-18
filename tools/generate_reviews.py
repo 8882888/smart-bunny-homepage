@@ -158,12 +158,23 @@ document.querySelectorAll(".route-card").forEach(button => button.addEventListen
   const escJs = value => String(value ?? "").replace(/[&<>"']/g, c => ({{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}}[c]));
   try {{
     const client = window.supabase.createClient(cfg.url, cfg.anonKey);
-    const {{data, error}} = await client.from("completed_trip_reviews")
-      .select('"운행일","출발 시간","출발지","도착지","금액"')
-      .order("운행일", {{ascending:false}})
-      .order("출발 시간", {{ascending:false}})
-      .limit(1000);
-    if (error) throw error;
+    const data = [];
+    const pageSize = 500;
+    let offset = 0;
+    while (true) {{
+      const {{data: page, error}} = await client.from("completed_trip_reviews")
+        .select('"운행일","출발 시간","출발지","도착지","금액"')
+        .order("운행일", {{ascending:false}})
+        .order("출발 시간", {{ascending:false}})
+        .order("출발지", {{ascending:true}})
+        .order("도착지", {{ascending:true}})
+        .order("금액", {{ascending:true}})
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+      if (!page || !page.length) break;
+      data.push(...page);
+      offset += page.length;
+    }}
     if (!data || data.length === 0) {{
       status.textContent = "실시간 데이터에 새 기록이 없어 공개용 완료 운행 내역을 표시합니다.";
       filterTripRows(tripSearch.value);

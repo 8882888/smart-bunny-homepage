@@ -47,7 +47,7 @@ if not (ROOT / "reviews/index.html").is_file():
     issues.append("Missing completed-trip reviews page")
 
 # Smoke-test presence of fare search, responsive viewport and admin integration.
-if not re.search(r'<meta\\s+name="viewport"', home):
+if not re.search(r'<meta\s+name="viewport"', home):
     issues.append("Homepage mobile viewport missing")
 for element_id in ("fare-search-form", "fare-origin", "fare-destination", "fare-search-result", "quick-request-form"):
     if element_id not in home_ids:
@@ -62,7 +62,7 @@ else:
     for marker in ("signInWithPassword", 'client.from("trip_records")', "supabase-public-config.js"):
         if marker not in admin:
             issues.append(f"Admin integration marker missing: {marker}")
-    if not re.search(r'<meta\\s+name="viewport"', admin):
+    if not re.search(r'<meta\s+name="viewport"', admin):
         issues.append("Admin mobile viewport missing")
 fare_path = ROOT / "data/reference_fares.json"
 if not fare_path.is_file():
