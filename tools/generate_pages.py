@@ -309,10 +309,34 @@ def main():
                 f'<div class="card"><h3><a href="/smart-bunny-homepage/#corporate">{esc(location)} 법인대리운전</a></h3><p>법인 이용은 일정과 이용 조건을 확인해 상담합니다.</p></div>',
                 f'<div class="card"><h3><a href="/smart-bunny-homepage/#golf">{esc(location)} 골프대리운전</a></h3><p>골프장 출발·도착 위치와 희망 시간을 알려주세요.</p></div>',
             ]
+        local_context = {
+            "동": "상가·업무시설·아파트에서는 기사와 만날 주차장 출입구가 여러 곳일 수 있습니다. 건물명과 차량 위치, 진입 가능한 출입구를 확인하면 대리운전 호출이 수월합니다.",
+            "읍": "읍내와 외곽 마을은 기사 이동 거리와 대기 시간이 다를 수 있습니다. 정확한 마을명, 차량 위치와 희망 출발 시간을 미리 알려주세요.",
+            "면": "면 지역은 숙박시설·관광지·마을 간 거리가 멀 수 있어 늦은 시간 배차 가능 여부를 먼저 확인하는 것이 중요합니다. 진입로와 만남 장소를 구체적으로 알려주세요.",
+            "리": "리 단위 지역에서는 같은 마을 안에서도 진입 도로와 차량 주차 위치가 다를 수 있습니다. 도로명주소 또는 가까운 공공시설을 기준으로 만날 위치를 알려주세요.",
+            "시·군·구": "시·군·구 안에서도 도심과 외곽의 기사 수급 상황은 달라질 수 있습니다. 읍·면·동까지 포함한 출발 위치와 목적지를 함께 확인해 주세요.",
+            "시·도": "시·도 전체를 대상으로 상담할 때는 실제 출발 시·군·구와 도착 지역을 구체적으로 알려주셔야 이동 거리와 배차 조건을 확인할 수 있습니다.",
+        }.get(level, "출발지의 정확한 주소와 목적지, 차량 위치를 확인한 뒤 이용 조건을 상담해 주세요.")
+        local_notes = r.get("local_notes", [])
+        verified_local_trips = related_trip_html(r, completed_trips, limit=4)
+        local_guidance = (
+            f'<h2>{esc(location)} 현장 배차·탁송 안내</h2>'
+            f'<p>{esc(local_context)}</p>'
+            '<p>대리운전은 고객 차량의 주차 위치와 귀가 목적지, 자동차탁송은 차량 인수·인계 장소와 차종을 기준으로 상담합니다. '
+            '심야·새벽 및 장거리 운행은 일정과 기사 수급에 따라 요금과 대기 시간이 달라질 수 있습니다.</p>'
+            + ('<h3>이 지역에서 참고할 사항</h3><ul>' + ''.join(f'<li>{esc(note)}</li>' for note in local_notes) + '</ul>' if local_notes else '')
+        )
+        if not verified_local_trips:
+            local_guidance += (
+                '<h2>공개된 완료 운행후기가 없는 지역의 이용 안내</h2>'
+                '<p>현재 이 지역에 연결된 공개 완료 운행 기록은 없습니다. 실제 운행한 것처럼 날짜·요금·고객 후기를 만들어 표시하지 않습니다. '
+                '대신 정확한 출발·도착 위치, 차량 종류, 희망 시간을 기준으로 배차와 탁송 가능 여부를 안내합니다.</p>'
+            )
         body = f"""<p class="muted">전국 지역별 서비스 안내 · {esc(level)}</p>
 <h1>{esc(location)} 대리운전 · 자동차탁송</h1>
 <nav class="region-jump-nav" aria-label="페이지 바로가기"><a href="#service-difference">서비스 차이</a><a href="#checklist">이용 체크리스트</a><a href="#local-navigation">지역·서비스 목록</a><a href="#consult-prep">상담 준비</a><a href="/smart-bunny-homepage/region/">전국 지역 찾기</a></nav>
 <p>{esc(location)}에서 대리운전이나 차량 이동이 필요할 때 확인할 상담 정보를 정리했습니다. 실제 배차 가능 여부와 요금은 출발지, 목적지, 차종, 희망 시간에 따라 달라질 수 있습니다. 문의할 때는 지역명뿐 아니라 실제 차량 위치와 이동 목적을 함께 알려주시면 필요한 서비스를 구분하고 상담하기가 수월합니다.</p>
+{local_guidance}
 <h2 id="service-difference">{esc(location)} 대리운전과 자동차탁송의 차이</h2>
 <div class="card"><h3>{esc(location)} 대리운전</h3>
 <p>고객 차량을 현재 주차된 장소에서 목적지까지 운전해 이동하는 서비스입니다. 식사·모임 후 귀가, 업무 일정 종료 후 이동, 골프장이나 관광지 방문 후 귀가 등 운전자를 따로 요청해야 하는 상황에서 이용 목적과 출발·도착 위치를 확인합니다.</p>
