@@ -416,9 +416,22 @@ def main():
       status.textContent = "지역명(예: 강남구, 역삼동, 속초시)을 입력해 주세요.";
       return;
     }
-    const matches = regions.filter(item =>
-      (item.parent_name + " " + item.name + " " + item.slug).toLocaleLowerCase("ko-KR").includes(query)
-    ).slice(0, 100);
+    // Rank exact and prefix matches before broader substring matches.
+    // This keeps a requested locality visible even with many same-name villages.
+    const ranked = regions.map(item => {
+      const name = item.name.toLocaleLowerCase("ko-KR");
+      const full = (item.parent_name + " " + item.name).toLocaleLowerCase("ko-KR");
+      const slug = item.slug.toLocaleLowerCase("ko-KR");
+      const score = name === query || full === query ? 0
+        : name.startsWith(query) ? 1
+        : full.startsWith(query) ? 2
+        : full.includes(query) ? 3
+        : slug.includes(query) ? 4 : -1;
+      return { item, score };
+    }).filter(entry => entry.score >= 0)
+      .sort((a, b) => a.score - b.score || a.item.parent_name.localeCompare(b.item.parent_name, "ko-KR"))
+      .slice(0, 100);
+    const matches = ranked.map(entry => entry.item);
     if (!matches.length) {
       status.textContent = "검색 결과가 없습니다. 시·군·구 또는 읍·면·동 이름으로 다시 검색해 주세요.";
       return;
