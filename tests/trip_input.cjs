@@ -1,0 +1,17 @@
+const assert=require('node:assert/strict');
+const {parseImport,parseCSV,validateTrip}=require('../trip-input.js');
+const header='서비스구분,운행일,출발시간,출발지,도착지,금액\r\n';
+const valid='탁송,2026-10-19,09:30,서울 강남구,부산 동래구,"120,000원"';
+assert.equal(parseImport('\uFEFF'+header+valid)[0].fare_krw,120000);
+assert.equal(parseImport(header+valid)[0].service_type,'transport');
+assert.deepEqual(parseCSV('"a,b","c""d"\r\n'),[['a,b','c"d']]);
+for(const row of ['탁송',valid.replace('2026-10-19','2026-02-30'),valid.replace('09:30','25:00'),valid.replace('서울 강남구','010-1234-5678'),valid.replace('120,000원','2147483648')])assert.throws(()=>parseImport(header+row));
+assert.throws(()=>parseImport(header+valid+'\n'+valid.replace('09:30','99:00')));
+assert.throws(()=>parseImport(header.replace('금액','전화번호')+valid));
+assert.throws(()=>parseImport(header+valid+',extra'));
+assert.throws(()=>parseCSV('"unclosed'));
+assert.throws(()=>parseCSV('"closed"oops'));
+const leap={service_type:'daeri',trip_date:'2024-02-29',departure_time:'23:59',origin:'서울',destination:'인천',fare_krw:40000,status:'completed'};
+assert.equal(validateTrip(leap),leap);
+assert.throws(()=>validateTrip({...leap,trip_date:'2025-02-29'}));
+console.log('PASS: CSV BOM/quotes/CRLF, malformed rows, real dates, privacy values, integer bounds and services.');

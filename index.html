@@ -56,6 +56,7 @@ header a{color:#ffd166;text-decoration:none;font-weight:bold}
 @media(max-width:650px){header{align-items:flex-start}.topnav{justify-content:flex-start;gap:12px}.topnav a{font-size:14px}}
 .hero{background:linear-gradient(90deg,rgba(16,37,68,.96) 0%,rgba(16,37,68,.86) 48%,rgba(16,37,68,.35) 100%),url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1800&q=85") center 55%/cover no-repeat;color:white;padding:60px 7%;min-height:260px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
 h1{font-size:clamp(30px,5vw,48px);line-height:1.3}
+@media(max-width:600px){.hero{padding:28px 6%;min-height:0}.hero h1{font-size:30px;margin:12px 0}.hero p{margin:8px 0}.hero .btn{width:100%;text-align:center;font-size:17px}}
 .btn{display:inline-block;background:#ffd166;color:#102544;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:bold;margin:8px 8px 0 0}
 section{padding:40px 7%}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
@@ -103,6 +104,13 @@ html{scroll-behavior:smooth}
 </head>
 <body>
 <header><strong>스마트전국대리운전 스마트24탁송</strong><nav class="topnav" aria-label="주요 메뉴"><a href="./services/nationwide-daeri/">전국대리운전</a><details class="nav-dropdown"><summary>탁송 ▾</summary><div class="nav-dropdown-content" aria-label="탁송 하위 메뉴"><a href="./services/nationwide-transport/">전국탁송 이용 안내</a><a href="#transport">전국 모든 차종 탁송</a><a href="#vehicle-types">승용차 탁송</a><a href="#vehicle-types">1톤~25톤 차량 탁송</a><a href="./special/seoraksan/">설악산탁송</a><a href="./special/jirisan/">지리산탁송</a><a href="./special/national-bicycle-road/">자전거종주탁송</a><a href="./special/national-cycling-tour/">국토종주 자전거길 탁송</a></div></details><a href="#corporate">법인대리운전</a><a href="#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카카오톡 상담, 상담시간 오전 8시부터 오후 8시까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg><span>카톡상담 08:00~20:00</span></a></nav><a href="tel:18773015">대표 상담 1877-3015</a></header>
+<div class="hero">
+<p>전국 대리운전 · 자동차 탁송 상담</p>
+<h1>전국대리운전 · 전국탁송<br>장거리 이동부터 24시탁송 상담까지</h1>
+<p>일반 대리운전부터 전국 자동차 탁송과 장거리 차량 이동까지 상담해 드립니다.</p>
+<a class="btn" href="tel:18773015">전화 상담하기</a>
+<a class="btn" href="https://open.kakao.com/o/sGV88r7h">카카오톡 상담 08:00~20:00</a>
+</div>
 <div class="brand-ticker" aria-label="스마트전국대리운전24시탁송 전국 서비스 안내">
   <div class="brand-ticker-track">
     <div class="brand-ticker-group">
@@ -131,13 +139,7 @@ html{scroll-behavior:smooth}
   </div>
   <p class="region-review-empty" id="region-review-status" role="status">후기 페이지의 공개 완료 운행 기록과 연결합니다.</p>
 </section>
-<div class="hero">
-<p>전국 대리운전 · 자동차 탁송 상담</p>
-<h1>전국대리운전 · 전국탁송<br>장거리 이동부터 24시탁송 상담까지</h1>
-<p>일반 대리운전부터 전국 자동차 탁송과 장거리 차량 이동까지 상담해 드립니다.</p>
-<a class="btn" href="tel:18773015">전화 상담하기</a>
-<a class="btn" href="https://open.kakao.com/o/sGV88r7h">카카오톡 상담 08:00~20:00</a>
-</div>
+
 <section><strong>상담 시 출발지 · 도착지 · 차량 종류 · 희망 시간을 알려주세요.</strong></section>
 
 

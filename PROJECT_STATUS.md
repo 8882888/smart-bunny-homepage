@@ -71,3 +71,11 @@
 - Added CI parsing of inline JavaScript/JSON-LD and a mocked fare-search integration check.
 - Local generation, links, audit, JS syntax, and race/snapshot/lazy-suggestion regression checks passed. Local data uses two seed regions; nationwide count above was checked on deployment.
 - Visual mobile emulation remains unverified: browser binary download failed in this runtime. Admin authenticated CRUD and approval of price rules still require operational verification.
+
+## 2026-10-19 admin import and mobile first screen
+- Moved the main service heading and consultation buttons before animated review content. Mobile buttons fill the available width.
+- Added shared browser/Node input validation for admin manual entry and CSV imports: real calendar dates, time format, allowed service/status, route length, private contact patterns and PostgreSQL integer range.
+- CSV parser handles BOM, quoted commas/escaped quotes and CRLF. Missing/extra/unknown columns, malformed quotes or invalid later rows stop the entire import before any write.
+- Prevented repeated clicks while saving/importing; network errors restore controls and report failure.
+- Added CI regression tests for CSV boundaries and invalid dates; prior fare-search tests and generated-site validation passed.
+- Authenticated database writes were not performed; browser mobile viewport visual testing remains outstanding.

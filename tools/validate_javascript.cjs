@@ -14,4 +14,6 @@ for (const file of files) {
     count++;
   }
 }
-console.log(`JavaScript and structured data validation passed: ${files.length} pages, ${count} scripts.`);
+
+new vm.Script(fs.readFileSync("trip-input.js", "utf8"), {filename:"trip-input.js"});
+console.log(`JavaScript and structured data validation passed: ${files.length} pages, ${count} inline scripts and trip-input.js.`);
