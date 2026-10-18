@@ -45,12 +45,17 @@ def load_completed_trips():
 
 def region_aliases(region):
     name = str(region.get("name", "")).strip()
+    parent = str(region.get("parent_name", "")).strip()
     aliases = [name]
-    for suffix in ("특별자치도", "특별자치시", "특별시", "광역시", "자치도", "시", "군", "구", "읍", "면", "동", "리", "도"):
-        if name.endswith(suffix) and len(name[:-len(suffix)]) >= 2:
-            aliases.append(name[:-len(suffix)])
-            break
-    return [re.sub(r"\s+", "", alias) for alias in aliases if len(re.sub(r"\s+", "", alias)) >= 2]
+    # Short aliases such as '중앙' can match unrelated places nationwide.
+    # Keep the official locality name and require parent context for
+    # ambiguous neighborhood/village names when matching completed trips.
+    if not parent:
+        for suffix in ("특별자치도", "특별자치시", "특별시", "광역시", "자치도", "시", "군", "구", "도"):
+            if name.endswith(suffix) and len(name[:-len(suffix)]) >= 2:
+                aliases.append(name[:-len(suffix)])
+                break
+    return [re.sub(r"\\s+", "", alias) for alias in aliases if len(re.sub(r"\\s+", "", alias)) >= 2]
 
 
 PUBLIC_ROUTE_REDACTION = re.compile(r"자택|집앞|일일\s*기사|건당\s*[xX×]|고정\s*[-:.：]|대기\s*기사|지인\s*빌딩\s*뒤", re.I)
@@ -72,7 +77,15 @@ def related_trip_html(region, trips, limit=3):
         matched = []
         for trip in trips:
             route = trip.get("_route_norm") or re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
-            if any(alias in route for alias in aliases):
+            parent = re.sub(r"\\s+", "", str(region.get("parent_name", "")))
+            level = str(region.get("level", ""))
+            # Same-named dong/ri/eup/myeon occur in different cities.
+            # Never attribute a trip to a small locality without geographic context.
+            parent_tokens = [token for token in re.split(r"\\s+", str(region.get("parent_name", "")).strip()) if token]
+            context_ok = not (level in ("동", "읍", "면", "리") and parent_tokens) or any(
+                token in route for token in parent_tokens if len(token) >= 2
+            )
+            if context_ok and any(alias in route for alias in aliases):
                 matched.append(trip)
                 if len(matched) >= 4:
                     break
