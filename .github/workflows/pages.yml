@@ -63,6 +63,7 @@ jobs:
           node tools/validate_javascript.cjs
           node tests/fare_search.cjs
           node tests/trip_input.cjs
+          node tests/public_reviews.cjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site files

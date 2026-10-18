@@ -28,6 +28,14 @@ def main():
     trips = [trip for trip in all_trips if is_public_route_safe(trip)]
     ordered = sorted(trips, key=lambda t: (t["운행일"], t["출발시간"]), reverse=True)
 
+    latest = [{"운행일": t["운행일"], "출발 시간": t["출발시간"],
+               "출발지": t["출발지"], "도착지": t["도착지"], "금액": int(t["금액"])}
+              for t in ordered[:40]]
+    (DATA.parent / "latest_public_trips.json").write_text(
+        json.dumps({"schema_version": 1, "total": len(ordered), "trips": latest}, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
     if ordered:
         rows = "".join(
             "<tr>" +

@@ -79,3 +79,11 @@
 - Prevented repeated clicks while saving/importing; network errors restore controls and report failure.
 - Added CI regression tests for CSV boundaries and invalid dates; prior fare-search tests and generated-site validation passed.
 - Authenticated database writes were not performed; browser mobile viewport visual testing remains outstanding.
+
+## 2026-10-19 lightweight dynamic homepage reviews
+- Homepage review ticker reads only the five-field public Supabase view (latest 40 rows) on load/refresh; it no longer downloads/parses the entire reviews HTML page.
+- Build produces data/latest_public_trips.json from the same filtered records as the static reviews page. Current payload 6,357 bytes versus 432,677 bytes for the full reviews HTML.
+- Empty, unavailable or timed-out public DB reads fall back to the small published feed; failed refresh keeps the existing display. Public fields are validated and allowlisted in the browser.
+- Added explicit pause/resume and refresh buttons, loading state and inert duplicate animation cards for keyboard accessibility.
+- Public DB read returned HTTP 200 with zero rows; no authenticated write test was performed. New records appear on reload or explicit refresh after completed status publication.
+- Added CI regression checks for live/fallback behavior, timeout, privacy filtering and the 40-record cap.
