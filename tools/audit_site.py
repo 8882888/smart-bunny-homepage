@@ -5,6 +5,7 @@ import re
 import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
+from urllib.parse import urlsplit, unquote
 
 ROOT = Path(__file__).resolve().parents[1]
 regions = json.loads((ROOT / "data/regions.json").read_text(encoding="utf-8"))["regions"]
@@ -39,8 +40,8 @@ if sitemap.is_file():
     if not chunks:
         issues.append("No sitemap chunks listed")
     for chunk in chunks:
-        filename = chunk.rsplit("/", 1)[-1]
-        if not (ROOT / filename).is_file():
+        filename = unquote(urlsplit(chunk).path.rsplit("/", 1)[-1])
+        if not filename or not (ROOT / filename).is_file():
             issues.append(f"Missing sitemap chunk: {filename}")
 else:
     issues.append("Missing sitemap.xml")
