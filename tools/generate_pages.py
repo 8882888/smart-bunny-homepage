@@ -6,6 +6,7 @@ import os
 import re
 from pathlib import Path
 from datetime import date
+from generate_service_hubs import generate_hubs
 from urllib.parse import quote, urlsplit, urlunsplit
 
 ROOT = Path(".")
@@ -144,7 +145,7 @@ html{{scroll-behavior:smooth}}
 .back-to-top .arrow{{font-size:1.25rem;line-height:1}}
 @media(max-width:600px){{.back-to-top{{right:12px;bottom:14px;padding:11px 13px}}.back-to-top .label{{font-size:.88rem}}}}
 </style></head><body>
-<header><strong>{BRAND}</strong><nav class="topnav" aria-label="주요 메뉴"><a href="/smart-bunny-homepage/#services">대리운전</a><a href="/smart-bunny-homepage/#transport">탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
+<header><strong>{BRAND}</strong><nav class="topnav" aria-label="주요 메뉴"><a href="/smart-bunny-homepage/services/nationwide-daeri/">전국대리운전</a><a href="/smart-bunny-homepage/services/nationwide-transport/">전국탁송</a><a href="/smart-bunny-homepage/#corporate">법인대리운전</a><a href="/smart-bunny-homepage/#golf">골프대리운전</a><a class="kakao" href="https://open.kakao.com/o/sGV88r7h" target="_blank" rel="noopener noreferrer" aria-label="카톡상담, 상담시간 08:00부터 20:00까지"><svg class="kakao-icon" viewBox="0 0 24 22" aria-hidden="true"><path fill="#191919" d="M12 1C5.9 1 1 4.8 1 9.5c0 3 2 5.7 5.1 7.2l-1 4.1c-.1.4.3.6.6.4l4.8-3.1c.5.1 1 .1 1.5.1 6.1 0 11-3.8 11-8.6S18.1 1 12 1Z"/></svg>카톡상담</a><span class="kakao-hours">상담시간 08:00~20:00</span></nav><a href="tel:18773015">대표 상담 {PHONE}</a></header>
 <div class="business-card"><span>전국 지역별 상담 · 명함 정보</span><strong>스마트전국대리운전24시탁송</strong><a class="phone" href="tel:18773015">☎ 1877-3015</a><span>대리운전 · 전국 자동차탁송 · 장거리탁송</span></div>
 <main>{body}
 <div class="card"><h2>전화 상담</h2><p>출발지와 도착지, 차량 종류, 이용 날짜와 희망 시간을 알려주시면 상담이 더 정확해집니다.</p>
@@ -273,6 +274,7 @@ def main():
     if not regions:
         raise SystemExit("data/regions.json에 지역을 입력해야 합니다.")
     urls = {SITE_URL + "/"}
+    urls.update(generate_hubs(page, SITE_URL))
     # Keep hand-authored specialist transport landing pages in the sitemap.
     special_root = ROOT / "special"
     if special_root.exists():

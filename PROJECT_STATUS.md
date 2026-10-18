@@ -54,3 +54,10 @@
 - Approved reference fares remain empty and pricing rules remain draft; operator review is still required.
 - Deployment and Naver verification must be checked after GitHub Actions finishes.
 - Also fixed a literal backslash-n outside a string in admin loadRecords that prevented the entire admin script from parsing.
+
+## 2026-10-19 national service guides
+- Added distinct nationwide driver and vehicle transport guides generated during the existing regional build.
+- Added service/breadcrumb structured data, service FAQ content, consultation steps, and links to actual records and regional directory.
+- Updated home H1 and primary links; existing calculator/admin/region functions retained.
+- New service URLs included in generated sitemap. No unverified trip or price added.
+- Local generation, link/anchor validation and structural audit passed on seed-region fixture.
