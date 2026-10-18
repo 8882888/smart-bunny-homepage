@@ -25,6 +25,27 @@ for r in regions:
         issues.append(f"Brand contact mismatch: {path.relative_to(ROOT)}")
     if not re.search(r"<h1[^>]*>", page):
         issues.append(f"Missing H1: {path.relative_to(ROOT)}")
+# Check homepage service navigation, visual descriptions, and customer contact.
+home = (ROOT / "index.html").read_text(encoding="utf-8")
+required_sections = ("services", "transport", "corporate", "golf", "quick-request", "regions")
+for section in required_sections:
+    if not re.search(r'\\bid="' + re.escape(section) + r'"', home):
+        issues.append(f"Missing homepage service section: {section}")
+home_ids = set(re.findall(r'\\bid="([^"]+)"', home))
+for target in re.findall(r'href="#([^"]+)"', home):
+    if target not in home_ids:
+        issues.append(f"Broken homepage section link: #{target}")
+if "1877-3015" not in home or "1811-0963" in home:
+    issues.append("Homepage brand contact mismatch")
+service_images = re.findall(r'<img\\b[^>]*class="service-image"[^>]*>', home)
+if len(service_images) < 4:
+    issues.append("Missing homepage service images")
+for img in service_images:
+    if not re.search(r'\\balt="[^"]+"', img):
+        issues.append("Service image without descriptive alt text")
+if not (ROOT / "reviews/index.html").is_file():
+    issues.append("Missing completed-trip reviews page")
+
 index_path = ROOT / "region/region-index.json"
 if index_path.is_file():
     index = json.loads(index_path.read_text(encoding="utf-8"))
