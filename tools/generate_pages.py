@@ -223,6 +223,25 @@ def service_body(location, level, service, region, trips=None):
     if local_notes:
         local_html = "<h2>지역 이용 참고사항</h2><ul>" + "".join(f"<li>{esc(note)}</li>" for note in local_notes) + "</ul>"
     trip_html = related_trip_html(region, trips or [], limit=2)
+    if not trip_html:
+        service_slug = service["slug"]
+        if service_slug in ("daeri", "24h-daeri", "corporate-daeri", "golf-daeri"):
+            service_detail = (
+                "대리운전은 실제 차량 주차 위치와 기사 만남 장소, 도착 목적지와 희망 출발 시간을 알려주시면 상담이 수월합니다. "
+                "심야·외곽 이동은 기사 수급에 따라 대기 시간과 요금이 달라질 수 있어 예약 가능 여부를 미리 확인해 주세요."
+            )
+        else:
+            service_detail = (
+                "탁송은 차량 인수지와 인계지의 정확한 주소, 차종, 운행 가능 상태와 희망 일정을 확인해야 합니다. "
+                "장거리·외곽 운행은 이동 거리와 인수 시간에 따라 요금 및 배차 가능 여부가 달라집니다."
+            )
+        trip_html = (
+            f'<section class="card"><h2>{esc(location)} 실제 후기 미등록 지역 안내</h2>'
+            '<p>현재 공개된 완료 운행 기록에서 이 지역에 해당하는 후기가 확인되지 않았습니다. '
+            '확인되지 않은 운행 날짜·경로·요금은 실제 후기로 표시하지 않습니다.</p>'
+            f'<p>{esc(service_detail)}</p>'
+            '<p><a href="/smart-bunny-homepage/reviews/">공개된 전국 완료 운행후기 보기</a></p></section>'
+        )
     return f"""<p class="muted">전국 지역별 서비스 안내 · {esc(level)}</p>
 <h1>{esc(location)} {esc(service["keyword"])}</h1>
 <p>{esc(intro)}</p>
