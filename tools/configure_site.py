@@ -24,7 +24,7 @@ def public_path(path: str) -> str:
         suffix = "/" + path[: -len("/index.html")].strip("/") + "/"
     else:
         suffix = "/" + path.lstrip("/")
-    return BASE_PATH + suffix
+    return suffix
 
 
 def main():
