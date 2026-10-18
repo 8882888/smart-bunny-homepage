@@ -87,3 +87,4 @@
 - Added explicit pause/resume and refresh buttons, loading state and inert duplicate animation cards for keyboard accessibility.
 - Public DB read returned HTTP 200 with zero rows; no authenticated write test was performed. New records appear on reload or explicit refresh after completed status publication.
 - Added CI regression checks for live/fallback behavior, timeout, privacy filtering and the 40-record cap.
+- Also fixed route-card multi-word searches by searching joined table-cell text token by token; regression checks verify origin + destination matching.

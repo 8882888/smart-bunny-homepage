@@ -139,10 +139,12 @@ const tripSearch = document.getElementById("trip-search");
 const searchCount = document.getElementById("search-count");
 function filterTripRows(query) {{
   const q = String(query || "").trim().toLocaleLowerCase("ko-KR");
+  const terms = q.split(/\\s+/).filter(Boolean);
   const rows = Array.from(document.querySelectorAll("#review-table tbody tr"));
   let shown = 0;
   rows.forEach(row => {{
-    const match = !q || row.textContent.toLocaleLowerCase("ko-KR").includes(q);
+    const text = Array.from(row.cells).map(cell => cell.textContent).join(" ").toLocaleLowerCase("ko-KR");
+    const match = terms.every(term => text.includes(term));
     row.classList.toggle("filtered-out", !match);
     if (match) shown++;
   }});
