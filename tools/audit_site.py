@@ -46,6 +46,36 @@ for img in service_images:
 if not (ROOT / "reviews/index.html").is_file():
     issues.append("Missing completed-trip reviews page")
 
+# Smoke-test presence of fare search, responsive viewport and admin integration.
+if not re.search(r'<meta\\s+name="viewport"', home):
+    issues.append("Homepage mobile viewport missing")
+for element_id in ("fare-search-form", "fare-origin", "fare-destination", "fare-search-result", "quick-request-form"):
+    if element_id not in home_ids:
+        issues.append(f"Homepage calculator or consultation element missing: {element_id}")
+if 'form.addEventListener("submit"' not in home:
+    issues.append("Fare search submit handler missing")
+admin_path = ROOT / "admin/index.html"
+if not admin_path.is_file():
+    issues.append("Missing admin page")
+else:
+    admin = admin_path.read_text(encoding="utf-8")
+    for marker in ("signInWithPassword", 'client.from("trip_records")', "supabase-public-config.js"):
+        if marker not in admin:
+            issues.append(f"Admin integration marker missing: {marker}")
+    if not re.search(r'<meta\\s+name="viewport"', admin):
+        issues.append("Admin mobile viewport missing")
+fare_path = ROOT / "data/reference_fares.json"
+if not fare_path.is_file():
+    issues.append("Missing approved reference fare data file")
+else:
+    fare_data = json.loads(fare_path.read_text(encoding="utf-8"))
+    if not isinstance(fare_data.get("fares"), list):
+        issues.append("Approved reference fares must be a list")
+    elif not fare_data["fares"]:
+        print("NOTICE: Approved reference fare list is empty; calculator cannot quote approved route prices.")
+if not (ROOT / "supabase-public-config.js").is_file():
+    issues.append("Missing Supabase public configuration")
+
 index_path = ROOT / "region/region-index.json"
 if index_path.is_file():
     index = json.loads(index_path.read_text(encoding="utf-8"))
