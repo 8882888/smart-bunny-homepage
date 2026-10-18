@@ -77,13 +77,15 @@ def related_trip_html(region, trips, limit=3):
         matched = []
         for trip in trips:
             route = trip.get("_route_norm") or re.sub(r"\s+", "", str(trip.get("출발지", "")) + str(trip.get("도착지", "")))
-            parent = re.sub(r"\s+", "", str(region.get("parent_name", "")))
             level = str(region.get("level", ""))
-            # Same-named dong/ri/eup/myeon occur in different cities.
-            # Never attribute a trip to a small locality without geographic context.
-            parent_tokens = [token for token in re.split(r"\s+", str(region.get("parent_name", "")).strip()) if token]
-            context_ok = not (level in ("동", "읍", "면", "리") and parent_tokens) or any(
-                token in route for token in parent_tokens if len(token) >= 2
+            # Require the immediate parent district when attributing a ride
+            # to a small locality; province-only matches are ambiguous.
+            parent_tokens = str(region.get("parent_name", "")).split()
+            immediate_parent = parent_tokens[-1] if parent_tokens else ""
+            context_ok = (
+                level not in ("동", "읍", "면", "리")
+                or not immediate_parent
+                or immediate_parent in route
             )
             if context_ok and any(alias in route for alias in aliases):
                 matched.append(trip)
