@@ -1,22 +1,29 @@
 {
   "schema_version": 1,
-  "brand": "스마트번개대리운전",
+  "brand": "스마트전국대리운전 스마트24탁송",
   "phone": "1877-3015",
-  "note": "초기 자동 생성 시험 데이터입니다. 전국 전체 배포 전 공식 행정구역 데이터로 확장해야 합니다.",
+  "note": "현재 2개 지역의 초기 시험 데이터입니다. 전국 전체 지역은 공식 행정구역 데이터를 검증하여 별도 확장해야 합니다.",
   "regions": [
     {
       "name": "속초시",
       "slug": "gangwon/sokcho",
       "level": "시",
       "parent_name": "강원특별자치도",
-      "services": ["daeri", "taksong", "long-distance-taksong"]
+      "services": [
+        "daeri",
+        "taksong",
+        "long-distance-taksong"
+      ]
     },
     {
       "name": "역삼동",
       "slug": "seoul/gangnam/yeoksam",
       "level": "동",
       "parent_name": "서울특별시 강남구",
-      "services": ["daeri", "taksong"]
+      "services": [
+        "daeri",
+        "taksong"
+      ]
     }
   ]
 }
