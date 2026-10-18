@@ -16,7 +16,7 @@ PHONE = "1877-3015"
 def esc(value):
     return html.escape(str(value), quote=True)
 
-PUBLIC_ROUTE_REDACTION = re.compile(r"자택|집앞|일일\s*기사|건당\s*[xX×]|고정\s*[-:.：]|대기\s*기사|지인\s*빌딩\s*뒤", re.I)
+PUBLIC_ROUTE_REDACTION = re.compile(r"자택|집앞|일일\s*기사|건당\s*[xX×]|고정\s*[-:.：]|대기\s*기사|지인\s*빌딩\s*뒤|카드번호|콜센터|고객명|담당자|연락처|(?:^|\s)[가-힣]{2,4}\s*\)", re.I)
 
 def is_public_route_safe(trip):
     route = " ".join(str(trip.get(key, "")) for key in ("출발지", "도착지"))

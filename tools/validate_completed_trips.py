@@ -45,6 +45,10 @@ def main():
             if isinstance(value, str) and not value.strip():
                 fail(f"{index}번째 기록의 {key} 값이 비어 있습니다.")
 
+        route = " ".join(trip[key] for key in ("출발지", "도착지"))
+        if re.search(r"카드번호|콜센터|고객명|담당자|연락처|(?:^|\s)[가-힣]{2,4}\s*\)|(?<!\d)01[016789][ -]?\d{3,4}[ -]?\d{4}(?!\d)|\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}", route):
+            fail(f"{index}번째 장소명에 개인정보 또는 업무 메모 의심 내용이 있습니다. 공개 전 검토하세요.")
+
         try:
             date.fromisoformat(trip["운행일"])
         except (ValueError, TypeError):

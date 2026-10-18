@@ -1,6 +1,6 @@
 # PROJECT_STATUS — 스마트전국대리운전·스마트24탁송
 
-최종 점검: 2026-10-18 (GitHub main 브랜치 파일 기준)
+최종 점검: 2026-10-19 (GitHub main 브랜치 파일 기준)
 저장소: 8882888/smart-bunny-homepage
 원칙: 기존 기능 보존, 1877-3015 유지, 영구63 브랜드 분리, 확인되지 않은 후기 생성 금지, 개인정보 비공개.
 
@@ -61,3 +61,13 @@
 - Updated home H1 and primary links; existing calculator/admin/region functions retained.
 - New service URLs included in generated sitemap. No unverified trip or price added.
 - Local generation, link/anchor validation and structural audit passed on seed-region fixture.
+
+## 2026-10-19 calculator, public records and deployment validation
+- Live regional search index verified: 20,561 records. Both new national service guides returned HTTP 200.
+- Fare requests now wait for approved data, time out on stalled network calls, preserve submitted options, and discard stale responses.
+- Region suggestions load on focus and render at most 100 matching fully qualified region names instead of thousands of DOM options at initial load.
+- Added global border-box sizing and responsive form/dropdown constraints for narrow screens.
+- Removed 21 records containing internal instructions or possible personal-name fragments from the public dataset pending review; no synthetic replacement records added. Added value-level privacy rejection to build validation and route filters.
+- Added CI parsing of inline JavaScript/JSON-LD and a mocked fare-search integration check.
+- Local generation, links, audit, JS syntax, and race/snapshot/lazy-suggestion regression checks passed. Local data uses two seed regions; nationwide count above was checked on deployment.
+- Visual mobile emulation remains unverified: browser binary download failed in this runtime. Admin authenticated CRUD and approval of price rules still require operational verification.

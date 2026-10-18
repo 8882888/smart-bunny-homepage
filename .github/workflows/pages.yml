@@ -54,6 +54,14 @@ jobs:
         run: python tools/validate_site.py
       - name: Audit region pages and search index
         run: python tools/audit_site.py
+      - name: Set up Node for browser script validation
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate JavaScript and fare search behavior
+        run: |
+          node tools/validate_javascript.cjs
+          node tests/fare_search.cjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site files
