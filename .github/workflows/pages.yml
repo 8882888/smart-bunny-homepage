@@ -52,6 +52,8 @@ jobs:
         run: python tools/configure_site.py
       - name: Validate generated pages and sitemap
         run: python tools/validate_site.py
+      - name: Audit region pages and search index
+        run: python tools/audit_site.py
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site files
