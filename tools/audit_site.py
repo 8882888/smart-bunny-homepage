@@ -29,19 +29,19 @@ for r in regions:
 home = (ROOT / "index.html").read_text(encoding="utf-8")
 required_sections = ("services", "transport", "corporate", "golf", "quick-request", "regions")
 for section in required_sections:
-    if not re.search(r'\\bid="' + re.escape(section) + r'"', home):
+    if not re.search(r'\bid="' + re.escape(section) + r'"', home):
         issues.append(f"Missing homepage service section: {section}")
-home_ids = set(re.findall(r'\\bid="([^"]+)"', home))
+home_ids = set(re.findall(r'\bid="([^"]+)"', home))
 for target in re.findall(r'href="#([^"]+)"', home):
     if target not in home_ids:
         issues.append(f"Broken homepage section link: #{target}")
 if "1877-3015" not in home or "1811-0963" in home:
     issues.append("Homepage brand contact mismatch")
-service_images = re.findall(r'<img\\b[^>]*class="service-image"[^>]*>', home)
+service_images = re.findall(r'<img\b[^>]*class="service-image"[^>]*>', home)
 if len(service_images) < 4:
     issues.append("Missing homepage service images")
 for img in service_images:
-    if not re.search(r'\\balt="[^"]+"', img):
+    if not re.search(r'\balt="[^"]+"', img):
         issues.append("Service image without descriptive alt text")
 if not (ROOT / "reviews/index.html").is_file():
     issues.append("Missing completed-trip reviews page")
