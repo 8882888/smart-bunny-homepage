@@ -95,3 +95,4 @@
 - Failed/uncertain writes clear pending retry state and require checking the record list before re-upload to avoid blind duplicates.
 - Added a mocked integration check of the actual admin event handlers. Preview/cancel/validation/declined confirmation produced zero writes; successful and failed mocked registration restored controls.
 - All local generation, structure, JS and regression checks passed. No real authenticated database writes were performed.
+- Deployment follow-up: government CSV downloads stalled. Added a 30-second network timeout and an explicit fallback to the last successfully published official CSV, validated for size, encoding, headers, code format and coverage. Both sources failing stops deployment rather than publishing pilot-only coverage. CI records the chosen source and hash; regression tests cover timeout, invalid HTML and failure of both sources.
