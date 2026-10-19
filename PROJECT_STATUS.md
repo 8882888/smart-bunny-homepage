@@ -88,3 +88,10 @@
 - Public DB read returned HTTP 200 with zero rows; no authenticated write test was performed. New records appear on reload or explicit refresh after completed status publication.
 - Added CI regression checks for live/fallback behavior, timeout, privacy filtering and the 40-record cap.
 - Also fixed route-card multi-word searches by searching joined table-cell text token by token; regression checks verify origin + destination matching.
+
+## 2026-10-19 two-step admin CSV review
+- CSV selection now validates and previews up to 50 rows without writing records. A distinct confirmation action registers the full validated batch.
+- Changing files, cancellation and invalid data clear stale preview state. Registration locks related controls; duplicate clicks cannot trigger a second active write.
+- Failed/uncertain writes clear pending retry state and require checking the record list before re-upload to avoid blind duplicates.
+- Added a mocked integration check of the actual admin event handlers. Preview/cancel/validation/declined confirmation produced zero writes; successful and failed mocked registration restored controls.
+- All local generation, structure, JS and regression checks passed. No real authenticated database writes were performed.
