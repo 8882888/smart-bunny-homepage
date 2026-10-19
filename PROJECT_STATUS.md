@@ -96,3 +96,8 @@
 - Added a mocked integration check of the actual admin event handlers. Preview/cancel/validation/declined confirmation produced zero writes; successful and failed mocked registration restored controls.
 - All local generation, structure, JS and regression checks passed. No real authenticated database writes were performed.
 - Deployment follow-up: government CSV downloads stalled. Added a 30-second network timeout and an explicit fallback to the last successfully published official CSV, validated for size, encoding, headers, code format and coverage. Both sources failing stops deployment rather than publishing pilot-only coverage. CI records the chosen source and hash; regression tests cover timeout, invalid HTML and failure of both sources.
+
+## 2026-10-19 관리자 이메일 링크 로그인
+- admin/index.html: 비밀번호 입력/변경/재설정 UI를 이메일 일회용 링크 로그인으로 교체. 자동 가입 금지, 관리자 역할/RLS 유지, 중복 요청 방지 및 오류 표시.
+- tests/admin_email_login.cjs: 요청 인자·중복 요청·발송 실패·역할 확인 회귀 검사.
+- Supabase redirect URL/메일 발송 설정 및 실제 수신·로그인 성공은 별도 확인 필요. 실제 운행 DB 쓰기 미검증.

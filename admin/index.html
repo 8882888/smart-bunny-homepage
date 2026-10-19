@@ -23,15 +23,10 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <section id="config-warning" class="panel hidden"><strong>설정이 필요합니다.</strong><p>Supabase 프로젝트 URL과 공개 anon/publishable 키를 저장소 루트의 <code>supabase-public-config.js</code>에 설정한 뒤 새로고침하세요. 비밀 service_role 키는 절대 입력하지 마세요.</p></section>
 <section id="login-panel" class="panel">
 <h2>관리자 로그인</h2>
-<form id="login-form"><label for="email">관리자 이메일</label><input id="email" type="email" autocomplete="username" required><label for="password">비밀번호</label><input id="password" type="password" autocomplete="current-password" required><button type="submit">로그인</button></form>
-<button id="forgot-password" class="secondary" type="button">비밀번호 재설정 이메일 받기</button>
+<p>비밀번호 없이 관리자 이메일로 받은 일회용 로그인 링크로 접속합니다.</p>
+<form id="login-form"><label for="email">관리자 이메일</label><input id="email" type="email" autocomplete="email" required><button id="send-login-link" type="submit">이메일 로그인 링크 받기</button></form>
+<p class="small">받은편지함과 스팸함을 확인하고 이메일의 로그인 링크를 눌러 주세요. 등록된 관리자 계정만 운행 기록을 관리할 수 있습니다.</p>
 <div id="login-status" class="status" role="status"></div>
-</section>
-<section id="recovery-panel" class="panel hidden">
-<h2>관리자 비밀번호 재설정</h2>
-<p>새 비밀번호를 두 번 입력해 주세요. 설정이 완료되면 새 비밀번호로 로그인할 수 있습니다.</p>
-<form id="recovery-form"><label for="new-password">새 비밀번호</label><input id="new-password" type="password" autocomplete="new-password" minlength="8" required><label for="confirm-password">새 비밀번호 확인</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="8" required><button type="submit">새 비밀번호 저장</button></form>
-<div id="recovery-status" class="status" role="status"></div>
 </section>
 <section id="app-panel" class="hidden">
 <div class="panel"><div class="grid"><div><strong id="signed-in"></strong><p class="small">인증된 계정만 데이터베이스 정책에 따라 관리할 수 있습니다.</p></div><div><button id="logout" class="secondary" type="button">로그아웃</button></div></div></div>
@@ -68,7 +63,6 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
 <div id="save-status" class="status" role="status"></div>
 </form>
 </div>
-<div class="panel"><h2>관리자 비밀번호 변경</h2><p class="small">로그인한 관리자만 현재 비밀번호를 변경할 수 있습니다. 새 비밀번호는 8자 이상으로 입력하세요.</p><form id="change-password-form"><label for="change-password">새 비밀번호</label><input id="change-password" type="password" autocomplete="new-password" minlength="8" required><label for="change-password-confirm">새 비밀번호 확인</label><input id="change-password-confirm" type="password" autocomplete="new-password" minlength="8" required><button type="submit">비밀번호 변경</button></form><div id="change-password-status" class="status" role="status"></div></div>
 <div class="panel"><h2>경로별 참고요금 검토·승인</h2>
 <p class="small">완료 운행만 서비스별·출발지·도착지별로 묶어 후보 금액(중앙값)을 계산합니다. 후보는 자동 승인되지 않습니다. 운영자가 각 경로의 금액을 직접 승인한 뒤 JSON을 내려받아 <code>data/reference_fares.json</code>에 반영해야 홈페이지 요금계산기에 표시됩니다.</p>
 <div class="actions"><button id="build-fare-candidates" type="button">완료 기록에서 후보 만들기</button><button id="export-reference-fares" type="button" class="secondary">승인 요금 JSON 다운로드</button></div>
@@ -190,24 +184,26 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    if(!session){$("login-panel").classList.remove("hidden");$("app-panel").classList.add("hidden");return;}
    const role=session.user.app_metadata?.role;
    if(role!=="admin"){await client.auth.signOut();$("login-panel").classList.remove("hidden");$("app-panel").classList.add("hidden");statusText("이 계정에는 관리자 권한이 없습니다.","login-status");return;}
-   $("login-panel").classList.add("hidden");$("recovery-panel").classList.add("hidden");$("app-panel").classList.remove("hidden");$("signed-in").textContent=session.user.email||"관리자";await loadRecords();
+   $("login-panel").classList.add("hidden");$("app-panel").classList.remove("hidden");$("signed-in").textContent=session.user.email||"관리자";await loadRecords();
  }
- $("login-form").addEventListener("submit",async e=>{e.preventDefault();statusText("로그인 확인 중…","login-status");const {error}=await client.auth.signInWithPassword({email:$("email").value,password:$("password").value});if(error){statusText("로그인 실패: "+error.message,"login-status");return;}statusText("","login-status");await showSession();});
- $("change-password-form").addEventListener("submit",async e=>{e.preventDefault();const password=$("change-password").value;if(password.length<8){statusText("비밀번호는 8자 이상으로 입력해 주세요.","change-password-status");return;}if(password!==$("change-password-confirm").value){statusText("두 비밀번호가 일치하지 않습니다.","change-password-status");return;}statusText("비밀번호 변경 중…","change-password-status");const {error}=await client.auth.updateUser({password});if(error){statusText("비밀번호 변경 실패: "+error.message,"change-password-status");return;}$("change-password").value="";$("change-password-confirm").value="";statusText("비밀번호를 변경했습니다. 다음 로그인부터 새 비밀번호를 사용하세요.","change-password-status");});
- $("forgot-password").addEventListener("click",async()=>{const email=$("email").value.trim();if(!email){statusText("먼저 관리자 이메일을 입력해 주세요.","login-status");$("email").focus();return;}statusText("재설정 이메일 발송 요청 중…","login-status");const redirectTo=new URL("index.html",location.href).href;const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo});if(error){statusText("이메일 발송 실패: "+error.message,"login-status");return;}statusText("비밀번호 재설정 이메일을 요청했습니다. 받은편지함과 스팸함을 확인해 주세요.","login-status");});
- $("recovery-form").addEventListener("submit",async e=>{
+ let loginBusy=false,loginRetryAt=0;
+ $("login-form").addEventListener("submit",async e=>{
    e.preventDefault();
-   const password=$("new-password").value;
-   if(password.length<8){statusText("비밀번호는 8자 이상으로 입력해 주세요.","recovery-status");return;}
-   if(password!==$("confirm-password").value){statusText("두 비밀번호가 일치하지 않습니다.","recovery-status");return;}
-   statusText("새 비밀번호 저장 중…","recovery-status");
-   const {error}=await client.auth.updateUser({password});
-   if(error){statusText("비밀번호 변경 실패: "+error.message,"recovery-status");return;}
-   await client.auth.signOut();
-   $("recovery-panel").classList.add("hidden");$("login-panel").classList.remove("hidden");
-   $("new-password").value="";$("confirm-password").value="";
-   statusText("비밀번호를 변경했습니다. 새 비밀번호로 로그인해 주세요.","login-status");
-   history.replaceState(null,"",location.pathname);
+   if(loginBusy)return;
+   if(Date.now()<loginRetryAt){statusText("잠시 후 다시 요청해 주세요. 이미 받은 로그인 이메일도 확인해 주세요.","login-status");return;}
+   const email=$("email").value.trim();
+   if(!email){statusText("관리자 이메일을 입력해 주세요.","login-status");return;}
+   loginBusy=true;$("send-login-link").disabled=true;
+   statusText("로그인 이메일 요청 중…","login-status");
+   try{
+     const {error}=await client.auth.signInWithOtp({email,options:{shouldCreateUser:false,emailRedirectTo:new URL("./",location.href).href}});
+     if(error)throw error;
+     loginRetryAt=Date.now()+60000;
+     statusText("로그인 이메일을 요청했습니다. 받은편지함·스팸함에서 로그인 링크를 눌러 주세요. 메일이 오지 않으면 관리자 계정 등록 및 이메일 발송 설정을 확인해야 합니다.","login-status");
+   }catch(error){
+     if(error.status===429)loginRetryAt=Date.now()+60000;
+     statusText("로그인 이메일 요청 실패: "+error.message,"login-status");
+   }finally{loginBusy=false;$("send-login-link").disabled=false;}
  });
  $("logout").addEventListener("click",async()=>{await client.auth.signOut();resetForm();await showSession();});
  $("cancel-edit").addEventListener("click",resetForm);
@@ -278,8 +274,9 @@ label{display:block;font-weight:700;margin:10px 0 5px}input,select,button{font:i
    }
  });
 
- client.auth.onAuthStateChange((event)=>{if(event==="PASSWORD_RECOVERY"){$("login-panel").classList.add("hidden");$("app-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");return;}setTimeout(showSession,0);});
- if(location.hash.includes("type=recovery")){$("login-panel").classList.add("hidden");$("recovery-panel").classList.remove("hidden");}
+ client.auth.onAuthStateChange(()=>{setTimeout(showSession,0);});
+ const authError=new URLSearchParams(location.hash.slice(1)).get("error_description")||new URLSearchParams(location.search).get("error_description");
+ if(authError){statusText("로그인 링크를 사용할 수 없습니다. 새 로그인 이메일을 요청해 주세요.","login-status");history.replaceState(null,"",location.pathname);}
  showSession();
 })();
 </script>

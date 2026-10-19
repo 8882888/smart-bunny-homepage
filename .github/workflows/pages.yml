@@ -60,6 +60,7 @@ jobs:
           node tests/trip_input.cjs
           node tests/public_reviews.cjs
           node tests/admin_csv_preview.cjs
+          node tests/admin_email_login.cjs
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site files
