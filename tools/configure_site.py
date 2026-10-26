@@ -39,7 +39,8 @@ def main():
         )
         # Internal links authored for the GitHub project path must also work at a custom-domain root.
         text = text.replace("/smart-bunny-homepage/", (BASE_PATH + "/") if BASE_PATH else "/")
-        canonical = SITE_URL + public_path(relative)
+        # The legacy homepage has moved; preserve regional paths independently.
+        canonical = "https://jeongukdaeri.kr/" if relative == "index.html" else SITE_URL + public_path(relative)
         tag = f'<link rel="canonical" href="{canonical}">'
         if re.search(r'<link\b[^>]*\brel=["\']canonical["\'][^>]*>', text, flags=re.I):
             text = re.sub(

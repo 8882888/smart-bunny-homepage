@@ -35,8 +35,10 @@ home_ids = set(re.findall(r'\bid="([^"]+)"', home))
 for target in re.findall(r'href="#([^"]+)"', home):
     if target not in home_ids:
         issues.append(f"Broken homepage section link: #{target}")
-if "1877-3015" not in home or "1811-0963" in home:
+if "1811-4294" not in home or "1877-3015" in home or "1811-0963" in home:
     issues.append("Homepage brand contact mismatch")
+if 'rel="canonical" href="https://jeongukdaeri.kr/"' not in home or 'http-equiv="refresh" content="0;url=https://jeongukdaeri.kr/"' not in home:
+    issues.append("Legacy homepage must migrate to the official domain")
 service_images = re.findall(r'<img\b[^>]*class="service-image"[^>]*>', home)
 if len(service_images) < 4:
     issues.append("Missing homepage service images")
