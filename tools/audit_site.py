@@ -61,7 +61,7 @@ if not admin_path.is_file():
     issues.append("Missing admin page")
 else:
     admin = admin_path.read_text(encoding="utf-8")
-    for marker in ("signInWithPassword", 'client.from("trip_records")', "supabase-public-config.js"):
+    for marker in ("signInWithOtp", "shouldCreateUser:false", 'client.from("trip_records")', "supabase-public-config.js"):
         if marker not in admin:
             issues.append(f"Admin integration marker missing: {marker}")
     if not re.search(r'<meta\s+name="viewport"', admin):
